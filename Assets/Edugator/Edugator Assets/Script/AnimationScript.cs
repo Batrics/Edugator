@@ -1,0 +1,72 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class AnimationScript : MonoBehaviour
+{
+    [SerializeField] GameObject playBtnAnim;
+    [SerializeField] GameObject historyBtnAnim;
+    [SerializeField] GameObject settingBtnAnim;
+    [SerializeField] GameObject quitBtnAnim;
+    [SerializeField] GameObject HistoryUI;
+    [SerializeField] Animator panelHistoryUIAnim;
+    [SerializeField] Animator brightnesAnim;
+
+    private void Start()
+    {
+        StartCoroutine(ActivateAnimation());
+    }
+
+    private IEnumerator ActivateAnimation()
+    {
+        //Wait For Transition
+        yield return new WaitForSeconds(0.8f);
+
+        //Activate Animation
+        playBtnAnim.SetActive(true);
+        yield return new WaitForSeconds(0.175f);
+        
+        historyBtnAnim.SetActive(true);
+        yield return new WaitForSeconds(0.175f);
+        
+        settingBtnAnim.SetActive(true);
+        yield return new WaitForSeconds(0.175f);
+        
+        quitBtnAnim.SetActive(true);
+        yield return new WaitForSeconds(0.175f);
+    }
+
+    private IEnumerator SlidingAnimation(Animator action)
+    {
+        action.SetBool("activateSlide", true);
+        yield return new WaitForSeconds(0.25f);
+        action.SetBool("activateSlide", false);
+    }
+
+    public void ActivateAnimationSliding(Animator action)
+    {
+        StartCoroutine(SlidingAnimation(action));
+    }
+
+    private IEnumerator SlidingPanelAnimation()
+    {
+        panelHistoryUIAnim.SetBool("slideOut", true);
+        brightnesAnim.SetBool("activateBrightnes",true);
+        yield return new WaitForSeconds(0.5f);
+        
+        Transform childHistoryUI;
+        
+        for(int i = 0; i < HistoryUI.transform.GetChild(0).GetChild(4).childCount; i++)
+        {
+            childHistoryUI = HistoryUI.transform.GetChild(0).GetChild(4).GetChild(i);
+            childHistoryUI.gameObject.SetActive(false);
+            print(i);
+        }
+        HistoryUI.SetActive(false);
+    }
+    public void ActivatePanelAnimation()
+    {
+        StartCoroutine(SlidingPanelAnimation());
+    }
+}

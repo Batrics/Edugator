@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6991776530581236175
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3898392971867661583}
+  - component: {fileID: 3178312077750834492}
+  - component: {fileID: 1602686794472424754}
+  - component: {fileID: 576277012046656039}
+  m_Layer: 0
+  m_Name: GameManagerMainMenu
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3898392971867661583
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6991776530581236175}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 70.678665, y: 540.15985, z: -11.095534}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3178312077750834492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6991776530581236175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e62995b074a35f43a736ac1ee3bb368, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputToken: {fileID: 0}
+  info: {fileID: 0}
+  titleText: {fileID: 0}
+  GameOwnerText: {fileID: 0}
+  soundEffect: {fileID: 0}
+  VFXAnim: {fileID: 0}
+  loadNextScene: {fileID: 7752742135280518182, guid: 347f682a89aa820419e787946e56196f, type: 3}
+  transitionScript: {fileID: 5231070363503272085, guid: 347f682a89aa820419e787946e56196f, type: 3}
+  audioMixer: {fileID: 24100000, guid: 70225b999512d9742bec8b767d0cdb36, type: 2}
+  inputTokenUI: {fileID: 0}
+  visualEffectToggle: {fileID: 0}
+  startTransitionObject: {fileID: 0}
+  table: {fileID: 0}
+  historyValue: {fileID: 0}
+--- !u!114 &1602686794472424754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6991776530581236175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 644ea728c1a957240a5f6ce0a9c71eb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  url: https://drive.google.com/file/d/19mNxcikoPwRfHCioq_8VoIVCKSnJWqTV
+  savePath: Assets/3D Object/3D/My3D.fbx
+--- !u!114 &576277012046656039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6991776530581236175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 228b59748ed569a42a3438da93967153, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playBtnAnim: {fileID: 0}
+  historyBtnAnim: {fileID: 0}
+  settingBtnAnim: {fileID: 0}
+  quitBtnAnim: {fileID: 0}
+  HistoryUI: {fileID: 0}
+  panelHistoryUIAnim: {fileID: 0}
+  brightnesAnim: {fileID: 0}
