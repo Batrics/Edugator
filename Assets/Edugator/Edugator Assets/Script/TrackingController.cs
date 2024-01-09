@@ -6,13 +6,17 @@ using UnityEngine.XR.ARSubsystems;
 using SimpleJSON;
 using UnityEngine.Networking;
 using EasyUI.Progress;
+using UnityEditor.XR.ARSubsystems;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(ARTrackedImageManager))]
 public class TrackingController : MonoBehaviour
 {
-    public GameObject[] objectsToShow;
+    public List<GameObject> objectsToShow = new List<GameObject>();
+    public Dictionary<string, Texture2D> cardReferenceImgae = new Dictionary<string, Texture2D>();
     private Dictionary<string, GameObject> gameObjectDictionary = new Dictionary<string, GameObject>();
     private ARTrackedImageManager trackedImageManager;
+    private RuntimeReferenceImageLibrary library;
 
     [Header("Main")]
     private JSONNode _jsonData;
@@ -24,11 +28,36 @@ public class TrackingController : MonoBehaviour
     public GameObject ParticleEffect;
     public GameObject playButton;
     [SerializeField] private RuntimeAnimatorController animatorController;
-
+    
     void Awake()
     {
         trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
-        trackedImageManager.requestedMaxNumberOfMovingImages = 1;
+        
+        GameObject[] prefabs3D;
+        prefabs3D = Resources.LoadAll<GameObject>("3dObject");
+
+        Texture2D[] texture2Ds;
+        texture2Ds = Resources.LoadAll<Texture2D>("CardImage");
+
+        library = trackedImageManager.CreateRuntimeLibrary();
+        trackedImageManager.referenceLibrary = library;
+
+        foreach(Texture2D texture2D in texture2Ds)
+        {
+            print(texture2D.format);
+            cardReferenceImgae.Add(texture2D.name, texture2D);
+        }
+
+        foreach(KeyValuePair<string, Texture2D> imageReference in cardReferenceImgae)
+        {
+            AddImage(imageReference.Key, imageReference.Value);
+        }
+        print("Card Reference Value : " + trackedImageManager.referenceLibrary[0].texture);
+
+        foreach(GameObject obj in prefabs3D)
+        {
+            objectsToShow.Add(obj);
+        }
 
         foreach(GameObject prefabs in objectsToShow)
         {
@@ -36,11 +65,13 @@ public class TrackingController : MonoBehaviour
             newPrefabs.name = prefabs.name;
             gameObjectDictionary.Add(prefabs.name, newPrefabs);
         }
+
+        // AddImage(texture2Ds, );
     }
 
     private void Start()
     {
-        
+        trackedImageManager.enabled = true;
         getDataGamesUrl = "https://dev.birosolusi.com/edugator/public/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/c648b2afe7abb3ab4027edcd8e47eee2";
 
         PlayerPrefs.SetInt("game_id", 1);
@@ -96,6 +127,23 @@ public class TrackingController : MonoBehaviour
         }
     }
 
+    private void AddImage(string name, Texture2D imageToAdd)
+    {
+        // if (!(ARSession.state == ARSessionState.SessionInitializing || ARSession.state == ARSessionState.SessionTracking))
+        // {
+
+        //     return; // Session state is invalid
+        // }
+
+        if (library is MutableRuntimeReferenceImageLibrary mutableLibrary)
+        {
+            mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, name, 0.5f /* 50 cm */);
+        }
+
+        // print("reference Image : " + trackedImageManager.referenceLibrary.count);
+        // print("reference Image name : " + trackedImageManager.referenceLibrary[0]);
+    }
+
     private IEnumerator FirstTrackedImage(ARTrackedImage trackedImage)
     {
         url = "https://dev.birosolusi.com/edugator/public/api/getquestions/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetInt("game_id") + "/" + PlayerPrefs.GetInt("number_of_card");
@@ -110,7 +158,7 @@ public class TrackingController : MonoBehaviour
             }
             else
             {
-                print("Error");
+                    print("Error");
             }
         }
     }

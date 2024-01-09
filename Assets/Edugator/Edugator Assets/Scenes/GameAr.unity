@@ -462,9 +462,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4001ea391c7e174681c34e59bd6b54f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectsToShow:
-  - {fileID: 919132149155446097, guid: 9fc563502a871094f85ba1b32282b21a, type: 3}
-  - {fileID: 919132149155446097, guid: 92250615da556a1469fac897e6967cea, type: 3}
+  referenceImagesLibrary: {fileID: 0}
+  objectsToShow: []
+  cardTexture: []
   ConnectionGameObject: {fileID: 944869962}
   ParticleEffect: {fileID: 4898683273964801186, guid: fc155dc84f6f4b24a8e4b87994858cf0, type: 3}
   playButton: {fileID: 1612227153}
