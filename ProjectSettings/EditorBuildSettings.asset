@@ -5,13 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Edugator/Edugator Assets/Scenes/MainMenu.unity
     guid: e90de037f528d7246bbd6a828f7203a0
   - enabled: 1
     path: Assets/Edugator/Edugator Assets/Scenes/GameAr.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
-  - enabled: 1
+  - enabled: 0
     path: Assets/Edugator/Edugator Assets/Scenes/Soal.unity
     guid: 6056a0b7086be4f4e901dc0b4de8c577
   m_configObjects:

@@ -6,8 +6,7 @@ using UnityEngine.XR.ARSubsystems;
 using SimpleJSON;
 using UnityEngine.Networking;
 using EasyUI.Progress;
-using UnityEditor.XR.ARSubsystems;
-using Unity.VisualScripting;
+using UnityEditor;
 
 [RequireComponent(typeof(ARTrackedImageManager))]
 public class TrackingController : MonoBehaviour
@@ -24,7 +23,6 @@ public class TrackingController : MonoBehaviour
     private string getDataGamesUrl;
     private bool tracking = false;
     public GameObject ConnectionGameObject;
-    // public GameObject cardPopup;
     public GameObject ParticleEffect;
     public GameObject playButton;
     [SerializeField] private RuntimeAnimatorController animatorController;
@@ -39,11 +37,45 @@ public class TrackingController : MonoBehaviour
         Texture2D[] texture2Ds;
         texture2Ds = Resources.LoadAll<Texture2D>("CardImage");
 
+
+
         library = trackedImageManager.CreateRuntimeLibrary();
         trackedImageManager.referenceLibrary = library;
 
+        TextureImporter textureImporter;
+        string format;
+        string texturePath;
+
         foreach(Texture2D texture2D in texture2Ds)
         {
+            format = ".jpg";
+            do
+            {
+                texturePath = $"Assets/Resources/CardImage/{texture2D.name}{format}";
+                textureImporter = AssetImporter.GetAtPath(texturePath) as TextureImporter;
+                if(textureImporter == null && format == ".jpg")
+                {
+                    format = ".png";
+                }
+                else if(textureImporter == null && format == ".png")
+                {
+                    format = ".jpeg";
+                }
+                else
+                {
+                    TextureImporterSettings texSetting = new TextureImporterSettings();
+                    
+                    textureImporter.ReadTextureSettings(texSetting);
+                    texSetting.npotScale = TextureImporterNPOTScale.None;
+                    textureImporter.SetTextureSettings(texSetting);
+                    
+                    textureImporter.isReadable = true;
+                    
+                    AssetDatabase.ImportAsset(texturePath);
+                }
+
+            }while(textureImporter == null);
+
             print(texture2D.format);
             cardReferenceImgae.Add(texture2D.name, texture2D);
         }
@@ -52,7 +84,6 @@ public class TrackingController : MonoBehaviour
         {
             AddImage(imageReference.Key, imageReference.Value);
         }
-        print("Card Reference Value : " + trackedImageManager.referenceLibrary[0].texture);
 
         foreach(GameObject obj in prefabs3D)
         {
@@ -100,7 +131,7 @@ public class TrackingController : MonoBehaviour
     {
         foreach(ARTrackedImage trackedImage in eventArgs.added)
         {
-            print("TrackingState : " + tracking);
+            print("Reference Image : " + trackedImage.referenceImage);
             getDataGamesUrl = "https://dev.birosolusi.com/edugator/public/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/c648b2afe7abb3ab4027edcd8e47eee2";
             
             StartCoroutine(FirstTrackedImage(trackedImage));
@@ -129,11 +160,11 @@ public class TrackingController : MonoBehaviour
 
     private void AddImage(string name, Texture2D imageToAdd)
     {
-        // if (!(ARSession.state == ARSessionState.SessionInitializing || ARSession.state == ARSessionState.SessionTracking))
-        // {
+        if (!(ARSession.state == ARSessionState.SessionInitializing || ARSession.state == ARSessionState.SessionTracking))
+        {
 
-        //     return; // Session state is invalid
-        // }
+            return; // Session state is invalid
+        }
 
         if (library is MutableRuntimeReferenceImageLibrary mutableLibrary)
         {
@@ -196,14 +227,14 @@ public class TrackingController : MonoBehaviour
 
     private IEnumerator GetDataFromAPIAndInstantiateObject(GameObject entry, Transform transform)
     {
-        Progress.Show("Please Wait...", ProgressColor.Default);
+        // Progress.Show("Please Wait...", ProgressColor.Default);
         using (UnityWebRequest webData = UnityWebRequest.Get(url))
         {
             yield return webData.SendWebRequest();
 
             if (webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError)
             {
-                Progress.Hide();
+                // Progress.Hide();
                 Debug.Log("Tidak ada Koneksi/Jaringan");
                 ConnectionGameObject.SetActive(true);
                 yield return new WaitForSeconds(3f);
@@ -214,7 +245,7 @@ public class TrackingController : MonoBehaviour
                 if (webData.isDone)
                 {
                     ConnectionGameObject.SetActive(false);
-                    Progress.Hide();
+                    // Progress.Hide();
                     _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
                     if (_jsonData == null)
                     {
@@ -277,7 +308,7 @@ public class TrackingController : MonoBehaviour
 
     private IEnumerator GetDataFromAPIAndGetCardId(KeyValuePair<string, GameObject> target)
     {
-        Progress.Show("Please Wait...", ProgressColor.Default);
+        // Progress.Show("Please Wait...", ProgressColor.Default);
         using (UnityWebRequest webData = UnityWebRequest.Get(getDataGamesUrl))
         {
             print("Waitt...");
@@ -285,7 +316,7 @@ public class TrackingController : MonoBehaviour
 
             if (webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError)
             {
-                Progress.Hide();
+                // Progress.Hide();
                 Debug.Log("Tidak ada Koneksi/Jaringan");
                 ConnectionGameObject.SetActive(true);
                 yield return new WaitForSeconds(3f);
@@ -297,7 +328,7 @@ public class TrackingController : MonoBehaviour
                 {
                     print("seccess");
                     ConnectionGameObject.SetActive(false);
-                    Progress.Hide();
+                    // Progress.Hide();
                     _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
                     if (_jsonData == null)
                     {
