@@ -6,6 +6,7 @@ using UnityEngine.XR.ARSubsystems;
 using SimpleJSON;
 using UnityEngine.Networking;
 using EasyUI.Progress;
+using Loading.UI;
 using UnityEditor;
 
 [RequireComponent(typeof(ARTrackedImageManager))]
@@ -26,7 +27,8 @@ public class TrackingController : MonoBehaviour
     public GameObject ParticleEffect;
     public GameObject playButton;
     [SerializeField] private RuntimeAnimatorController animatorController;
-    
+    private LoadingUI loadingUI = new LoadingUI();
+
     void Awake()
     {
         trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
@@ -36,8 +38,6 @@ public class TrackingController : MonoBehaviour
 
         Texture2D[] texture2Ds;
         texture2Ds = Resources.LoadAll<Texture2D>("CardImage");
-
-
 
         library = trackedImageManager.CreateRuntimeLibrary();
         trackedImageManager.referenceLibrary = library;
@@ -78,6 +78,7 @@ public class TrackingController : MonoBehaviour
 
             print(texture2D.format);
             cardReferenceImgae.Add(texture2D.name, texture2D);
+
         }
 
         foreach(KeyValuePair<string, Texture2D> imageReference in cardReferenceImgae)
@@ -97,7 +98,7 @@ public class TrackingController : MonoBehaviour
             gameObjectDictionary.Add(prefabs.name, newPrefabs);
         }
 
-        // AddImage(texture2Ds, );
+        loadingUI.Prepare();
     }
 
     private void Start()
@@ -112,7 +113,18 @@ public class TrackingController : MonoBehaviour
         {
             Debug.Log("Key: " + entry.Key + " Value: " + entry.Value);
         }
+    }
 
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            loadingUI.Show("ANuuu...");
+        }
+        if(Input.GetKeyDown(KeyCode.H))
+        {
+            loadingUI.Hide();
+        }
     }
 
     private void OnEnable()
@@ -129,6 +141,7 @@ public class TrackingController : MonoBehaviour
 
     private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs)
     {
+
         foreach(ARTrackedImage trackedImage in eventArgs.added)
         {
             print("Reference Image : " + trackedImage.referenceImage);
@@ -145,12 +158,12 @@ public class TrackingController : MonoBehaviour
                 if(tracking == false)
                 {
                     tracking = true;
-                    StartCoroutine(UpdateImage(trackedImage, true));
+                    StartCoroutine(UpdateImage(trackedImage));
                 }
             }
             else
             {
-                StartCoroutine(UpdateImage(trackedImage, false));
+                resetData(trackedImage);
                 playButton.SetActive(false);
                 tracking = false;
                 print("TrackingState : " + tracking);
@@ -160,19 +173,13 @@ public class TrackingController : MonoBehaviour
 
     private void AddImage(string name, Texture2D imageToAdd)
     {
-        if (!(ARSession.state == ARSessionState.SessionInitializing || ARSession.state == ARSessionState.SessionTracking))
-        {
-
-            return; // Session state is invalid
-        }
-
         if (library is MutableRuntimeReferenceImageLibrary mutableLibrary)
         {
             mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, name, 0.5f /* 50 cm */);
         }
 
-        // print("reference Image : " + trackedImageManager.referenceLibrary.count);
-        // print("reference Image name : " + trackedImageManager.referenceLibrary[0]);
+        print("reference Image : " + trackedImageManager.referenceLibrary.count);
+        print("reference Image name : " + trackedImageManager.referenceLibrary[0]);
     }
 
     private IEnumerator FirstTrackedImage(ARTrackedImage trackedImage)
@@ -183,6 +190,7 @@ public class TrackingController : MonoBehaviour
         {
             if (trackedImage.referenceImage.name == go.Key)
             {
+                loadingUI.Show("Please Wait...");
                 yield return StartCoroutine(GetDataFromAPIAndGetCardId(go));
 
                 yield return StartCoroutine(GetDataFromAPIAndInstantiateObject(go.Value, trackedImage.transform));
@@ -194,29 +202,48 @@ public class TrackingController : MonoBehaviour
         }
     }
 
-    private IEnumerator UpdateImage(ARTrackedImage trackedImage, bool setActive)
+    private IEnumerator UpdateImage(ARTrackedImage trackedImage)
     {
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary)
         {
             if (trackedImage.referenceImage.name == go.Key)
             {
+                loadingUI.Show("Please Wait...");
                 yield return StartCoroutine(GetDataFromAPIAndGetCardId(go));
                 
                 for(int i = 0; i < trackedImage.transform.childCount; i++)
                 {
-                    trackedImage.transform.GetChild(i).gameObject.SetActive(setActive);
+                    trackedImage.transform.GetChild(i).gameObject.SetActive(true);
                 }
 
-                playButton.SetActive(setActive);
+                playButton.SetActive(true);
             }
             else
             {
                 print("Error");
             }
         }
-
     }
 
+    private void resetData(ARTrackedImage trackedImage)
+    {
+        foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary)
+        {
+            if (trackedImage.referenceImage.name == go.Key)
+            {
+                for(int i = 0; i < trackedImage.transform.childCount; i++)
+                {
+                    trackedImage.transform.GetChild(i).gameObject.SetActive(false);
+                }
+
+                playButton.SetActive(false);
+            }
+            else
+            {
+                print("Error");
+            }
+        }
+    }
     private void AnimationIn3DObject(GameObject entry, Transform transform)
     {
         GameObject object3d = Instantiate(entry, transform);
@@ -228,6 +255,7 @@ public class TrackingController : MonoBehaviour
     private IEnumerator GetDataFromAPIAndInstantiateObject(GameObject entry, Transform transform)
     {
         // Progress.Show("Please Wait...", ProgressColor.Default);
+        loadingUI.Show("Please Wait...");
         using (UnityWebRequest webData = UnityWebRequest.Get(url))
         {
             yield return webData.SendWebRequest();
@@ -235,6 +263,7 @@ public class TrackingController : MonoBehaviour
             if (webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError)
             {
                 // Progress.Hide();
+                loadingUI.Hide();
                 Debug.Log("Tidak ada Koneksi/Jaringan");
                 ConnectionGameObject.SetActive(true);
                 yield return new WaitForSeconds(3f);
@@ -246,6 +275,7 @@ public class TrackingController : MonoBehaviour
                 {
                     ConnectionGameObject.SetActive(false);
                     // Progress.Hide();
+                    loadingUI.Hide();
                     _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
                     if (_jsonData == null)
                     {
@@ -272,7 +302,7 @@ public class TrackingController : MonoBehaviour
                                 // PopupCard.transform.SetParent(transform);
                                 // PopupCard.transform.localPosition = new Vector3(0f, 0.5f, 0f);
 
-                                Destroy(ParticleEffect);
+                                // Destroy(ParticleEffect);
                                 playButton.SetActive(false);
                             }
                             else
@@ -309,6 +339,7 @@ public class TrackingController : MonoBehaviour
     private IEnumerator GetDataFromAPIAndGetCardId(KeyValuePair<string, GameObject> target)
     {
         // Progress.Show("Please Wait...", ProgressColor.Default);
+        loadingUI.Show("Please Wait...");
         using (UnityWebRequest webData = UnityWebRequest.Get(getDataGamesUrl))
         {
             print("Waitt...");
@@ -317,6 +348,7 @@ public class TrackingController : MonoBehaviour
             if (webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError)
             {
                 // Progress.Hide();
+                loadingUI.Hide();
                 Debug.Log("Tidak ada Koneksi/Jaringan");
                 ConnectionGameObject.SetActive(true);
                 yield return new WaitForSeconds(3f);
@@ -329,6 +361,7 @@ public class TrackingController : MonoBehaviour
                     print("seccess");
                     ConnectionGameObject.SetActive(false);
                     // Progress.Hide();
+                    loadingUI.Hide();
                     _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
                     if (_jsonData == null)
                     {

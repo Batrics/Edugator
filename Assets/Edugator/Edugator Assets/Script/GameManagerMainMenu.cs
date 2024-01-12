@@ -6,6 +6,7 @@ using UnityEngine.Networking;
 using TMPro;
 using EasyUI.Progress;
 using UnityEngine.Audio;
+using Loading.UI;
 using System.IO;
 
 
@@ -31,8 +32,15 @@ public class GameManagerMainMenu : MonoBehaviour
     public GameObject startTransitionObject;
     public Transform table;
     public GameObject historyValue;
+    
+    [Space]
+    LoadingUI loadingUI = new LoadingUI();
     //Main Menu Script
-    //==============================================================================================================================//
+    //==============================================================================================================================//\
+    private void Awake()
+    {
+        loadingUI.Prepare();
+    }
     void Start()
     {
         // PlayerPrefs.DeleteAll();
@@ -48,7 +56,8 @@ public class GameManagerMainMenu : MonoBehaviour
     }
     public IEnumerator StartQuiz()
     {
-        Progress.Show("Please Wait...", ProgressColor.Default);
+        // Progress.Show("Please Wait...", ProgressColor.Default);
+        loadingUI.Show("Please Wait...");
         yield return StartCoroutine(GetDataFromAPI());
         // yield return StartCoroutine(DownloadingModel());
         refreshHistory();
@@ -135,7 +144,8 @@ public class GameManagerMainMenu : MonoBehaviour
 
             if(webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError)
             {
-                Progress.Hide();
+                // Progress.Hide();
+                loadingUI.Hide();
                 Debug.Log("tidak ada Koneksi/Jaringan"); 
                 info.text = "tidak ada Koneksi/Jaringan";
             }
@@ -143,7 +153,8 @@ public class GameManagerMainMenu : MonoBehaviour
             {
                 if(webData.isDone)
                 {
-                    Progress.Hide();
+                    // Progress.Hide();
+                    loadingUI.Hide();
                     _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
                     if(_jsonData == null)
                     {

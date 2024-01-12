@@ -5,6 +5,7 @@ using SimpleJSON;
 using UnityEngine.Networking;
 using TMPro;
 using EasyUI.Progress;
+using Loading.UI;
 
 public class QuizManager : MonoBehaviour
 {
@@ -25,7 +26,12 @@ public class QuizManager : MonoBehaviour
     public GameObject transitionQuestion;
     public GameObject connection;
     public AudioSource scoreSFX;
+    LoadingUI loadingUI = new LoadingUI();
 
+    private void Awake()
+    {
+        loadingUI.Prepare();
+    }
     void Start()
     {
         indexQuestions = 0;
@@ -103,11 +109,13 @@ public class QuizManager : MonoBehaviour
     {
         using(UnityWebRequest webData = UnityWebRequest.Get(url))
         {
-            Progress.Show("Please Wait...", ProgressColor.Default);
+            // Progress.Show("Please Wait...", ProgressColor.Default);
+            loadingUI.Show("Please Wait...");
             yield return webData.SendWebRequest();
             if(webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError)
             {
-                Progress.Hide();
+                // Progress.Hide();
+                loadingUI.Hide();
                 Debug.Log("tidak ada Koneksi/Jaringan");
             }
             else
@@ -115,6 +123,7 @@ public class QuizManager : MonoBehaviour
                 if(webData.isDone)
                 {
                     Progress.Hide();
+                    loadingUI.Hide();
                     _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
                     if(_jsonData == null)
                     {
