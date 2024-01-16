@@ -23,7 +23,7 @@ public class GameManagerGameAr : MonoBehaviour
 
         PlayerPrefs.SetInt("number_of_card", id);
 
-        url = "https://dev.birosolusi.com/edugator/public/api/getquestions/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetInt("game_id") + "/" + PlayerPrefs.GetInt("number_of_card");
+        url = "https://dev.unimasoft.id/edugator/api/getquestions/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetInt("game_id") + "/" + PlayerPrefs.GetInt("number_of_card");
 
         StartCoroutine(GetDataFromAPI());
     }

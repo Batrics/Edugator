@@ -5,7 +5,6 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using SimpleJSON;
 using UnityEngine.Networking;
-using EasyUI.Progress;
 using Loading.UI;
 using UnityEditor;
 
@@ -41,6 +40,8 @@ public class TrackingController : MonoBehaviour
 
         library = trackedImageManager.CreateRuntimeLibrary();
         trackedImageManager.referenceLibrary = library;
+
+        print("Reference Image Library : " + trackedImageManager.referenceLibrary);
 
         TextureImporter textureImporter;
         string format;
@@ -104,26 +105,15 @@ public class TrackingController : MonoBehaviour
     private void Start()
     {
         trackedImageManager.enabled = true;
-        getDataGamesUrl = "https://dev.birosolusi.com/edugator/public/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/c648b2afe7abb3ab4027edcd8e47eee2";
 
-        PlayerPrefs.SetInt("game_id", 1);
+        PlayerPrefs.SetInt("game_id", 11);
         PlayerPrefs.SetInt("visualEffect", 1);
+        getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
+        PlayerPrefs.SetString("token", "44736ebf1ac169b4d5e7d174ca1f8b8e");
 
         foreach (KeyValuePair<string, GameObject> entry in gameObjectDictionary)
         {
             Debug.Log("Key: " + entry.Key + " Value: " + entry.Value);
-        }
-    }
-
-    private void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            loadingUI.Show("ANuuu...");
-        }
-        if(Input.GetKeyDown(KeyCode.H))
-        {
-            loadingUI.Hide();
         }
     }
 
@@ -145,7 +135,7 @@ public class TrackingController : MonoBehaviour
         foreach(ARTrackedImage trackedImage in eventArgs.added)
         {
             print("Reference Image : " + trackedImage.referenceImage);
-            getDataGamesUrl = "https://dev.birosolusi.com/edugator/public/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/c648b2afe7abb3ab4027edcd8e47eee2";
+            getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
             
             StartCoroutine(FirstTrackedImage(trackedImage));
         }
@@ -175,25 +165,25 @@ public class TrackingController : MonoBehaviour
     {
         if (library is MutableRuntimeReferenceImageLibrary mutableLibrary)
         {
-            mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, name, 0.5f /* 50 cm */);
+            mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, name, 0.5f);
         }
 
-        print("reference Image : " + trackedImageManager.referenceLibrary.count);
+        print("jumlah reference Image : " + trackedImageManager.referenceLibrary.count);
         print("reference Image name : " + trackedImageManager.referenceLibrary[0]);
     }
 
     private IEnumerator FirstTrackedImage(ARTrackedImage trackedImage)
     {
-        url = "https://dev.birosolusi.com/edugator/public/api/getquestions/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetInt("game_id") + "/" + PlayerPrefs.GetInt("number_of_card");
+        url = "https://dev.unimasoft.id/edugator/api/getquestions/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetInt("game_id") + "/" + PlayerPrefs.GetInt("number_of_card");
 
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary)
         {
             if (trackedImage.referenceImage.name == go.Key)
             {
-                loadingUI.Show("Please Wait...");
+                // loadingUI.Show("Please Wait...");
                 yield return StartCoroutine(GetDataFromAPIAndGetCardId(go));
 
-                yield return StartCoroutine(GetDataFromAPIAndInstantiateObject(go.Value, trackedImage.transform));
+                StartCoroutine(GetDataFromAPIAndInstantiateObject(go.Value, trackedImage.transform));
             }
             else
             {
@@ -208,7 +198,7 @@ public class TrackingController : MonoBehaviour
         {
             if (trackedImage.referenceImage.name == go.Key)
             {
-                loadingUI.Show("Please Wait...");
+                // loadingUI.Show("Please Wait...");
                 yield return StartCoroutine(GetDataFromAPIAndGetCardId(go));
                 
                 for(int i = 0; i < trackedImage.transform.childCount; i++)
@@ -249,6 +239,7 @@ public class TrackingController : MonoBehaviour
         GameObject object3d = Instantiate(entry, transform);
         Animator anim3dObject = object3d.AddComponent<Animator>();
 
+        // object3d.SetActive(true);
         anim3dObject.runtimeAnimatorController = animatorController;
     }
 
@@ -283,8 +274,8 @@ public class TrackingController : MonoBehaviour
                     }
                     else
                     {
-                        // print(_jsonData);
-                        if (PlayerPrefs.GetString("token") != null)
+                        print(_jsonData);
+                        if (_jsonData["success"] == true)
                         {
                             int i = 0;
                             int total_soal_setiap_kartu = 0;
@@ -319,7 +310,8 @@ public class TrackingController : MonoBehaviour
                                 {
                                     Destroy(ParticleEffect);
                                 }
-
+                                print("INSTANTIATE OBJECT AND ANIMATION");
+                                // Instantiate(entry, transform);
                                 AnimationIn3DObject(entry, transform);
                                 playButton.SetActive(true);
 
@@ -358,7 +350,7 @@ public class TrackingController : MonoBehaviour
             {
                 if (webData.isDone)
                 {
-                    print("seccess");
+                    print("success");
                     ConnectionGameObject.SetActive(false);
                     // Progress.Hide();
                     loadingUI.Hide();
@@ -372,12 +364,14 @@ public class TrackingController : MonoBehaviour
                         if (_jsonData["success"] == true)
                         {
                             print("Search...");
-                            for (int i = 0; i < _jsonData["data"]["card"].Count; i++)
+                            for (int i = 0; i < _jsonData["data"]["cards"].Count; i++)
                             {
-                                print("Card Data : " + _jsonData["data"]["card"][i]);
-                                if (target.Key == _jsonData["data"]["card"][i]["nama"])
+                                // print("Card Data : " + _jsonData["data"]["cards"].Count);
+                                // print("target key : " + target.Key);
+                                // print("JSON DATA : " + _jsonData["data"]["cards"][i]["name"]);
+                                if (target.Key == _jsonData["data"]["cards"][i]["name"])
                                 {
-                                    PlayerPrefs.SetInt("number_of_card", _jsonData["data"]["card"][i]["id"]);
+                                    PlayerPrefs.SetInt("number_of_card", _jsonData["data"]["cards"][i]["id"]);
                                     print("CARD ID " + i + " : " + PlayerPrefs.GetInt("number_of_card"));
                                 }
                             }

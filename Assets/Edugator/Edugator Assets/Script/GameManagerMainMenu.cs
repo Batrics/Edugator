@@ -48,7 +48,7 @@ public class GameManagerMainMenu : MonoBehaviour
         PlayerPrefs.DeleteKey("token");
         historyBtn.text = "History";
         Debug.Log("Value : " + PlayerPrefs.GetString("token"));
-        url = "https://dev.birosolusi.com/edugator/public/api/getAllGames/a49fdc824fe7c4ac29ed8c7b460d7338";
+        url = "https://dev.unimasoft.id/edugator/api/getAllGames/a49fdc824fe7c4ac29ed8c7b460d7338";
     }
     public void StartGame()
     {
@@ -312,7 +312,7 @@ public class GameManagerMainMenu : MonoBehaviour
     // {
     //     for(int i = 0; i < cardIdList.Count; i++)
     //     {
-    //         fbxUrl = "https://dev.birosolusi.com/edugator/public/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/" + cardIdList[cardIndex];
+    //         fbxUrl = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/" + cardIdList[cardIndex];
             
     //         savePath = $"Assets/3D Object/3D/{cardName[cardIndex]}.fbx";
 

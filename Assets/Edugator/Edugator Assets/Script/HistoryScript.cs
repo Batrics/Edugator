@@ -40,7 +40,7 @@ public class HistoryScript : MonoBehaviour
         Debug.Log("All Game : " + allGamesArr[0]);
         Debug.Log("Game Selected : " + gameSelected);
 
-        url = "https://dev.birosolusi.com/edugator/public/api/getAllGames/a49fdc824fe7c4ac29ed8c7b460d7338";
+        url = "https://dev.unimasoft.id/edugator/api/getAllGames/a49fdc824fe7c4ac29ed8c7b460d7338";
     }
 
     public void StartQuiz()
@@ -186,7 +186,7 @@ public class HistoryScript : MonoBehaviour
     // {
     //     for(int i = 0; i < cardIdList.Count; i++)
     //     {
-    //         fbxUrl = "https://dev.birosolusi.com/edugator/public/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/" + cardIdList[cardIndex];
+    //         fbxUrl = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/" + cardIdList[cardIndex];
             
     //         savePath = $"Assets/3D Object/3D/{cardName[cardIndex]}.fbx";
 

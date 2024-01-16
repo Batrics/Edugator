@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Search;
 using UnityEngine;
 using TMPro;
 
@@ -14,9 +11,7 @@ namespace Loading.UI
         private GameObject loadingUIprefabs;
         private TextMeshProUGUI loadingText;
         private GameObject loadingGameObject;
-
-        ProgressData progressData = new ProgressData();
-
+        private ProgressData progressData = new ProgressData();
         public void Prepare() {
             loadingUIprefabs = Resources.Load<GameObject>("LoadingUI/Loading UI");
             InstantiateLoadingUI(false, loadingUIprefabs);  

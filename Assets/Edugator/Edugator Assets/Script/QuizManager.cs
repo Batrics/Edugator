@@ -31,21 +31,22 @@ public class QuizManager : MonoBehaviour
     private void Awake()
     {
         loadingUI.Prepare();
+        PlayerPrefs.SetString("token", "44736ebf1ac169b4d5e7d174ca1f8b8e");
     }
     void Start()
     {
         indexQuestions = 0;
-        print("Link : " + url);
+        // print("Link : " + url);
         StartCoroutine(switchLink());
     }
 
     private IEnumerator switchLink()
     {
-        url = "https://dev.birosolusi.com/edugator/public/api/getAllGames/a49fdc824fe7c4ac29ed8c7b460d7338";
+        url = "https://dev.unimasoft.id/edugator/api/getDataGames/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token"); // + PlayerPref.GetString("Token");
         
         yield return StartCoroutine(CalculatingQuestionsFromAPI());
         
-        url = "https://dev.birosolusi.com/edugator/public/api/getquestions/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetInt("game_id") + "/" + PlayerPrefs.GetInt("number_of_card");
+        url = "https://dev.unimasoft.id/edugator/api/getquestions/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetInt("game_id") + "/" + PlayerPrefs.GetInt("number_of_card");
 
         StartCoroutine(GetDataFromAPI());
     }
@@ -90,12 +91,12 @@ public class QuizManager : MonoBehaviour
     {
         if (index < PlayerPrefs.GetInt("total_soal_setiap_kartu"))
         {
-            soal.text = _jsonData["data"][index]["soal"];
-            pilihanJawaban1.text = _jsonData["data"][index]["pilihan1"];
-            pilihanJawaban2.text = _jsonData["data"][index]["pilihan2"];
-            pilihanJawaban3.text = _jsonData["data"][index]["pilihan3"];
-            jawabanBenar = _jsonData["data"][index]["jawabanBenar"];
-            bobotSoal = _jsonData["data"][index]["bobotSoal"];
+            soal.text = _jsonData["data"][index]["question"];
+            pilihanJawaban1.text = _jsonData["data"][index]["option1"];
+            pilihanJawaban2.text = _jsonData["data"][index]["option2"];
+            pilihanJawaban3.text = _jsonData["data"][index]["option3"];
+            jawabanBenar = _jsonData["data"][index]["answer"];
+            bobotSoal = _jsonData["data"][index]["score"];
         }
         else
         {
@@ -151,12 +152,14 @@ public class QuizManager : MonoBehaviour
     {
         using(UnityWebRequest webData = UnityWebRequest.Get(url))
         {
-            Progress.Show("Please Wait...", ProgressColor.Default);
+            // Progress.Show("Please Wait...", ProgressColor.Default);
+            loadingUI.Show("Please Wait...");
             yield return webData.SendWebRequest();
 
             if(webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError)
             {
-                Progress.Hide();
+                // Progress.Hide();
+                loadingUI.Hide();
                 Debug.Log("tidak ada Koneksi/Jaringan");
                 connection.SetActive(true);
                 yield return new WaitForSeconds(3f);
@@ -166,7 +169,8 @@ public class QuizManager : MonoBehaviour
             {
                 if(webData.isDone)
                 {
-                    Progress.Hide();
+                    // Progress.Hide();
+                    loadingUI.Hide();
                     _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
                     if(_jsonData == null)
                     {
@@ -183,7 +187,7 @@ public class QuizManager : MonoBehaviour
                                 int total_soal_setiap_kartu = 0;
                                 while (i < _jsonData["data"].Count)
                                 {
-                                    if (_jsonData["data"][i]["card_id"] == PlayerPrefs.GetInt("number_of_card"))
+                                    if (_jsonData["data"][j]["cards"][i]["id"] == PlayerPrefs.GetInt("number_of_card"))
                                     {
                                         total_soal_setiap_kartu++;
                                         PlayerPrefs.SetInt("total_soal_setiap_kartu", total_soal_setiap_kartu);
@@ -192,6 +196,8 @@ public class QuizManager : MonoBehaviour
                                 }
                             }
                         }
+
+
                     }
                 }
                 else
