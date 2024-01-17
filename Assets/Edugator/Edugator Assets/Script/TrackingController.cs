@@ -7,6 +7,21 @@ using SimpleJSON;
 using UnityEngine.Networking;
 using Loading.UI;
 using UnityEditor;
+using UnityEngine.Experimental.Rendering;
+using Unity.Jobs;
+using Unity.Collections;
+using System;
+using Unity.VisualScripting;
+
+
+struct DeallocateJob : IJob
+{
+    [DeallocateOnJobCompletion]
+    public NativeArray<byte> data;
+
+    public void Execute() { }
+    }
+
 
 [RequireComponent(typeof(ARTrackedImageManager))]
 public class TrackingController : MonoBehaviour
@@ -31,6 +46,7 @@ public class TrackingController : MonoBehaviour
     void Awake()
     {
         trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
+        print("aaa ; " + trackedImageManager.descriptor.supportsMutableLibrary);
         
         GameObject[] prefabs3D;
         prefabs3D = Resources.LoadAll<GameObject>("3dObject");
@@ -43,48 +59,78 @@ public class TrackingController : MonoBehaviour
 
         print("Reference Image Library : " + trackedImageManager.referenceLibrary);
 
-        TextureImporter textureImporter;
-        string format;
-        string texturePath;
+        // string imagePath = "Assets/Resources/CardImage/Gold Fish.jpg";
+        // // Texture2D imageTexture = new Texture2D(2, 2);  // Dummy texture, just for size initialization
+        // byte[] imageBytes = System.IO.File.ReadAllBytes(imagePath);
+        // texture2Ds[1].LoadImage(imageBytes);
+
+        // // Convert Texture2D to grayscale NativeArray<byte>
+        // NativeArray<byte> grayscaleImageBytes = new NativeArray<byte>(texture2Ds[1].GetRawTextureData<byte>(), Allocator.Persistent);
+
+        // // Call the AddImage function
+        // AddImage(grayscaleImageBytes, texture2Ds[1].width, texture2Ds[1].height, 0.2f);
+
+        // // Dispose the NativeArray when done
+        // grayscaleImageBytes.Dispose();
+
+
+        // SetNonPowerOf2(texture2Ds[0]);
+
+        // TextureImporter textureImporter;
+        // string format;
+        // string texturePath;
+
+        
 
         foreach(Texture2D texture2D in texture2Ds)
         {
-            format = ".jpg";
-            do
-            {
-                texturePath = $"Assets/Resources/CardImage/{texture2D.name}{format}";
-                textureImporter = AssetImporter.GetAtPath(texturePath) as TextureImporter;
-                if(textureImporter == null && format == ".jpg")
-                {
-                    format = ".png";
-                }
-                else if(textureImporter == null && format == ".png")
-                {
-                    format = ".jpeg";
-                }
-                else
-                {
-                    TextureImporterSettings texSetting = new TextureImporterSettings();
+            // format = ".jpg";
+            // do
+            // {
+            //     texturePath = $"Assets/Resources/CardImage/{texture2D.name}{format}";
+            //     textureImporter = AssetImporter.GetAtPath(texturePath) as TextureImporter;
+            //     if(textureImporter == null && format == ".jpg")
+            //     {
+            //         format = ".png";
+            //     }
+            //     else if(textureImporter == null && format == ".png")
+            //     {
+            //         format = ".jpeg";
+            //     }
+            //     else
+            //     {
+            //         TextureImporterSettings texSetting = new TextureImporterSettings();
                     
-                    textureImporter.ReadTextureSettings(texSetting);
-                    texSetting.npotScale = TextureImporterNPOTScale.None;
-                    textureImporter.SetTextureSettings(texSetting);
+            //         textureImporter.ReadTextureSettings(texSetting);
+            //         texSetting.npotScale = TextureImporterNPOTScale.None;
+            //         textureImporter.SetTextureSettings(texSetting);
                     
-                    textureImporter.isReadable = true;
+            //         textureImporter.isReadable = true;
                     
-                    AssetDatabase.ImportAsset(texturePath);
-                }
+            //         AssetDatabase.ImportAsset(texturePath);
+            //     }
 
-            }while(textureImporter == null);
+            // }while(textureImporter == null);
 
-            print(texture2D.format);
+            // Texture2D newTexture = new Texture2D(texture2D.width, texture2D.height, TextureFormat.RGBA32, texture2D.mipmapCount > 1);
+            // newTexture.name = texture2D.name;
+            
+            // Graphics.CopyTexture(texture2D, newTexture);
+
+            // print("Texture 2d format : " + texture2D.format);
+            // print("Texture 2d format : " + newTexture.format);
+            // print("mip Map Count" + texture2D.mipmapCount);
+            // print("Texture2d : " + texture2D.GetPixels32(0));
+            // print("new Texture : " + newTexture.GetPixels32(0));
+            print("Readable : " + texture2D.isReadable);
+            
             cardReferenceImgae.Add(texture2D.name, texture2D);
-
         }
 
         foreach(KeyValuePair<string, Texture2D> imageReference in cardReferenceImgae)
         {
-            AddImage(imageReference.Key, imageReference.Value);
+            AddImages(imageReference.Key, imageReference.Value);
+            // print("FORMATTT : " + imageReference.Value.format);
         }
 
         foreach(GameObject obj in prefabs3D)
@@ -161,15 +207,48 @@ public class TrackingController : MonoBehaviour
         }
     }
 
-    private void AddImage(string name, Texture2D imageToAdd)
+    // private void AddImages(string name, Texture2D imageToAdd)
+    // {
+    //     if (library is MutableRuntimeReferenceImageLibrary mutableLibrary)
+    //     {
+    //         mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, name, 0.5f);
+    //     }
+
+    //     print("jumlah reference Image : " + trackedImageManager.referenceLibrary.count);
+    //     print("reference Image name : " + trackedImageManager.referenceLibrary[0]);
+    //     print("FORMATTT : " + trackedImageManager.referenceLibrary[0].texture.format);
+    // }
+
+    private void AddImages(string imageName, Texture2D imageToAdd)
     {
         if (library is MutableRuntimeReferenceImageLibrary mutableLibrary)
         {
-            mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, name, 0.5f);
+            // Convert Texture2D to NativeSlice<byte>
+            NativeSlice<byte> imageBytes = new NativeSlice<byte>(imageToAdd.GetRawTextureData<byte>());
+
+            // Create a Vector2Int for the size of the image
+            Vector2Int imageSize = new Vector2Int(imageToAdd.width, imageToAdd.height);
+
+            // Choose the appropriate TextureFormat
+            TextureFormat textureFormat = TextureFormat.RGBA32;
+
+            // Create an XRReferenceImage
+            XRReferenceImage referenceImage = new XRReferenceImage(
+                SerializableGuid.empty,
+                SerializableGuid.empty,
+                imageSize,    
+                imageName,
+                imageToAdd
+            );
+
+            // Get the JobHandle from the ScheduleAddImageWithValidationJob method
+            mutableLibrary.ScheduleAddImageWithValidationJob(imageBytes, imageSize, textureFormat, referenceImage);
         }
 
+        // Print information after adding the image
         print("jumlah reference Image : " + trackedImageManager.referenceLibrary.count);
         print("reference Image name : " + trackedImageManager.referenceLibrary[0]);
+        print("reference Image Formattttt : " + trackedImageManager.referenceLibrary[0].texture.graphicsFormat);
     }
 
     private IEnumerator FirstTrackedImage(ARTrackedImage trackedImage)
