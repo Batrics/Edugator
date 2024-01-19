@@ -6,21 +6,11 @@ using UnityEngine.XR.ARSubsystems;
 using SimpleJSON;
 using UnityEngine.Networking;
 using Loading.UI;
-using UnityEditor;
-using UnityEngine.Experimental.Rendering;
-using Unity.Jobs;
 using Unity.Collections;
 using System;
-using Unity.VisualScripting;
-
-
-struct DeallocateJob : IJob
-{
-    [DeallocateOnJobCompletion]
-    public NativeArray<byte> data;
-
-    public void Execute() { }
-    }
+using TMPro;
+using System.IO;
+using System.IO.Compression;
 
 
 [RequireComponent(typeof(ARTrackedImageManager))]
@@ -28,6 +18,7 @@ public class TrackingController : MonoBehaviour
 {
     public List<GameObject> objectsToShow = new List<GameObject>();
     public Dictionary<string, Texture2D> cardReferenceImgae = new Dictionary<string, Texture2D>();
+    [SerializeField] private TextMeshProUGUI infoForDev;
     private Dictionary<string, GameObject> gameObjectDictionary = new Dictionary<string, GameObject>();
     private ARTrackedImageManager trackedImageManager;
     private RuntimeReferenceImageLibrary library;
@@ -45,8 +36,8 @@ public class TrackingController : MonoBehaviour
 
     void Awake()
     {
+        infoForDev.text = "1";
         trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
-        print("aaa ; " + trackedImageManager.descriptor.supportsMutableLibrary);
         
         GameObject[] prefabs3D;
         prefabs3D = Resources.LoadAll<GameObject>("3dObject");
@@ -57,86 +48,30 @@ public class TrackingController : MonoBehaviour
         library = trackedImageManager.CreateRuntimeLibrary();
         trackedImageManager.referenceLibrary = library;
 
+        infoForDev.text = "1\n2";
+
         print("Reference Image Library : " + trackedImageManager.referenceLibrary);
-
-        // string imagePath = "Assets/Resources/CardImage/Gold Fish.jpg";
-        // // Texture2D imageTexture = new Texture2D(2, 2);  // Dummy texture, just for size initialization
-        // byte[] imageBytes = System.IO.File.ReadAllBytes(imagePath);
-        // texture2Ds[1].LoadImage(imageBytes);
-
-        // // Convert Texture2D to grayscale NativeArray<byte>
-        // NativeArray<byte> grayscaleImageBytes = new NativeArray<byte>(texture2Ds[1].GetRawTextureData<byte>(), Allocator.Persistent);
-
-        // // Call the AddImage function
-        // AddImage(grayscaleImageBytes, texture2Ds[1].width, texture2Ds[1].height, 0.2f);
-
-        // // Dispose the NativeArray when done
-        // grayscaleImageBytes.Dispose();
-
-
-        // SetNonPowerOf2(texture2Ds[0]);
-
-        // TextureImporter textureImporter;
-        // string format;
-        // string texturePath;
-
-        
 
         foreach(Texture2D texture2D in texture2Ds)
         {
-            // format = ".jpg";
-            // do
-            // {
-            //     texturePath = $"Assets/Resources/CardImage/{texture2D.name}{format}";
-            //     textureImporter = AssetImporter.GetAtPath(texturePath) as TextureImporter;
-            //     if(textureImporter == null && format == ".jpg")
-            //     {
-            //         format = ".png";
-            //     }
-            //     else if(textureImporter == null && format == ".png")
-            //     {
-            //         format = ".jpeg";
-            //     }
-            //     else
-            //     {
-            //         TextureImporterSettings texSetting = new TextureImporterSettings();
-                    
-            //         textureImporter.ReadTextureSettings(texSetting);
-            //         texSetting.npotScale = TextureImporterNPOTScale.None;
-            //         textureImporter.SetTextureSettings(texSetting);
-                    
-            //         textureImporter.isReadable = true;
-                    
-            //         AssetDatabase.ImportAsset(texturePath);
-            //     }
-
-            // }while(textureImporter == null);
-
-            // Texture2D newTexture = new Texture2D(texture2D.width, texture2D.height, TextureFormat.RGBA32, texture2D.mipmapCount > 1);
-            // newTexture.name = texture2D.name;
-            
-            // Graphics.CopyTexture(texture2D, newTexture);
-
-            // print("Texture 2d format : " + texture2D.format);
-            // print("Texture 2d format : " + newTexture.format);
-            // print("mip Map Count" + texture2D.mipmapCount);
-            // print("Texture2d : " + texture2D.GetPixels32(0));
-            // print("new Texture : " + newTexture.GetPixels32(0));
-            print("Readable : " + texture2D.isReadable);
-            
             cardReferenceImgae.Add(texture2D.name, texture2D);
         }
+
+        infoForDev.text = "1\n2\n3";
 
         foreach(KeyValuePair<string, Texture2D> imageReference in cardReferenceImgae)
         {
             AddImages(imageReference.Key, imageReference.Value);
-            // print("FORMATTT : " + imageReference.Value.format);
         }
+
+        // infoForDev.text = "1\n2\n3\n4\n";
 
         foreach(GameObject obj in prefabs3D)
         {
             objectsToShow.Add(obj);
         }
+
+        // infoForDev.text = "1\n2\n3\n4\n5";
 
         foreach(GameObject prefabs in objectsToShow)
         {
@@ -145,12 +80,15 @@ public class TrackingController : MonoBehaviour
             gameObjectDictionary.Add(prefabs.name, newPrefabs);
         }
 
-        loadingUI.Prepare();
-    }
+        // infoForDev.text = "1\n2\n3\n4\n6";
 
+        loadingUI.Prepare();
+        ExtractFile();
+    }
     private void Start()
     {
         trackedImageManager.enabled = true;
+        playButton.SetActive(false);
 
         PlayerPrefs.SetInt("game_id", 11);
         PlayerPrefs.SetInt("visualEffect", 1);
@@ -188,7 +126,6 @@ public class TrackingController : MonoBehaviour
 
         foreach(ARTrackedImage trackedImage in eventArgs.updated)
         {
-            // print(trackedImage.trackingState);
             if (trackedImage.trackingState == TrackingState.Tracking)
             {
                 if(tracking == false)
@@ -207,48 +144,67 @@ public class TrackingController : MonoBehaviour
         }
     }
 
-    // private void AddImages(string name, Texture2D imageToAdd)
-    // {
-    //     if (library is MutableRuntimeReferenceImageLibrary mutableLibrary)
-    //     {
-    //         mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, name, 0.5f);
-    //     }
+    private void ExtractFile()
+    {
+        string zipFilePath = "Assets/Resources/3dObject/cat.zip";
+        string extractPath = "Assets/Resources/3dObject/";
 
-    //     print("jumlah reference Image : " + trackedImageManager.referenceLibrary.count);
-    //     print("reference Image name : " + trackedImageManager.referenceLibrary[0]);
-    //     print("FORMATTT : " + trackedImageManager.referenceLibrary[0].texture.format);
-    // }
+        try
+        {
+            // Ensure the target extraction directory exists
+            if (!Directory.Exists(extractPath))
+            {
+                Directory.CreateDirectory(extractPath);
+            }
+
+            // Extract the contents of the zip file
+            ZipFile.ExtractToDirectory(zipFilePath, extractPath);
+
+            Console.WriteLine("Zip file extracted successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error extracting zip file: {ex.Message}");
+        }
+    }
 
     private void AddImages(string imageName, Texture2D imageToAdd)
     {
-        if (library is MutableRuntimeReferenceImageLibrary mutableLibrary)
+        infoForDev.text =  $"1\n2\n2.5";
+        try
         {
-            // Convert Texture2D to NativeSlice<byte>
-            NativeSlice<byte> imageBytes = new NativeSlice<byte>(imageToAdd.GetRawTextureData<byte>());
+        if (trackedImageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary)
+        {
+            // NativeSlice<byte> imageBytes = new NativeSlice<byte>(imageToAdd.GetRawTextureData<byte>());
 
-            // Create a Vector2Int for the size of the image
-            Vector2Int imageSize = new Vector2Int(imageToAdd.width, imageToAdd.height);
+            // Vector2Int imageSize = new Vector2Int(imageToAdd.width, imageToAdd.height);
 
-            // Choose the appropriate TextureFormat
-            TextureFormat textureFormat = TextureFormat.RGBA32;
+            // TextureFormat textureFormat = imageToAdd.format;
 
-            // Create an XRReferenceImage
-            XRReferenceImage referenceImage = new XRReferenceImage(
-                SerializableGuid.empty,
-                SerializableGuid.empty,
-                imageSize,    
-                imageName,
-                imageToAdd
-            );
+            // XRReferenceImage referenceImage = new XRReferenceImage(
+            //     SerializableGuid.empty,
+            //     SerializableGuid.empty,
+            //     imageSize,    
+            //     imageName,
+            //     imageToAdd
+            // );
 
-            // Get the JobHandle from the ScheduleAddImageWithValidationJob method
-            mutableLibrary.ScheduleAddImageWithValidationJob(imageBytes, imageSize, textureFormat, referenceImage);
+            mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
+            
+
+            // print("Mutabe Library : " + mutableLibrary[0].specifySize);  ormat.ToString()}\n3";
         }
-
-        // Print information after adding the image
-        print("jumlah reference Image : " + trackedImageManager.referenceLibrary.count);
-        print("reference Image name : " + trackedImageManager.referenceLibrary[0]);
-        print("reference Image Formattttt : " + trackedImageManager.referenceLibrary[0].texture.graphicsFormat);
+        else
+        {
+            infoForDev.text = "Rusakk";
+        }
+        }
+        catch(Exception e)
+        {
+            print("rusaknya adalahh : " + e);
+            infoForDev.text = "Rusaknya adalahh : " + e.Message;
+        }
+        
     }
 
     private IEnumerator FirstTrackedImage(ARTrackedImage trackedImage)
@@ -259,7 +215,6 @@ public class TrackingController : MonoBehaviour
         {
             if (trackedImage.referenceImage.name == go.Key)
             {
-                // loadingUI.Show("Please Wait...");
                 yield return StartCoroutine(GetDataFromAPIAndGetCardId(go));
 
                 StartCoroutine(GetDataFromAPIAndInstantiateObject(go.Value, trackedImage.transform));
@@ -277,15 +232,15 @@ public class TrackingController : MonoBehaviour
         {
             if (trackedImage.referenceImage.name == go.Key)
             {
-                // loadingUI.Show("Please Wait...");
                 yield return StartCoroutine(GetDataFromAPIAndGetCardId(go));
                 
                 for(int i = 0; i < trackedImage.transform.childCount; i++)
                 {
                     trackedImage.transform.GetChild(i).gameObject.SetActive(true);
                 }
-
-                playButton.SetActive(true);
+                
+                if(go.Value.activeSelf == true)
+                    playButton.SetActive(true);
             }
             else
             {
@@ -324,7 +279,6 @@ public class TrackingController : MonoBehaviour
 
     private IEnumerator GetDataFromAPIAndInstantiateObject(GameObject entry, Transform transform)
     {
-        // Progress.Show("Please Wait...", ProgressColor.Default);
         loadingUI.Show("Please Wait...");
         using (UnityWebRequest webData = UnityWebRequest.Get(url))
         {
@@ -332,7 +286,6 @@ public class TrackingController : MonoBehaviour
 
             if (webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError)
             {
-                // Progress.Hide();
                 loadingUI.Hide();
                 Debug.Log("Tidak ada Koneksi/Jaringan");
                 ConnectionGameObject.SetActive(true);
@@ -344,8 +297,8 @@ public class TrackingController : MonoBehaviour
                 if (webData.isDone)
                 {
                     ConnectionGameObject.SetActive(false);
-                    // Progress.Hide();
                     loadingUI.Hide();
+
                     _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
                     if (_jsonData == null)
                     {
@@ -389,8 +342,7 @@ public class TrackingController : MonoBehaviour
                                 {
                                     Destroy(ParticleEffect);
                                 }
-                                print("INSTANTIATE OBJECT AND ANIMATION");
-                                // Instantiate(entry, transform);
+
                                 AnimationIn3DObject(entry, transform);
                                 playButton.SetActive(true);
 
@@ -409,7 +361,7 @@ public class TrackingController : MonoBehaviour
 
     private IEnumerator GetDataFromAPIAndGetCardId(KeyValuePair<string, GameObject> target)
     {
-        // Progress.Show("Please Wait...", ProgressColor.Default);
+        // loadingUI.Show("Please Wait...");
         loadingUI.Show("Please Wait...");
         using (UnityWebRequest webData = UnityWebRequest.Get(getDataGamesUrl))
         {
@@ -418,7 +370,7 @@ public class TrackingController : MonoBehaviour
 
             if (webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError)
             {
-                // Progress.Hide();
+                // loadingUI.Hide();
                 loadingUI.Hide();
                 Debug.Log("Tidak ada Koneksi/Jaringan");
                 ConnectionGameObject.SetActive(true);
@@ -431,7 +383,7 @@ public class TrackingController : MonoBehaviour
                 {
                     print("success");
                     ConnectionGameObject.SetActive(false);
-                    // Progress.Hide();
+                    // loadingUI.Hide();
                     loadingUI.Hide();
                     _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
                     if (_jsonData == null)

@@ -16,4 +16,14 @@ MonoBehaviour:
   m_GuidHigh: 12918533502617509544
   m_DataStore:
     m_Storage: []
-  m_Images: []
+  m_Images:
+  - m_SerializedGuid:
+      m_GuidLow: 4862363727333554624
+      m_GuidHigh: 18163481888700300180
+    m_SerializedTextureGuid:
+      m_GuidLow: 4122083730413404650
+      m_GuidHigh: 10523679828201103946
+    m_Size: {x: 0, y: 0}
+    m_SpecifySize: 0
+    m_Name: Fire Hydrant
+    m_Texture: {fileID: 2800000, guid: 25b541ea955039344ae2de010c9f0b92, type: 3}

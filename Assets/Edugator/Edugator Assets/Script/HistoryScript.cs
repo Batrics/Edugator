@@ -4,7 +4,8 @@ using UnityEngine;
 using SimpleJSON;
 using UnityEngine.Networking;
 using TMPro;
-using EasyUI.Progress;
+using Loading.UI;
+
 using System.IO;
 
 public class HistoryScript : MonoBehaviour
@@ -18,8 +19,12 @@ public class HistoryScript : MonoBehaviour
     public GameObject gameSelected;
     public GameObject popup;
     public Transform PanelHistoryUI;
-    
+    private LoadingUI loadingUI;
 
+    private void Awake()
+    {
+        loadingUI.Prepare();
+    }
     private void Start()
     {
         cardIndex = 0;
@@ -57,7 +62,7 @@ public class HistoryScript : MonoBehaviour
     {
         using(UnityWebRequest webData = UnityWebRequest.Get(url))
         {
-            Progress.Show("Please Wait...", ProgressColor.Default);
+            loadingUI.Show("Please Wait...");
             webData.SendWebRequest();
 
             while(!webData.isDone)
@@ -67,7 +72,7 @@ public class HistoryScript : MonoBehaviour
 
             if(webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError)
             {
-                Progress.Hide();
+                loadingUI.Hide();
                 StartCoroutine(NoConnection());
                 Debug.Log("tidak ada Koneksi/Jaringan"); 
             }
@@ -75,7 +80,7 @@ public class HistoryScript : MonoBehaviour
             {
                 if(webData.isDone)
                 {
-                    Progress.Hide();
+                    loadingUI.Hide();
                     _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
                     if(_jsonData == null)
                     {
@@ -166,7 +171,7 @@ public class HistoryScript : MonoBehaviour
 
     //     if (www.result != UnityWebRequest.Result.Success)
     //     {
-    //         Progress.Hide();
+    //         loadingUI.Hide();
     //         Debug.LogError("Gagal mengunduh file: " + www.error);
     //     }
     //     else
@@ -177,7 +182,7 @@ public class HistoryScript : MonoBehaviour
     //         File.WriteAllBytes(savePath, data);
             
     //         UnityEditor.AssetDatabase.Refresh();
-    //         Progress.Hide();
+    //         loadingUI.Hide();
     //         Debug.Log("File berhasil diunduh dan disimpan di " + savePath);
     //     }
     // }
@@ -196,7 +201,7 @@ public class HistoryScript : MonoBehaviour
 
     //         print("download 3d ke-" + i);
     //     }
-    //     Progress.Hide();
+    //     loadingUI.Hide();
     // }
 
     //==============================================================================================================================//
