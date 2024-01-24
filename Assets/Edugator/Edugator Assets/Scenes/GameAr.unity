@@ -608,6 +608,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   objectsToShow: []
   infoForDev: {fileID: 1468012495}
+  referenceImagesLibrary: {fileID: 0}
   ConnectionGameObject: {fileID: 944869962}
   ParticleEffect: {fileID: 4898683273964801186, guid: fc155dc84f6f4b24a8e4b87994858cf0, type: 3}
   playButton: {fileID: 267273449}

@@ -11,6 +11,8 @@ using System;
 using TMPro;
 using System.IO;
 using System.IO.Compression;
+using Unity.Jobs;
+using Unity.VisualScripting;
 
 
 [RequireComponent(typeof(ARTrackedImageManager))]
@@ -22,6 +24,7 @@ public class TrackingController : MonoBehaviour
     private Dictionary<string, GameObject> gameObjectDictionary = new Dictionary<string, GameObject>();
     private ARTrackedImageManager trackedImageManager;
     private RuntimeReferenceImageLibrary library;
+    public XRReferenceImageLibrary referenceImagesLibrary;
 
     [Header("Main")]
     private JSONNode _jsonData;
@@ -33,12 +36,17 @@ public class TrackingController : MonoBehaviour
     public GameObject playButton;
     [SerializeField] private RuntimeAnimatorController animatorController;
     private LoadingUI loadingUI = new LoadingUI();
+    XRImageTrackingSubsystem imageTrackingSubsystem = null;
+    AddReferenceImageJobState referenceImageJobState;
+    MutableRuntimeReferenceImageLibrary mutableLibrary;
 
     void Awake()
     {
+
         infoForDev.text = "1";
         trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
         
+
         GameObject[] prefabs3D;
         prefabs3D = Resources.LoadAll<GameObject>("3dObject");
 
@@ -46,22 +54,48 @@ public class TrackingController : MonoBehaviour
         texture2Ds = Resources.LoadAll<Texture2D>("CardImage");
 
         library = trackedImageManager.CreateRuntimeLibrary();
-        trackedImageManager.referenceLibrary = library;
+        mutableLibrary = library as MutableRuntimeReferenceImageLibrary;
+        // trackedImageManager.referenceLibrary = library;
+
+        // List<XRImageTrackingSubsystemDescriptor> descriptors = new List<XRImageTrackingSubsystemDescriptor>();
+        // SubsystemManager.GetSubsystemDescriptors(descriptors);
+
+        // foreach (var descriptor in descriptors)
+        // {
+        //     imageTrackingSubsystem = descriptor.Create();
+        //     if (imageTrackingSubsystem != null)
+        //     {
+        //         // Inisialisasi sistem pelacakan gambar
+        //         imageTrackingSubsystem.Start();
+        //         break;
+        //     }
+        // }
 
         infoForDev.text = "1\n2";
 
-        print("Reference Image Library : " + trackedImageManager.referenceLibrary);
+        // print("Reference Image Library : " + trackedImageManager.referenceLibrary);
 
         foreach(Texture2D texture2D in texture2Ds)
         {
             cardReferenceImgae.Add(texture2D.name, texture2D);
+            print(texture2D);
         }
 
         infoForDev.text = "1\n2\n3";
 
+        referenceImageJobState = AddImages(texture2Ds[0].name, texture2Ds[0]);
+
+        JobHandle.ScheduleBatchedJobs();
+        referenceImageJobState.jobHandle.Complete();
+
+        infoForDev.text = $"1\n2\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}";
+        // trackedImageManager.referenceLibrary = imageTrackingSubsystem.CreateRuntimeLibrary(referenceImagesLibrary);
         foreach(KeyValuePair<string, Texture2D> imageReference in cardReferenceImgae)
         {
-            AddImages(imageReference.Key, imageReference.Value);
+            // StartCoroutine(AddImages(imageReference.Key, imageReference.Value));
+            // infoForDev.text = $"1\n2\n3\n3.5\n{AddImages(imageReference.Key, imageReference.Value)}";
+            // AddImageWithSubsystem(imageReference.Key, imageReference.Value);
+            // print("IMAGEE : " + trackedImageManager.referenceLibrary[0]);
         }
 
         // infoForDev.text = "1\n2\n3\n4\n";
@@ -81,12 +115,15 @@ public class TrackingController : MonoBehaviour
         }
 
         // infoForDev.text = "1\n2\n3\n4\n6";
-
+        trackedImageManager.referenceLibrary = mutableLibrary;
         loadingUI.Prepare();
         ExtractFile();
+        
     }
+
     private void Start()
     {
+        
         trackedImageManager.enabled = true;
         playButton.SetActive(false);
 
@@ -100,6 +137,12 @@ public class TrackingController : MonoBehaviour
             Debug.Log("Key: " + entry.Key + " Value: " + entry.Value);
         }
     }
+
+    // private void Update()
+    // {
+    //     infoForDev.text = $"1\n2\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}";
+    //     print(infoForDev.text = $"1\n2\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}");
+    // }
 
     private void OnEnable()
     {
@@ -146,7 +189,7 @@ public class TrackingController : MonoBehaviour
 
     private void ExtractFile()
     {
-        string zipFilePath = "Assets/Resources/3dObject/cat.zip";
+        string zipFilePath = "Assets/Resources/3dObject/cat.rar";
         string extractPath = "Assets/Resources/3dObject/";
 
         try
@@ -168,43 +211,31 @@ public class TrackingController : MonoBehaviour
         }
     }
 
-    private void AddImages(string imageName, Texture2D imageToAdd)
-    {
-        infoForDev.text =  $"1\n2\n2.5";
-        try
-        {
-        if (trackedImageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary)
-        {
-            // NativeSlice<byte> imageBytes = new NativeSlice<byte>(imageToAdd.GetRawTextureData<byte>());
-
-            // Vector2Int imageSize = new Vector2Int(imageToAdd.width, imageToAdd.height);
-
-            // TextureFormat textureFormat = imageToAdd.format;
-
-            // XRReferenceImage referenceImage = new XRReferenceImage(
-            //     SerializableGuid.empty,
-            //     SerializableGuid.empty,
-            //     imageSize,    
-            //     imageName,
-            //     imageToAdd
-            // );
-
-            mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
-            
-
-            // print("Mutabe Library : " + mutableLibrary[0].specifySize);  ormat.ToString()}\n3";
-        }
-        else
-        {
-            infoForDev.text = "Rusakk";
-        }
-        }
-        catch(Exception e)
-        {
-            print("rusaknya adalahh : " + e);
-            infoForDev.text = "Rusaknya adalahh : " + e.Message;
-        }
+    // private AddReferenceImageJobState AddImageWithSubsystem(string imageName, Texture2D imageToAdd)
+    // {
         
+    //     infoForDev.text =  $"1\n2\n2.5";
+    //     // trackedImageManager.referenceLibrary = imageTrackingSubsystem.CreateRuntimeLibrary(referenceImagesLibrary);
+    //     MutableRuntimeReferenceImageLibrary mutableLibrary = trackedImageManager.referenceLibrary as MutableRuntimeReferenceImageLibrary;
+
+    //     AddReferenceImageJobState lib = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
+
+    //     print("MUTABLE : " + lib);
+    //     infoForDev.text = $"1\n2\n2.5\n{lib}";
+
+    //     return lib;
+
+    // }
+
+    private AddReferenceImageJobState AddImages(string imageName, Texture2D imageToAdd)
+    {
+        infoForDev.text =  $"1\n2\n3\n3.5";
+
+        AddReferenceImageJobState lib = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
+
+        // infoForDev.text = $"1\n2\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}";
+
+        return lib;
     }
 
     private IEnumerator FirstTrackedImage(ARTrackedImage trackedImage)
