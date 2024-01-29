@@ -537,7 +537,6 @@ GameObject:
   m_Component:
   - component: {fileID: 327660782}
   - component: {fileID: 327660781}
-  - component: {fileID: 327660783}
   - component: {fileID: 327660784}
   m_Layer: 0
   m_Name: XR Origin
@@ -579,21 +578,6 @@ Transform:
   - {fileID: 91207078}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &327660783
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 327660780}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4dea56a9eaadd1c439095de4f9a371cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SerializedLibrary: {fileID: 0}
-  m_MaxNumberOfMovingImages: 0
-  m_TrackedImagePrefab: {fileID: 0}
 --- !u!114 &327660784
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -608,7 +592,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   objectsToShow: []
   infoForDev: {fileID: 1468012495}
-  referenceImagesLibrary: {fileID: 0}
+  referenceImagesLibrary: {fileID: 11400000, guid: 59269d3cd0f2bca4d89c7ef08876489b, type: 2}
   ConnectionGameObject: {fileID: 944869962}
   ParticleEffect: {fileID: 4898683273964801186, guid: fc155dc84f6f4b24a8e4b87994858cf0, type: 3}
   playButton: {fileID: 267273449}

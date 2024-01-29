@@ -11,11 +11,7 @@ using System;
 using TMPro;
 using System.IO;
 using System.IO.Compression;
-using Unity.Jobs;
-using Unity.VisualScripting;
 
-
-[RequireComponent(typeof(ARTrackedImageManager))]
 public class TrackingController : MonoBehaviour
 {
     public List<GameObject> objectsToShow = new List<GameObject>();
@@ -36,76 +32,71 @@ public class TrackingController : MonoBehaviour
     public GameObject playButton;
     [SerializeField] private RuntimeAnimatorController animatorController;
     private LoadingUI loadingUI = new LoadingUI();
-    XRImageTrackingSubsystem imageTrackingSubsystem = null;
     AddReferenceImageJobState referenceImageJobState;
-    MutableRuntimeReferenceImageLibrary mutableLibrary;
+    GameObject[] prefabs3D;
+    Texture2D[] texture2Ds;
 
     void Awake()
     {
 
         infoForDev.text = "1";
-        trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
-        
+        trackedImageManager = gameObject.AddComponent<ARTrackedImageManager>();
 
-        GameObject[] prefabs3D;
         prefabs3D = Resources.LoadAll<GameObject>("3dObject");
 
-        Texture2D[] texture2Ds;
         texture2Ds = Resources.LoadAll<Texture2D>("CardImage");
 
         library = trackedImageManager.CreateRuntimeLibrary();
-        mutableLibrary = library as MutableRuntimeReferenceImageLibrary;
-        // trackedImageManager.referenceLibrary = library;
-
-        // List<XRImageTrackingSubsystemDescriptor> descriptors = new List<XRImageTrackingSubsystemDescriptor>();
-        // SubsystemManager.GetSubsystemDescriptors(descriptors);
-
-        // foreach (var descriptor in descriptors)
-        // {
-        //     imageTrackingSubsystem = descriptor.Create();
-        //     if (imageTrackingSubsystem != null)
-        //     {
-        //         // Inisialisasi sistem pelacakan gambar
-        //         imageTrackingSubsystem.Start();
-        //         break;
-        //     }
-        // }
+        // mutableLibrary = library as MutableRuntimeReferenceImageLibrary;
+        trackedImageManager.referenceLibrary = library;
 
         infoForDev.text = "1\n2";
 
-        // print("Reference Image Library : " + trackedImageManager.referenceLibrary);
+    }
 
+    private void Start()
+    {
         foreach(Texture2D texture2D in texture2Ds)
         {
             cardReferenceImgae.Add(texture2D.name, texture2D);
+            if(cardReferenceImgae != null)
+            {
+                infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources";
+            }
             print(texture2D);
         }
 
-        infoForDev.text = "1\n2\n3";
+        infoForDev.text = "1\n2\nGambar ada di dalam folder Resources\n3";
 
-        referenceImageJobState = AddImages(texture2Ds[0].name, texture2Ds[0]);
 
-        JobHandle.ScheduleBatchedJobs();
-        referenceImageJobState.jobHandle.Complete();
-
-        infoForDev.text = $"1\n2\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}";
-        // trackedImageManager.referenceLibrary = imageTrackingSubsystem.CreateRuntimeLibrary(referenceImagesLibrary);
         foreach(KeyValuePair<string, Texture2D> imageReference in cardReferenceImgae)
         {
-            // StartCoroutine(AddImages(imageReference.Key, imageReference.Value));
-            // infoForDev.text = $"1\n2\n3\n3.5\n{AddImages(imageReference.Key, imageReference.Value)}";
-            // AddImageWithSubsystem(imageReference.Key, imageReference.Value);
-            // print("IMAGEE : " + trackedImageManager.referenceLibrary[0]);
+           if (imageReference.Value != null)
+            {
+                NativeArray<byte> imageBytes =  new NativeArray<byte>(imageReference.Value.GetRawTextureData(), Allocator.Persistent);
+
+                var aspectRatio = (float)imageReference.Value.width / (float)imageReference.Value.height;
+                var sizeInMeters = new Vector2(imageReference.Value.width, imageReference.Value.width * aspectRatio);
+
+                StartCoroutine(AddImages(imageReference.Key, imageReference.Value));
+            }
+            else
+            {
+                Debug.LogError("Failed to load image from Resources");
+            }
+
+            infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}";
+
         }
 
-        // infoForDev.text = "1\n2\n3\n4\n";
+        infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4";
 
         foreach(GameObject obj in prefabs3D)
         {
             objectsToShow.Add(obj);
         }
 
-        // infoForDev.text = "1\n2\n3\n4\n5";
+        infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4\n5";
 
         foreach(GameObject prefabs in objectsToShow)
         {
@@ -114,15 +105,12 @@ public class TrackingController : MonoBehaviour
             gameObjectDictionary.Add(prefabs.name, newPrefabs);
         }
 
-        // infoForDev.text = "1\n2\n3\n4\n6";
-        trackedImageManager.referenceLibrary = mutableLibrary;
+        infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4\n5\n6";
+
         loadingUI.Prepare();
         ExtractFile();
         
-    }
-
-    private void Start()
-    {
+        infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4\n5\n6\nEND";
         
         trackedImageManager.enabled = true;
         playButton.SetActive(false);
@@ -137,12 +125,6 @@ public class TrackingController : MonoBehaviour
             Debug.Log("Key: " + entry.Key + " Value: " + entry.Value);
         }
     }
-
-    // private void Update()
-    // {
-    //     infoForDev.text = $"1\n2\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}";
-    //     print(infoForDev.text = $"1\n2\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}");
-    // }
 
     private void OnEnable()
     {
@@ -211,31 +193,29 @@ public class TrackingController : MonoBehaviour
         }
     }
 
-    // private AddReferenceImageJobState AddImageWithSubsystem(string imageName, Texture2D imageToAdd)
-    // {
-        
-    //     infoForDev.text =  $"1\n2\n2.5";
-    //     // trackedImageManager.referenceLibrary = imageTrackingSubsystem.CreateRuntimeLibrary(referenceImagesLibrary);
-    //     MutableRuntimeReferenceImageLibrary mutableLibrary = trackedImageManager.referenceLibrary as MutableRuntimeReferenceImageLibrary;
-
-    //     AddReferenceImageJobState lib = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
-
-    //     print("MUTABLE : " + lib);
-    //     infoForDev.text = $"1\n2\n2.5\n{lib}";
-
-    //     return lib;
-
-    // }
-
-    private AddReferenceImageJobState AddImages(string imageName, Texture2D imageToAdd)
+    private IEnumerator AddImages(string imageName, Texture2D imageToAdd)
     {
+        yield return null;
+        
         infoForDev.text =  $"1\n2\n3\n3.5";
 
-        AddReferenceImageJobState lib = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
+        if(trackedImageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary)
+        {
+            referenceImageJobState = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
 
-        // infoForDev.text = $"1\n2\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}";
+            while(!referenceImageJobState.jobHandle.IsCompleted)
+            {
+                infoForDev.text = "Running...";
+            }
 
-        return lib;
+            referenceImageJobState.jobHandle.Complete();
+        }
+        else
+        {
+            Debug.LogError("Reference library is not MutableRuntimeReferenceImageLibrary.");
+        }
+        infoForDev.text = $"1\n2\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}";
+
     }
 
     private IEnumerator FirstTrackedImage(ARTrackedImage trackedImage)
@@ -302,6 +282,7 @@ public class TrackingController : MonoBehaviour
     private void AnimationIn3DObject(GameObject entry, Transform transform)
     {
         GameObject object3d = Instantiate(entry, transform);
+        // GameObject object3d = trackedImageManager.trackedImagePrefab;
         Animator anim3dObject = object3d.AddComponent<Animator>();
 
         // object3d.SetActive(true);

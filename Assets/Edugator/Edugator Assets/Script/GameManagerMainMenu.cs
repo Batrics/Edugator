@@ -4,11 +4,12 @@ using UnityEngine;
 using SimpleJSON;
 using UnityEngine.Networking;
 using TMPro;
-
+using System.IO;
+using System.IO.Compression;
 using UnityEngine.Audio;
 using Loading.UI;
-using System.IO;
-
+using System;
+using System.Linq;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
@@ -39,6 +40,7 @@ public class GameManagerMainMenu : MonoBehaviour
     //==============================================================================================================================//\
     private void Awake()
     {
+        ExtractFile();
         loadingUI.Prepare();
     }
     void Start()
@@ -358,5 +360,34 @@ public class GameManagerMainMenu : MonoBehaviour
 
         audioMixer.SetFloat("sfx", volume);
     }
+    //==============================================================================================================================//
+    
+    //Extract File
+    //==============================================================================================================================//
+
+    private void ExtractFile()
+    {
+        string filePath = "Assets/Resources/3dObject/";
+
+        string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
+
+        try
+        {
+            foreach(string zipFile in zipFiles)
+            {
+                print("ZIPFILE : " + zipFile);
+                ZipFile.ExtractToDirectory(zipFile, filePath);
+            }
+
+            // Extract the contents of the zip file
+
+            print("Zip file extracted successfully.");
+        }
+        catch (Exception ex)
+        {
+            print($"Error extracting zip file: {ex.Message}");
+        }
+    }
+
     //==============================================================================================================================//
 }
