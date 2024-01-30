@@ -5,8 +5,7 @@ using SimpleJSON;
 using UnityEngine.Networking;
 using TMPro;
 using Loading.UI;
-
-using System.IO;
+using Download.file;
 
 public class HistoryScript : MonoBehaviour
 {
@@ -19,10 +18,12 @@ public class HistoryScript : MonoBehaviour
     public GameObject gameSelected;
     public GameObject popup;
     public Transform PanelHistoryUI;
-    private LoadingUI loadingUI;
+    private LoadingUI loadingUI = new LoadingUI();
+    private DownloadFile downloadFile = new DownloadFile();
 
     private void Awake()
     {
+        downloadFile.URLWithoutCardId = "https://dev.unimasoft.id/edugator/api/getAllGames/a49fdc824fe7c4ac29ed8c7b460d7338/";
         loadingUI.Prepare();
     }
     private void Start()
@@ -95,16 +96,28 @@ public class HistoryScript : MonoBehaviour
                                 PlayerPrefs.SetString("token", token);
                                 PlayerPrefs.SetInt("game_id", _jsonData["data"][i]["id"]);
 
-                                print("Jumlah Card : " + _jsonData["data"][i]["card"].Count);
+                                print("Jumlah Card : " + _jsonData["data"][i]["cards"].Count);
 
                                 // AddCardInArray(i);
 
-                                titleText.text = _jsonData["data"][i]["nama"];
-                                GameOwnerText.text = "Created By : " + _jsonData["data"][i]["pembuat"];
+                                titleText.text = _jsonData["data"][i]["name"];
+                                GameOwnerText.text = "Created By : " + _jsonData["data"][i]["author"];
 
-                                // yield return StartCoroutine(DownloadingModel());
-                                
+                                //Download Assets
+                                loadingUI.Show("Download Assets...");
+                                for(int j = 0; j < _jsonData["data"][i]["cards"].Count; j++)
+                                {
+                                    string cardName = _jsonData["data"][i]["cards"][j]["name"];
+                                    int cardId = _jsonData["data"][i]["cards"][j]["id"];
+
+                                    downloadFile.extentionFile = ".fbx";
+                                    Debug.Log("card NAME : " + cardName);
+                                    yield return StartCoroutine(downloadFile.Download(cardName, cardId));
+                                }
+                                loadingUI.Hide();
+
                                 transform.parent.parent.parent.gameObject.SetActive(false);
+                                
                             }
                         }
                     }
@@ -154,10 +167,10 @@ public class HistoryScript : MonoBehaviour
 
     private void AddCardInArray(int i)
     {
-        for(int j = 0; j < _jsonData["data"][i]["card"].Count; j++)
+        for(int j = 0; j < _jsonData["data"][i]["cards"].Count; j++)
         {
-            cardIdList.Add(_jsonData["data"][i]["card"][j]["id"]);
-            cardName.Add(_jsonData["data"][i]["card"][j]["nama"]);
+            cardIdList.Add(_jsonData["data"][i]["cards"][j]["id"]);
+            cardName.Add(_jsonData["data"][i]["cards"][j]["name"]);
             print("card id " + j + " = " + cardIdList[j]);
             print("card name " + j + " = " + cardName[j]);
         }
@@ -203,6 +216,23 @@ public class HistoryScript : MonoBehaviour
     //     }
     //     loadingUI.Hide();
     // }
+
+    //==============================================================================================================================//
+
+    //Animation
+    //==============================================================================================================================//
+    
+    private IEnumerator SlidingAnimation(Animator action)
+    {
+        action.SetBool("activateSlide", true);
+        yield return new WaitForSeconds(0.25f);
+        action.SetBool("activateSlide", false);
+    }
+
+    public void ActivateAnimationSliding(Animator action)
+    {
+        StartCoroutine(SlidingAnimation(action));
+    }
 
     //==============================================================================================================================//
 }

@@ -9,7 +9,7 @@ using System.IO.Compression;
 using UnityEngine.Audio;
 using Loading.UI;
 using System;
-using System.Linq;
+using Download.file;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
@@ -36,13 +36,19 @@ public class GameManagerMainMenu : MonoBehaviour
     
     [Space]
     LoadingUI loadingUI = new LoadingUI();
+    DownloadFile downloadFile = new DownloadFile();
     //Main Menu Script
     //==============================================================================================================================//\
     private void Awake()
     {
-        ExtractFile();
+        // ExtractFile();
+        // SetNormalMap();
+
+        downloadFile.URLWithoutCardId = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
+
         loadingUI.Prepare();
     }
+
     void Start()
     {
         // PlayerPrefs.DeleteAll();
@@ -52,17 +58,19 @@ public class GameManagerMainMenu : MonoBehaviour
         Debug.Log("Value : " + PlayerPrefs.GetString("token"));
         url = "https://dev.unimasoft.id/edugator/api/getAllGames/a49fdc824fe7c4ac29ed8c7b460d7338";
     }
+
     public void StartGame()
     {
         StartCoroutine(StartQuiz());
     }
+
     public IEnumerator StartQuiz()
     {
         // loadingUI.Show("Please Wait...");
         loadingUI.Show("Please Wait...");
         yield return StartCoroutine(GetDataFromAPI());
         // yield return StartCoroutine(DownloadingModel());
-        refreshHistory();
+        RefreshHistory();
     }
 
     public void ExitGame()
@@ -171,15 +179,26 @@ public class GameManagerMainMenu : MonoBehaviour
                             {
                                 PlayerPrefs.SetString("token", inputToken.text);
                                 PlayerPrefs.SetInt("game_id", _jsonData["data"][i]["id"]);
-                                titleText.text = _jsonData["data"][i]["nama"];
-                                GameOwnerText.text = "Created By : " + _jsonData["data"][i]["pembuat"];
+                                titleText.text = _jsonData["data"][i]["name"];
+                                GameOwnerText.text = "Created By : " + _jsonData["data"][i]["author"];
                                 print(PlayerPrefs.GetInt("game_id"));
                                 // Destroy(inputTokenUI);
                                 inputTokenUI.SetActive(false);
 
                                 print("data : " + _jsonData["data"]);
 
-                                // AddCardInArray(i);
+                                //Download Assets
+                                loadingUI.Show("Download Assets...");
+                                for(int j = 0; j < _jsonData["data"][i]["cards"].Count; j++)
+                                {
+                                    string cardName = _jsonData["data"][i]["cards"][j]["name"];
+                                    int cardId = _jsonData["data"][i]["cards"][j]["id"];
+
+                                    downloadFile.extentionFile = ".fbx";
+                                    Debug.Log("card NAME : " + cardName);
+                                    yield return StartCoroutine(downloadFile.Download(cardName, cardId));
+                                }
+                                loadingUI.Hide();
 
                                 //Update History Data
                                 string storage = PlayerPrefs.GetString("history");
@@ -202,14 +221,14 @@ public class GameManagerMainMenu : MonoBehaviour
 
                                     if(!ketemu)
                                     {
-                                        allHistory.Insert(0, inputToken.text + "," + _jsonData["data"][i]["nama"]);
+                                        allHistory.Insert(0, inputToken.text + "," + _jsonData["data"][i]["name"]);
                                         storage = string.Join(";", allHistory);
                                         PlayerPrefs.SetString("history", storage);
                                     }
                                 }
                                 else
                                 {
-                                    PlayerPrefs.SetString("history", inputToken.text + "," + _jsonData["data"][i]["nama"]);
+                                    PlayerPrefs.SetString("history", inputToken.text + "," + _jsonData["data"][i]["name"]);
                                 }     
                                 historyBtn.text = "New Game";
 
@@ -234,7 +253,7 @@ public class GameManagerMainMenu : MonoBehaviour
         }
     }
 
-    public void refreshHistory()
+    public void RefreshHistory()
     {
         for(int i = 0; i < table.childCount; i++)
         {
@@ -269,63 +288,6 @@ public class GameManagerMainMenu : MonoBehaviour
 
     //Download Model
     //==============================================================================================================================//
-    private string fbxUrl;
-    private string savePath;
-    private List<int> cardIdList = new List<int>();
-    private List<string> cardName = new List<string>();
-    private int cardIndex;
-
-    private void AddCardInArray(int i)
-    {
-        for(int j = 0; j < _jsonData["data"][i]["card"].Count; j++)
-        {
-            cardIdList.Add(_jsonData["data"][i]["card"][j]["id"]);
-            cardName.Add(_jsonData["data"][i]["card"][j]["nama"]);
-            print("card id " + j + " = " + cardIdList[j]);
-            print("card name " + j + " = " + cardName[j]);
-        }
-    }
-
-    // private   IEnumerator DownloadModel()
-    // {
-    //     Progress.Show("Downloading...", ProgressColor.Default);
-    //     UnityWebRequest www = UnityWebRequest.Get(fbxUrl);
-    //     yield return www.SendWebRequest();
-
-    //     if (www.result != UnityWebRequest.Result.Success)
-    //     {
-    //         loadingUI.Hide();
-    //         Debug.LogError("Gagal mengunduh file: " + www.error);
-    //     }
-    //     else
-    //     {
-    //         byte[] data = www.downloadHandler.data;
-
-    //         // Simpan data ke dalam file di folder "Assets".
-    //         File.WriteAllBytes(savePath, data);
-            
-    //         UnityEditor.AssetDatabase.Refresh();
-    //         loadingUI.Hide();
-    //         Debug.Log("File berhasil diunduh dan disimpan di " + savePath);
-    //     }
-    // }
-
-    // private IEnumerator DownloadingModel()
-    // {
-    //     for(int i = 0; i < cardIdList.Count; i++)
-    //     {
-    //         fbxUrl = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/" + cardIdList[cardIndex];
-            
-    //         savePath = $"Assets/3D Object/3D/{cardName[cardIndex]}.fbx";
-
-    //         Progress.Show("Downloading...", ProgressColor.Default);
-    //         yield return StartCoroutine(DownloadModel());
-    //         cardIndex++;
-
-    //         print("download 3d ke-" + i);
-    //     }
-    //     loadingUI.Hide();
-    // }
 
     //==============================================================================================================================//
     
@@ -389,5 +351,95 @@ public class GameManagerMainMenu : MonoBehaviour
         }
     }
 
+    private void SetNormalMap()
+    {
+        Texture2D[] textureFile = Resources.LoadAll<Texture2D>("3dObject");
+
+        foreach(Texture2D texture in textureFile)
+        {
+            if(texture.name.Contains("_Normal") || texture.name.Contains("_normal"))
+            {
+                //...
+            }
+        }
+    }
+
     //==============================================================================================================================//
+}
+
+namespace Download.file
+{
+    public class DownloadFile : MonoBehaviour
+    {
+        // private JSONNode _jsonData;
+
+        /// <summary>
+        /// URL for edugator = https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/
+        /// </summary>
+
+        public string URLWithoutCardId;
+        public string extentionFile;
+        private string savePath;
+        private string downloadFileURL;
+        // private List<int> cardIdList = new List<int>();
+        // private List<string> cardName = new List<string>();
+        // private int cardIndex;
+
+        // private void AddCardInArray(int i)
+        // {
+        //     for(int j = 0; j < _jsonData["data"][i]["cards"].Count; j++)
+        //     {
+        //         cardIdList.Add(_jsonData["data"][i]["cards"][j]["id"]);
+        //         cardName.Add(_jsonData["data"][i]["cards"][j]["name"]);
+        //     }
+        // }
+
+        // private IEnumerator Downloading()
+        // {
+        //     UnityWebRequest www = UnityWebRequest.Get(downloadFileURL);
+        //     yield return www.SendWebRequest();
+
+        //     if (www.result != UnityWebRequest.Result.Success)
+        //     {
+        //         Debug.LogError("Gagal mengunduh file: " + www.error);
+        //     }
+        //     else
+        //     {
+        //         byte[] data = www.downloadHandler.data;
+
+        //         // Simpan data ke dalam file di folder "Assets".
+        //         File.WriteAllBytes(savePath, data);
+
+        //         Debug.Log("File berhasil diunduh dan disimpan di " + savePath);
+        //     }
+        // }
+
+        public IEnumerator Download(string fileName, int cardId)
+        {
+            downloadFileURL = URLWithoutCardId + cardId;
+            
+            Debug.Log("URLFILE : " + downloadFileURL);
+            //Create "Resources" Folder First
+            savePath = $"Assets/Resources/3dObject/{fileName + extentionFile}";
+
+            
+            
+            UnityWebRequest www = UnityWebRequest.Get(downloadFileURL);
+            yield return www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("Gagal mengunduh file: " + www.error);
+            }
+            else
+            {
+                byte[] data = www.downloadHandler.data;
+
+                // Simpan data ke dalam file di folder "Assets".
+                File.WriteAllBytes(savePath, data);
+
+                Debug.Log("File berhasil diunduh dan disimpan di " + savePath);
+            }
+        }
+    }
 }

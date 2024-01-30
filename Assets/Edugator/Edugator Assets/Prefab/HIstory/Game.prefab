@@ -199,7 +199,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: New Game
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -416,7 +416,6 @@ GameObject:
   - component: {fileID: 311187995697585851}
   - component: {fileID: 3513063126895197557}
   - component: {fileID: 7567948739152676548}
-  - component: {fileID: 7022294009290522280}
   - component: {fileID: 7346362222622165124}
   m_Layer: 5
   m_Name: Game
@@ -529,8 +528,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7022294009290522280}
-        m_TargetAssemblyTypeName: AnimationScript, Assembly-CSharp
+      - m_Target: {fileID: 7346362222622165124}
+        m_TargetAssemblyTypeName: HistoryScript, Assembly-CSharp
         m_MethodName: ActivateAnimationSliding
         m_Mode: 2
         m_Arguments:
@@ -598,25 +597,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca50431f5e63a8c42b0b1674fb5dac31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &7022294009290522280
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4472306983728543916}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 228b59748ed569a42a3438da93967153, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playBtnAnim: {fileID: 0}
-  historyBtnAnim: {fileID: 0}
-  settingBtnAnim: {fileID: 0}
-  quitBtnAnim: {fileID: 0}
-  HistoryUI: {fileID: 0}
-  panelHistoryUIAnim: {fileID: 0}
-  brightnesAnim: {fileID: 0}
 --- !u!114 &7346362222622165124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -700,7 +680,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: 44736ebf1ac169b4d5e7d174ca1f8b8e
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
