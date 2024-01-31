@@ -41,17 +41,13 @@ public class GameManagerMainMenu : MonoBehaviour
     //==============================================================================================================================//\
     private void Awake()
     {
-        // ExtractFile();
-        // SetNormalMap();
-
-        downloadFile.URLWithoutCardId = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
-
         loadingUI.Prepare();
     }
 
     void Start()
     {
         // PlayerPrefs.DeleteAll();
+        RefreshDirectory();
         print(PlayerPrefs.GetString("history"));
         PlayerPrefs.DeleteKey("token");
         historyBtn.text = "History";
@@ -188,16 +184,20 @@ public class GameManagerMainMenu : MonoBehaviour
                                 print("data : " + _jsonData["data"]);
 
                                 //Download Assets
-                                loadingUI.Show("Download Assets...");
-                                for(int j = 0; j < _jsonData["data"][i]["cards"].Count; j++)
-                                {
-                                    string cardName = _jsonData["data"][i]["cards"][j]["name"];
-                                    int cardId = _jsonData["data"][i]["cards"][j]["id"];
+                                loadingUI.Show("Downloading Assets...");
+                                string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                string path = "Assets/Resources/3dObject/";
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i));
+                                ExtractFile();
+                                
 
-                                    downloadFile.extentionFile = ".fbx";
-                                    Debug.Log("card NAME : " + cardName);
-                                    yield return StartCoroutine(downloadFile.Download(cardName, cardId));
-                                }
+                                string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                path = "Assets/Resources/CardImage/";
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".jpg", i));
+                                DeleteZipFile();
+
+                                
+                                RefreshDirectory();
                                 loadingUI.Hide();
 
                                 //Update History Data
@@ -283,12 +283,96 @@ public class GameManagerMainMenu : MonoBehaviour
         }
     }
 
+    void RefreshDirectory()
+    {
+        // var info = new FileInfo(@"D:/Unity/Unity Project/Edugator/Assets/Resources/3dObject");
+
+        // print("INFOO : " + info);
+        // info.Refresh();
+        // info.Refresh(@"C:\BillingExport\BILLING_TABLE_FILE01_1.txt");
+        // var lastAccess = info.LastAccessTime;
+
+        // print("lastAccess : " + lastAccess);
+        // Perbarui direktori dengan membuat sementara file
+        // string tempFilePath = Path.Combine("Assets/Resources/3dObject/", "tempfile.temp");
+
+        // try
+        // {
+        //     // Buat sementara file
+        //     File.Create(tempFilePath).Close();
+            
+        //     // Hapus sementara file
+        //     File.Delete(tempFilePath);
+
+        //     // Pemberitahuan bahwa direktori telah di-refresh
+        //     Debug.Log("Directory refreshed successfully.");
+        // }
+        // catch (Exception e)
+        // {
+        //     Debug.LogError("Error refreshing directory: " + e.Message);
+        // }
+    }
+
+
 
     //==============================================================================================================================//
 
     //Download Model
     //==============================================================================================================================//
+    string cardName;
+    int cardId;
+    string fileName;
+    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame)
+    {
+        string[] files =  Directory.GetFiles(savePath, "*" + extention);
+                                
+        bool fileIsAvailable;
 
+        if(files.Length == 0)
+        {
+            // loadingUI.Show("Download Assets...");
+            for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count; j++)
+            {
+                cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
+                cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
+                
+                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+            }
+            // loadingUI.Hide();
+        }
+        else
+        {
+            for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count; j++)
+            {
+
+                cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
+                cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
+                fileIsAvailable = false;
+
+                foreach(string file in files)
+                {
+                    fileName = Path.GetFileNameWithoutExtension(file);
+
+                    Debug.Log("card NAME : " + cardName);
+
+                    if(cardName == fileName)
+                    {
+                        fileIsAvailable = true;
+                    }
+                }
+
+                if(fileIsAvailable == true)
+                    Debug.Log("File is Available");
+                else
+                {
+                    // loadingUI.Show("Download Assets...");
+                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                    // loadingUI.Hide();
+                }
+            }
+
+        }
+    }
     //==============================================================================================================================//
     
     //Music
@@ -324,7 +408,7 @@ public class GameManagerMainMenu : MonoBehaviour
     }
     //==============================================================================================================================//
     
-    //Extract File
+    //Extract and Delete File
     //==============================================================================================================================//
 
     private void ExtractFile()
@@ -351,16 +435,25 @@ public class GameManagerMainMenu : MonoBehaviour
         }
     }
 
-    private void SetNormalMap()
+    private void DeleteZipFile()
     {
-        Texture2D[] textureFile = Resources.LoadAll<Texture2D>("3dObject");
+        string filePath = "Assets/Resources/3dObject/";
 
-        foreach(Texture2D texture in textureFile)
+        string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
+
+        try
         {
-            if(texture.name.Contains("_Normal") || texture.name.Contains("_normal"))
+            foreach(string zipFile in zipFiles)
             {
-                //...
+                print("ZIPFILE : " + zipFile);
+                File.Delete(zipFile);
             }
+
+            print("Zip file Deleted successfully.");
+        }
+        catch (Exception ex)
+        {
+            print($"Error Deleted zip file: {ex.Message}");
         }
     }
 
@@ -371,56 +464,22 @@ namespace Download.file
 {
     public class DownloadFile : MonoBehaviour
     {
-        // private JSONNode _jsonData;
-
         /// <summary>
         /// URL for edugator = https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/
         /// </summary>
 
-        public string URLWithoutCardId;
-        public string extentionFile;
-        private string savePath;
+        // public string URLWithoutCardId;
+        // public string extentionFile;
+        // private string savePath;
         private string downloadFileURL;
-        // private List<int> cardIdList = new List<int>();
-        // private List<string> cardName = new List<string>();
-        // private int cardIndex;
 
-        // private void AddCardInArray(int i)
-        // {
-        //     for(int j = 0; j < _jsonData["data"][i]["cards"].Count; j++)
-        //     {
-        //         cardIdList.Add(_jsonData["data"][i]["cards"][j]["id"]);
-        //         cardName.Add(_jsonData["data"][i]["cards"][j]["name"]);
-        //     }
-        // }
-
-        // private IEnumerator Downloading()
-        // {
-        //     UnityWebRequest www = UnityWebRequest.Get(downloadFileURL);
-        //     yield return www.SendWebRequest();
-
-        //     if (www.result != UnityWebRequest.Result.Success)
-        //     {
-        //         Debug.LogError("Gagal mengunduh file: " + www.error);
-        //     }
-        //     else
-        //     {
-        //         byte[] data = www.downloadHandler.data;
-
-        //         // Simpan data ke dalam file di folder "Assets".
-        //         File.WriteAllBytes(savePath, data);
-
-        //         Debug.Log("File berhasil diunduh dan disimpan di " + savePath);
-        //     }
-        // }
-
-        public IEnumerator Download(string fileName, int cardId)
+        public IEnumerator Download(string URLWithoutCardId, string fileName, int cardId, string extention, string savePath)
         {
             downloadFileURL = URLWithoutCardId + cardId;
             
             Debug.Log("URLFILE : " + downloadFileURL);
             //Create "Resources" Folder First
-            savePath = $"Assets/Resources/3dObject/{fileName + extentionFile}";
+            savePath = savePath + fileName + extention;
 
             
             

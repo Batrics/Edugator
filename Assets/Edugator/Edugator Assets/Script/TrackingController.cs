@@ -115,10 +115,10 @@ public class TrackingController : MonoBehaviour
         trackedImageManager.enabled = true;
         playButton.SetActive(false);
 
-        PlayerPrefs.SetInt("game_id", 11);
-        PlayerPrefs.SetInt("visualEffect", 1);
+        // PlayerPrefs.SetInt("game_id", 11);
+        // PlayerPrefs.SetInt("visualEffect", 1);
         getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
-        PlayerPrefs.SetString("token", "44736ebf1ac169b4d5e7d174ca1f8b8e");
+        // PlayerPrefs.SetString("token", "44736ebf1ac169b4d5e7d174ca1f8b8e");
 
         foreach (KeyValuePair<string, GameObject> entry in gameObjectDictionary)
         {
@@ -201,7 +201,7 @@ public class TrackingController : MonoBehaviour
 
         if(trackedImageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary)
         {
-            referenceImageJobState = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
+            yield return referenceImageJobState = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
 
             while(!referenceImageJobState.jobHandle.IsCompleted)
             {
@@ -209,6 +209,7 @@ public class TrackingController : MonoBehaviour
             }
 
             referenceImageJobState.jobHandle.Complete();
+            print("IMAAAAAGEE : " + mutableLibrary[0].name);
         }
         else
         {
@@ -224,11 +225,13 @@ public class TrackingController : MonoBehaviour
 
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary)
         {
+            print("A : " + trackedImage.referenceImage.name);
+            print("B : " + go.Key);
             if (trackedImage.referenceImage.name == go.Key)
             {
                 yield return StartCoroutine(GetDataFromAPIAndGetCardId(go));
 
-                StartCoroutine(GetDataFromAPIAndInstantiateObject(go.Value, trackedImage.transform));
+                yield return StartCoroutine(GetDataFromAPIAndInstantiateObject(go.Value, trackedImage.transform));
             }
             else
             {
@@ -354,7 +357,7 @@ public class TrackingController : MonoBehaviour
                                 {
                                     Destroy(ParticleEffect);
                                 }
-
+                                print("ASDASDAAAAAAAA");
                                 AnimationIn3DObject(entry, transform);
                                 playButton.SetActive(true);
 
