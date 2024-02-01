@@ -69,14 +69,12 @@ namespace SimpleJSON
             private Dictionary<string, JSONNode>.Enumerator m_Object;
             private List<JSONNode>.Enumerator m_Array;
             public bool IsValid { get { return type != Type.None; } }
-            public Enumerator(List<JSONNode>.Enumerator aArrayEnum)
-            {
+            public Enumerator(List<JSONNode>.Enumerator aArrayEnum) {
                 type = Type.Array;
                 m_Object = default(Dictionary<string, JSONNode>.Enumerator);
                 m_Array = aArrayEnum;
             }
-            public Enumerator(Dictionary<string, JSONNode>.Enumerator aDictEnum)
-            {
+            public Enumerator(Dictionary<string, JSONNode>.Enumerator aDictEnum) {
                 type = Type.Object;
                 m_Object = aDictEnum;
                 m_Array = default(List<JSONNode>.Enumerator);
@@ -92,8 +90,7 @@ namespace SimpleJSON
                     return new KeyValuePair<string, JSONNode>(string.Empty, null);
                 }
             }
-            public bool MoveNext()
-            {
+            public bool MoveNext() {
                 if (type == Type.Array)
                     return m_Array.MoveNext();
                 else if (type == Type.Object)
@@ -126,8 +123,7 @@ namespace SimpleJSON
         {
             private JSONNode m_Node;
             private Enumerator m_Enumerator;
-            internal LinqEnumerator(JSONNode aNode)
-            {
+            internal LinqEnumerator(JSONNode aNode) {
                 m_Node = aNode;
                 if (m_Node != null)
                     m_Enumerator = m_Node.GetEnumerator();
@@ -136,25 +132,21 @@ namespace SimpleJSON
             object IEnumerator.Current { get { return m_Enumerator.Current; } }
             public bool MoveNext() { return m_Enumerator.MoveNext(); }
 
-            public void Dispose()
-            {
+            public void Dispose() {
                 m_Node = null;
                 m_Enumerator = new Enumerator();
             }
 
-            public IEnumerator<KeyValuePair<string, JSONNode>> GetEnumerator()
-            {
+            public IEnumerator<KeyValuePair<string, JSONNode>> GetEnumerator() {
                 return new LinqEnumerator(m_Node);
             }
 
-            public void Reset()
-            {
+            public void Reset() {
                 if (m_Node != null)
                     m_Enumerator = m_Node.GetEnumerator();
             }
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
+            IEnumerator IEnumerable.GetEnumerator() {
                 return new LinqEnumerator(m_Node);
             }
         }
@@ -186,32 +178,26 @@ namespace SimpleJSON
 
         public virtual bool Inline { get { return false; } set { } }
 
-        public virtual void Add(string aKey, JSONNode aItem)
-        {
+        public virtual void Add(string aKey, JSONNode aItem) {
         }
-        public virtual void Add(JSONNode aItem)
-        {
+        public virtual void Add(JSONNode aItem) {
             Add("", aItem);
         }
 
-        public virtual JSONNode Remove(string aKey)
-        {
+        public virtual JSONNode Remove(string aKey) {
             return null;
         }
 
-        public virtual JSONNode Remove(int aIndex)
-        {
+        public virtual JSONNode Remove(int aIndex) {
             return null;
         }
 
-        public virtual JSONNode Remove(JSONNode aNode)
-        {
+        public virtual JSONNode Remove(JSONNode aNode) {
             return aNode;
         }
         public virtual void Clear() { }
 
-        public virtual JSONNode Clone()
-        {
+        public virtual JSONNode Clone() {
             return null;
         }
 
@@ -233,25 +219,21 @@ namespace SimpleJSON
             }
         }
 
-        public virtual bool HasKey(string aKey)
-        {
+        public virtual bool HasKey(string aKey) {
             return false;
         }
 
-        public virtual JSONNode GetValueOrDefault(string aKey, JSONNode aDefault)
-        {
+        public virtual JSONNode GetValueOrDefault(string aKey, JSONNode aDefault) {
             return aDefault;
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             StringBuilder sb = new StringBuilder();
             WriteToStringBuilder(sb, 0, 0, JSONTextMode.Compact);
             return sb.ToString();
         }
 
-        public virtual string ToString(int aIndent)
-        {
+        public virtual string ToString(int aIndent) {
             StringBuilder sb = new StringBuilder();
             WriteToStringBuilder(sb, 0, aIndent, JSONTextMode.Indent);
             return sb.ToString();
@@ -361,80 +343,64 @@ namespace SimpleJSON
 
         #region operators
 
-        public static implicit operator JSONNode(string s)
-        {
+        public static implicit operator JSONNode(string s) {
             return (s == null) ? (JSONNode)JSONNull.CreateOrGet() : new JSONString(s);
         }
-        public static implicit operator string(JSONNode d)
-        {
+        public static implicit operator string(JSONNode d) {
             return (d == null) ? null : d.Value;
         }
 
-        public static implicit operator JSONNode(double n)
-        {
+        public static implicit operator JSONNode(double n) {
             return new JSONNumber(n);
         }
-        public static implicit operator double(JSONNode d)
-        {
+        public static implicit operator double(JSONNode d) {
             return (d == null) ? 0 : d.AsDouble;
         }
 
-        public static implicit operator JSONNode(float n)
-        {
+        public static implicit operator JSONNode(float n) {
             return new JSONNumber(n);
         }
-        public static implicit operator float(JSONNode d)
-        {
+        public static implicit operator float(JSONNode d) {
             return (d == null) ? 0 : d.AsFloat;
         }
 
-        public static implicit operator JSONNode(int n)
-        {
+        public static implicit operator JSONNode(int n) {
             return new JSONNumber(n);
         }
-        public static implicit operator int(JSONNode d)
-        {
+        public static implicit operator int(JSONNode d) {
             return (d == null) ? 0 : d.AsInt;
         }
 
-        public static implicit operator JSONNode(long n)
-        {
+        public static implicit operator JSONNode(long n) {
             if (longAsString)
                 return new JSONString(n.ToString(CultureInfo.InvariantCulture));
             return new JSONNumber(n);
         }
-        public static implicit operator long(JSONNode d)
-        {
+        public static implicit operator long(JSONNode d) {
             return (d == null) ? 0L : d.AsLong;
         }
 
-        public static implicit operator JSONNode(ulong n)
-        {
+        public static implicit operator JSONNode(ulong n) {
             if (longAsString)
                 return new JSONString(n.ToString(CultureInfo.InvariantCulture));
             return new JSONNumber(n);
         }
-        public static implicit operator ulong(JSONNode d)
-        {
+        public static implicit operator ulong(JSONNode d) {
             return (d == null) ? 0 : d.AsULong;
         }
 
-        public static implicit operator JSONNode(bool b)
-        {
+        public static implicit operator JSONNode(bool b) {
             return new JSONBool(b);
         }
-        public static implicit operator bool(JSONNode d)
-        {
+        public static implicit operator bool(JSONNode d) {
             return (d == null) ? false : d.AsBool;
         }
 
-        public static implicit operator JSONNode(KeyValuePair<string, JSONNode> aKeyValue)
-        {
+        public static implicit operator JSONNode(KeyValuePair<string, JSONNode> aKeyValue) {
             return aKeyValue.Value;
         }
 
-        public static bool operator ==(JSONNode a, object b)
-        {
+        public static bool operator ==(JSONNode a, object b) {
             if (ReferenceEquals(a, b))
                 return true;
             bool aIsNull = a is JSONNull || ReferenceEquals(a, null) || a is JSONLazyCreator;
@@ -444,18 +410,15 @@ namespace SimpleJSON
             return !aIsNull && a.Equals(b);
         }
 
-        public static bool operator !=(JSONNode a, object b)
-        {
+        public static bool operator !=(JSONNode a, object b) {
             return !(a == b);
         }
 
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             return ReferenceEquals(this, obj);
         }
 
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return base.GetHashCode();
         }
 
@@ -472,16 +435,13 @@ namespace SimpleJSON
                 return m_EscapeBuilder;
             }
         }
-        internal static string Escape(string aText)
-        {
+        internal static string Escape(string aText) {
             var sb = EscapeBuilder;
             sb.Length = 0;
             if (sb.Capacity < aText.Length + aText.Length / 10)
                 sb.Capacity = aText.Length + aText.Length / 10;
-            foreach (char c in aText)
-            {
-                switch (c)
-                {
+            foreach (char c in aText) {
+                switch (c) {
                     case '\\':
                         sb.Append("\\\\");
                         break;
@@ -504,12 +464,10 @@ namespace SimpleJSON
                         sb.Append("\\f");
                         break;
                     default:
-                        if (c < ' ' || (forceASCII && c > 127))
-                        {
+                        if (c < ' ' || (forceASCII && c > 127)) {
                             ushort val = c;
                             sb.Append("\\u").Append(val.ToString("X4"));
-                        }
-                        else
+                        } else
                             sb.Append(c);
                         break;
                 }
@@ -519,12 +477,10 @@ namespace SimpleJSON
             return result;
         }
 
-        private static JSONNode ParseElement(string token, bool quoted)
-        {
+        private static JSONNode ParseElement(string token, bool quoted) {
             if (quoted)
                 return token;
-            if (token.Length <= 5)
-            {
+            if (token.Length <= 5) {
                 string tmp = token.ToLower();
                 if (tmp == "false" || tmp == "true")
                     return tmp == "true";
@@ -538,8 +494,7 @@ namespace SimpleJSON
                 return token;
         }
 
-        public static JSONNode Parse(string aJSON)
-        {
+        public static JSONNode Parse(string aJSON) {
             Stack<JSONNode> stack = new Stack<JSONNode>();
             JSONNode ctx = null;
             int i = 0;
@@ -548,19 +503,15 @@ namespace SimpleJSON
             bool QuoteMode = false;
             bool TokenIsQuoted = false;
             bool HasNewlineChar = false;
-            while (i < aJSON.Length)
-            {
-                switch (aJSON[i])
-                {
+            while (i < aJSON.Length) {
+                switch (aJSON[i]) {
                     case '{':
-                        if (QuoteMode)
-                        {
+                        if (QuoteMode) {
                             Token.Append(aJSON[i]);
                             break;
                         }
                         stack.Push(new JSONObject());
-                        if (ctx != null)
-                        {
+                        if (ctx != null) {
                             ctx.Add(TokenName, stack.Peek());
                         }
                         TokenName = "";
@@ -570,15 +521,13 @@ namespace SimpleJSON
                         break;
 
                     case '[':
-                        if (QuoteMode)
-                        {
+                        if (QuoteMode) {
                             Token.Append(aJSON[i]);
                             break;
                         }
 
                         stack.Push(new JSONArray());
-                        if (ctx != null)
-                        {
+                        if (ctx != null) {
                             ctx.Add(TokenName, stack.Peek());
                         }
                         TokenName = "";
@@ -589,8 +538,7 @@ namespace SimpleJSON
 
                     case '}':
                     case ']':
-                        if (QuoteMode)
-                        {
+                        if (QuoteMode) {
 
                             Token.Append(aJSON[i]);
                             break;
@@ -611,8 +559,7 @@ namespace SimpleJSON
                         break;
 
                     case ':':
-                        if (QuoteMode)
-                        {
+                        if (QuoteMode) {
                             Token.Append(aJSON[i]);
                             break;
                         }
@@ -627,8 +574,7 @@ namespace SimpleJSON
                         break;
 
                     case ',':
-                        if (QuoteMode)
-                        {
+                        if (QuoteMode) {
                             Token.Append(aJSON[i]);
                             break;
                         }
@@ -653,11 +599,9 @@ namespace SimpleJSON
 
                     case '\\':
                         ++i;
-                        if (QuoteMode)
-                        {
+                        if (QuoteMode) {
                             char C = aJSON[i];
-                            switch (C)
-                            {
+                            switch (C) {
                                 case 't':
                                     Token.Append('\t');
                                     break;
@@ -689,8 +633,7 @@ namespace SimpleJSON
                         }
                         break;
                     case '/':
-                        if (allowLineComments && !QuoteMode && i + 1 < aJSON.Length && aJSON[i + 1] == '/')
-                        {
+                        if (allowLineComments && !QuoteMode && i + 1 < aJSON.Length && aJSON[i + 1] == '/') {
                             while (++i < aJSON.Length && aJSON[i] != '\n' && aJSON[i] != '\r') ;
                             break;
                         }
@@ -705,8 +648,7 @@ namespace SimpleJSON
                 }
                 ++i;
             }
-            if (QuoteMode)
-            {
+            if (QuoteMode) {
                 throw new Exception("JSON Parse: Quotation marks seems to be messed up.");
             }
             if (ctx == null)
@@ -766,15 +708,13 @@ namespace SimpleJSON
             get { return m_List.Count; }
         }
 
-        public override void Add(string aKey, JSONNode aItem)
-        {
+        public override void Add(string aKey, JSONNode aItem) {
             if (aItem == null)
                 aItem = JSONNull.CreateOrGet();
             m_List.Add(aItem);
         }
 
-        public override JSONNode Remove(int aIndex)
-        {
+        public override JSONNode Remove(int aIndex) {
             if (aIndex < 0 || aIndex >= m_List.Count)
                 return null;
             JSONNode tmp = m_List[aIndex];
@@ -782,23 +722,19 @@ namespace SimpleJSON
             return tmp;
         }
 
-        public override JSONNode Remove(JSONNode aNode)
-        {
+        public override JSONNode Remove(JSONNode aNode) {
             m_List.Remove(aNode);
             return aNode;
         }
 
-        public override void Clear()
-        {
+        public override void Clear() {
             m_List.Clear();
         }
 
-        public override JSONNode Clone()
-        {
+        public override JSONNode Clone() {
             var node = new JSONArray();
             node.m_List.Capacity = m_List.Capacity;
-            foreach (var n in m_List)
-            {
+            foreach (var n in m_List) {
                 if (n != null)
                     node.Add(n.Clone());
                 else
@@ -817,14 +753,12 @@ namespace SimpleJSON
         }
 
 
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
-        {
+        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode) {
             aSB.Append('[');
             int count = m_List.Count;
             if (inline)
                 aMode = JSONTextMode.Compact;
-            for (int i = 0; i < count; i++)
-            {
+            for (int i = 0; i < count; i++) {
                 if (i > 0)
                     aSB.Append(',');
                 if (aMode == JSONTextMode.Indent)
@@ -902,13 +836,11 @@ namespace SimpleJSON
             get { return m_Dict.Count; }
         }
 
-        public override void Add(string aKey, JSONNode aItem)
-        {
+        public override void Add(string aKey, JSONNode aItem) {
             if (aItem == null)
                 aItem = JSONNull.CreateOrGet();
 
-            if (aKey != null)
-            {
+            if (aKey != null) {
                 if (m_Dict.ContainsKey(aKey))
                     m_Dict[aKey] = aItem;
                 else
@@ -918,8 +850,7 @@ namespace SimpleJSON
                 m_Dict.Add(Guid.NewGuid().ToString(), aItem);
         }
 
-        public override JSONNode Remove(string aKey)
-        {
+        public override JSONNode Remove(string aKey) {
             if (!m_Dict.ContainsKey(aKey))
                 return null;
             JSONNode tmp = m_Dict[aKey];
@@ -927,8 +858,7 @@ namespace SimpleJSON
             return tmp;
         }
 
-        public override JSONNode Remove(int aIndex)
-        {
+        public override JSONNode Remove(int aIndex) {
             if (aIndex < 0 || aIndex >= m_Dict.Count)
                 return null;
             var item = m_Dict.ElementAt(aIndex);
@@ -936,8 +866,7 @@ namespace SimpleJSON
             return item.Value;
         }
 
-        public override JSONNode Remove(JSONNode aNode)
-        {
+        public override JSONNode Remove(JSONNode aNode) {
             try
             {
                 var item = m_Dict.Where(k => k.Value == aNode).First();
@@ -950,28 +879,23 @@ namespace SimpleJSON
             }
         }
 
-        public override void Clear()
-        {
+        public override void Clear() {
             m_Dict.Clear();
         }
 
-        public override JSONNode Clone()
-        {
+        public override JSONNode Clone() {
             var node = new JSONObject();
-            foreach (var n in m_Dict)
-            {
+            foreach (var n in m_Dict) {
                 node.Add(n.Key, n.Value.Clone());
             }
             return node;
         }
 
-        public override bool HasKey(string aKey)
-        {
+        public override bool HasKey(string aKey) {
             return m_Dict.ContainsKey(aKey);
         }
 
-        public override JSONNode GetValueOrDefault(string aKey, JSONNode aDefault)
-        {
+        public override JSONNode GetValueOrDefault(string aKey, JSONNode aDefault) {
             JSONNode res;
             if (m_Dict.TryGetValue(aKey, out res))
                 return res;
@@ -987,14 +911,12 @@ namespace SimpleJSON
             }
         }
 
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
-        {
+        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode) {
             aSB.Append('{');
             bool first = true;
             if (inline)
                 aMode = JSONTextMode.Compact;
-            foreach (var k in m_Dict)
-            {
+            foreach (var k in m_Dict) {
                 if (!first)
                     aSB.Append(',');
                 first = false;
@@ -1036,21 +958,17 @@ namespace SimpleJSON
             }
         }
 
-        public JSONString(string aData)
-        {
+        public JSONString(string aData) {
             m_Data = aData;
         }
-        public override JSONNode Clone()
-        {
+        public override JSONNode Clone() {
             return new JSONString(m_Data);
         }
 
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
-        {
+        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode) {
             aSB.Append('\"').Append(Escape(m_Data)).Append('\"');
         }
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             if (base.Equals(obj))
                 return true;
             string s = obj as string;
@@ -1061,12 +979,10 @@ namespace SimpleJSON
                 return m_Data == s2.m_Data;
             return false;
         }
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return m_Data.GetHashCode();
         }
-        public override void Clear()
-        {
+        public override void Clear() {
             m_Data = "";
         }
     }
@@ -1107,27 +1023,22 @@ namespace SimpleJSON
             set { m_Data = value; }
         }
 
-        public JSONNumber(double aData)
-        {
+        public JSONNumber(double aData) {
             m_Data = aData;
         }
 
-        public JSONNumber(string aData)
-        {
+        public JSONNumber(string aData) {
             Value = aData;
         }
 
-        public override JSONNode Clone()
-        {
+        public override JSONNode Clone() {
             return new JSONNumber(m_Data);
         }
 
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
-        {
+        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode) {
             aSB.Append(Value.ToString(CultureInfo.InvariantCulture));
         }
-        private static bool IsNumeric(object value)
-        {
+        private static bool IsNumeric(object value) {
             return value is int || value is uint
                 || value is float || value is double
                 || value is decimal
@@ -1135,8 +1046,7 @@ namespace SimpleJSON
                 || value is short || value is ushort
                 || value is sbyte || value is byte;
         }
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             if (obj == null)
                 return false;
             if (base.Equals(obj))
@@ -1148,12 +1058,10 @@ namespace SimpleJSON
                 return Convert.ToDouble(obj) == m_Data;
             return false;
         }
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return m_Data.GetHashCode();
         }
-        public override void Clear()
-        {
+        public override void Clear() {
             m_Data = 0;
         }
     }
@@ -1183,39 +1091,32 @@ namespace SimpleJSON
             set { m_Data = value; }
         }
 
-        public JSONBool(bool aData)
-        {
+        public JSONBool(bool aData) {
             m_Data = aData;
         }
 
-        public JSONBool(string aData)
-        {
+        public JSONBool(string aData) {
             Value = aData;
         }
 
-        public override JSONNode Clone()
-        {
+        public override JSONNode Clone() {
             return new JSONBool(m_Data);
         }
 
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
-        {
+        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode) {
             aSB.Append((m_Data) ? "true" : "false");
         }
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             if (obj == null)
                 return false;
             if (obj is bool)
                 return m_Data == (bool)obj;
             return false;
         }
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return m_Data.GetHashCode();
         }
-        public override void Clear()
-        {
+        public override void Clear() {
             m_Data = false;
         }
     }
@@ -1225,8 +1126,7 @@ namespace SimpleJSON
     {
         static JSONNull m_StaticInstance = new JSONNull();
         public static bool reuseSameInstance = true;
-        public static JSONNull CreateOrGet()
-        {
+        public static JSONNull CreateOrGet() {
             if (reuseSameInstance)
                 return m_StaticInstance;
             return new JSONNull();
@@ -1248,24 +1148,20 @@ namespace SimpleJSON
             set { }
         }
 
-        public override JSONNode Clone()
-        {
+        public override JSONNode Clone() {
             return CreateOrGet();
         }
 
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             if (object.ReferenceEquals(this, obj))
                 return true;
             return (obj is JSONNull);
         }
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return 0;
         }
 
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
-        {
+        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode) {
             aSB.Append("null");
         }
     }
@@ -1278,14 +1174,12 @@ namespace SimpleJSON
         public override JSONNodeType Tag { get { return JSONNodeType.None; } }
         public override Enumerator GetEnumerator() { return new Enumerator(); }
 
-        public JSONLazyCreator(JSONNode aNode)
-        {
+        public JSONLazyCreator(JSONNode aNode) {
             m_Node = aNode;
             m_Key = null;
         }
 
-        public JSONLazyCreator(JSONNode aNode, string aKey)
-        {
+        public JSONLazyCreator(JSONNode aNode, string aKey) {
             m_Node = aNode;
             m_Key = aKey;
         }
@@ -1312,37 +1206,31 @@ namespace SimpleJSON
             set { Set(new JSONObject()).Add(aKey, value); }
         }
 
-        public override void Add(JSONNode aItem)
-        {
+        public override void Add(JSONNode aItem) {
             Set(new JSONArray()).Add(aItem);
         }
 
-        public override void Add(string aKey, JSONNode aItem)
-        {
+        public override void Add(string aKey, JSONNode aItem) {
             Set(new JSONObject()).Add(aKey, aItem);
         }
 
-        public static bool operator ==(JSONLazyCreator a, object b)
-        {
+        public static bool operator ==(JSONLazyCreator a, object b) {
             if (b == null)
                 return true;
             return System.Object.ReferenceEquals(a, b);
         }
 
-        public static bool operator !=(JSONLazyCreator a, object b)
-        {
+        public static bool operator !=(JSONLazyCreator a, object b) {
             return !(a == b);
         }
 
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             if (obj == null)
                 return true;
             return System.Object.ReferenceEquals(this, obj);
         }
 
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return 0;
         }
 
@@ -1417,8 +1305,7 @@ namespace SimpleJSON
         {
             get { return Set(new JSONObject()); }
         }
-        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
-        {
+        internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode) {
             aSB.Append("null");
         }
     }
@@ -1426,8 +1313,7 @@ namespace SimpleJSON
 
     public static class JSON
     {
-        public static JSONNode Parse(string aJSON)
-        {
+        public static JSONNode Parse(string aJSON) {
             return JSONNode.Parse(aJSON);
         }
     }

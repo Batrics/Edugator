@@ -36,9 +36,7 @@ public class TrackingController : MonoBehaviour
     GameObject[] prefabs3D;
     Texture2D[] texture2Ds;
 
-    void Awake()
-    {
-
+    void Awake() {
         infoForDev.text = "1";
         trackedImageManager = gameObject.AddComponent<ARTrackedImageManager>();
 
@@ -47,20 +45,16 @@ public class TrackingController : MonoBehaviour
         texture2Ds = Resources.LoadAll<Texture2D>("CardImage");
 
         library = trackedImageManager.CreateRuntimeLibrary();
-        // mutableLibrary = library as MutableRuntimeReferenceImageLibrary;
         trackedImageManager.referenceLibrary = library;
 
         infoForDev.text = "1\n2";
 
     }
 
-    private void Start()
-    {
-        foreach(Texture2D texture2D in texture2Ds)
-        {
+    private void Start() {
+        foreach(Texture2D texture2D in texture2Ds) {
             cardReferenceImgae.Add(texture2D.name, texture2D);
-            if(cardReferenceImgae != null)
-            {
+            if(cardReferenceImgae != null) {
                 infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources";
             }
             print(texture2D);
@@ -69,10 +63,8 @@ public class TrackingController : MonoBehaviour
         infoForDev.text = "1\n2\nGambar ada di dalam folder Resources\n3";
 
 
-        foreach(KeyValuePair<string, Texture2D> imageReference in cardReferenceImgae)
-        {
-           if (imageReference.Value != null)
-            {
+        foreach(KeyValuePair<string, Texture2D> imageReference in cardReferenceImgae) {
+           if (imageReference.Value != null) {
                 NativeArray<byte> imageBytes =  new NativeArray<byte>(imageReference.Value.GetRawTextureData(), Allocator.Persistent);
 
                 var aspectRatio = (float)imageReference.Value.width / (float)imageReference.Value.height;
@@ -80,8 +72,7 @@ public class TrackingController : MonoBehaviour
 
                 StartCoroutine(AddImages(imageReference.Key, imageReference.Value));
             }
-            else
-            {
+            else {
                 Debug.LogError("Failed to load image from Resources");
             }
 
@@ -91,15 +82,13 @@ public class TrackingController : MonoBehaviour
 
         infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4";
 
-        foreach(GameObject obj in prefabs3D)
-        {
+        foreach(GameObject obj in prefabs3D) {
             objectsToShow.Add(obj);
         }
 
         infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4\n5";
 
-        foreach(GameObject prefabs in objectsToShow)
-        {
+        foreach(GameObject prefabs in objectsToShow) {
             GameObject newPrefabs = prefabs;
             newPrefabs.name = prefabs.name;
             gameObjectDictionary.Add(prefabs.name, newPrefabs);
@@ -115,52 +104,40 @@ public class TrackingController : MonoBehaviour
         trackedImageManager.enabled = true;
         playButton.SetActive(false);
 
-        // PlayerPrefs.SetInt("game_id", 11);
-        // PlayerPrefs.SetInt("visualEffect", 1);
         getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
-        // PlayerPrefs.SetString("token", "44736ebf1ac169b4d5e7d174ca1f8b8e");
 
-        foreach (KeyValuePair<string, GameObject> entry in gameObjectDictionary)
-        {
+        foreach (KeyValuePair<string, GameObject> entry in gameObjectDictionary) {
             Debug.Log("Key: " + entry.Key + " Value: " + entry.Value);
         }
     }
 
-    private void OnEnable()
-    {
+    private void OnEnable() {
         print("Enable");
         trackedImageManager.trackedImagesChanged += OnTrackedImagesChanged;
     }
 
-    private void OnDisable()
-    {
+    private void OnDisable() {
         print("Disable");
         trackedImageManager.trackedImagesChanged -= OnTrackedImagesChanged;
     }
 
-    private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs)
-    {
+    private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs) {
 
-        foreach(ARTrackedImage trackedImage in eventArgs.added)
-        {
+        foreach(ARTrackedImage trackedImage in eventArgs.added) {
             print("Reference Image : " + trackedImage.referenceImage);
             getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
             
             StartCoroutine(FirstTrackedImage(trackedImage));
         }
 
-        foreach(ARTrackedImage trackedImage in eventArgs.updated)
-        {
-            if (trackedImage.trackingState == TrackingState.Tracking)
-            {
-                if(tracking == false)
-                {
+        foreach(ARTrackedImage trackedImage in eventArgs.updated) {
+            if (trackedImage.trackingState == TrackingState.Tracking) {
+                if(tracking == false) {
                     tracking = true;
                     StartCoroutine(UpdateImage(trackedImage));
                 }
             }
-            else
-            {
+            else {
                 resetData(trackedImage);
                 playButton.SetActive(false);
                 tracking = false;
@@ -169,195 +146,149 @@ public class TrackingController : MonoBehaviour
         }
     }
 
-    private void ExtractFile()
-    {
+    private void ExtractFile() {
         string zipFilePath = "Assets/Resources/3dObject/cat.rar";
         string extractPath = "Assets/Resources/3dObject/";
 
         try
         {
-            // Ensure the target extraction directory exists
-            if (!Directory.Exists(extractPath))
-            {
+            if (!Directory.Exists(extractPath)) {
                 Directory.CreateDirectory(extractPath);
             }
 
-            // Extract the contents of the zip file
             ZipFile.ExtractToDirectory(zipFilePath, extractPath);
 
             Console.WriteLine("Zip file extracted successfully.");
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
             Console.WriteLine($"Error extracting zip file: {ex.Message}");
         }
     }
 
-    private IEnumerator AddImages(string imageName, Texture2D imageToAdd)
-    {
+    private IEnumerator AddImages(string imageName, Texture2D imageToAdd) {
         yield return null;
         
         infoForDev.text =  $"1\n2\n3\n3.5";
 
-        if(trackedImageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary)
-        {
+        if(trackedImageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary) {
             yield return referenceImageJobState = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
 
-            while(!referenceImageJobState.jobHandle.IsCompleted)
-            {
+            while(!referenceImageJobState.jobHandle.IsCompleted) {
                 infoForDev.text = "Running...";
             }
 
             referenceImageJobState.jobHandle.Complete();
             print("IMAAAAAGEE : " + mutableLibrary[0].name);
         }
-        else
-        {
+        else {
             Debug.LogError("Reference library is not MutableRuntimeReferenceImageLibrary.");
         }
         infoForDev.text = $"1\n2\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}";
 
     }
 
-    private IEnumerator FirstTrackedImage(ARTrackedImage trackedImage)
-    {
+    private IEnumerator FirstTrackedImage(ARTrackedImage trackedImage) {
         url = "https://dev.unimasoft.id/edugator/api/getquestions/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetInt("game_id") + "/" + PlayerPrefs.GetInt("number_of_card");
 
-        foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary)
-        {
+        foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
             print("A : " + trackedImage.referenceImage.name);
             print("B : " + go.Key);
-            if (trackedImage.referenceImage.name == go.Key)
-            {
+            if (trackedImage.referenceImage.name == go.Key) {
                 yield return StartCoroutine(GetDataFromAPIAndGetCardId(go));
 
                 yield return StartCoroutine(GetDataFromAPIAndInstantiateObject(go.Value, trackedImage.transform));
             }
-            else
-            {
+            else {
                     print("Error");
             }
         }
     }
 
-    private IEnumerator UpdateImage(ARTrackedImage trackedImage)
-    {
-        foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary)
-        {
-            if (trackedImage.referenceImage.name == go.Key)
-            {
+    private IEnumerator UpdateImage(ARTrackedImage trackedImage) {
+        foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
+            if (trackedImage.referenceImage.name == go.Key) {
                 yield return StartCoroutine(GetDataFromAPIAndGetCardId(go));
                 
-                for(int i = 0; i < trackedImage.transform.childCount; i++)
-                {
+                for(int i = 0; i < trackedImage.transform.childCount; i++) {
                     trackedImage.transform.GetChild(i).gameObject.SetActive(true);
                 }
                 
                 if(go.Value.activeSelf == true)
                     playButton.SetActive(true);
             }
-            else
-            {
+            else {
                 print("Error");
             }
         }
     }
 
-    private void resetData(ARTrackedImage trackedImage)
-    {
-        foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary)
-        {
-            if (trackedImage.referenceImage.name == go.Key)
-            {
-                for(int i = 0; i < trackedImage.transform.childCount; i++)
-                {
+    private void resetData(ARTrackedImage trackedImage) {
+        foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
+            if (trackedImage.referenceImage.name == go.Key) {
+                for(int i = 0; i < trackedImage.transform.childCount; i++) {
                     trackedImage.transform.GetChild(i).gameObject.SetActive(false);
                 }
 
                 playButton.SetActive(false);
             }
-            else
-            {
+            else {
                 print("Error");
             }
         }
     }
-    private void AnimationIn3DObject(GameObject entry, Transform transform)
-    {
+    private void AnimationIn3DObject(GameObject entry, Transform transform) {
         GameObject object3d = Instantiate(entry, transform);
-        // GameObject object3d = trackedImageManager.trackedImagePrefab;
         Animator anim3dObject = object3d.AddComponent<Animator>();
 
-        // object3d.SetActive(true);
         anim3dObject.runtimeAnimatorController = animatorController;
     }
 
-    private IEnumerator GetDataFromAPIAndInstantiateObject(GameObject entry, Transform transform)
-    {
+    private IEnumerator GetDataFromAPIAndInstantiateObject(GameObject entry, Transform transform) {
         loadingUI.Show("Please Wait...");
-        using (UnityWebRequest webData = UnityWebRequest.Get(url))
-        {
+        using (UnityWebRequest webData = UnityWebRequest.Get(url)) {
             yield return webData.SendWebRequest();
 
-            if (webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError)
-            {
+            if (webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError) {
                 loadingUI.Hide();
                 Debug.Log("Tidak ada Koneksi/Jaringan");
                 ConnectionGameObject.SetActive(true);
                 yield return new WaitForSeconds(3f);
                 ConnectionGameObject.SetActive(false);
             }
-            else
-            {
-                if (webData.isDone)
-                {
+            else {
+                if (webData.isDone) {
                     ConnectionGameObject.SetActive(false);
                     loadingUI.Hide();
 
                     _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
-                    if (_jsonData == null)
-                    {
+                    if (_jsonData == null) {
                         Debug.Log("Json data Kosong");
                     }
-                    else
-                    {
+                    else {
                         print(_jsonData);
-                        if (_jsonData["success"] == true)
-                        {
+                        if (_jsonData["success"] == true) {
                             int i = 0;
                             int total_soal_setiap_kartu = 0;
 
-                            while (i < _jsonData["data"].Count)
-                            {
+                            while (i < _jsonData["data"].Count) {
                                 total_soal_setiap_kartu++;
                                 PlayerPrefs.SetInt("total_soal_setiap_kartu", total_soal_setiap_kartu);
                                 i++;
                             }
 
-                            if (_jsonData["data"].Count == 0)
-                            {
-                                // GameObject PopupCard = Instantiate(cardPopup);
-                                // PopupCard.transform.SetParent(transform);
-                                // PopupCard.transform.localPosition = new Vector3(0f, 0.5f, 0f);
-
+                            if (_jsonData["data"].Count == 0) {
                                 // Destroy(ParticleEffect);
                                 playButton.SetActive(false);
-                            }
-                            else
-                            {
+                            } else {
 
-                                if (PlayerPrefs.GetInt("visualEffect") == 1)
-                                {
+                                if (PlayerPrefs.GetInt("visualEffect") == 1) {
                                     GameObject particle = Instantiate(ParticleEffect);
                                     particle.transform.SetParent(transform);
                                     particle.transform.localPosition = new Vector3(0f, 0.1f, 0f);
                                     particle.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
-                                }
-                                else
-                                {
+                                } else {
                                     Destroy(ParticleEffect);
                                 }
-                                print("ASDASDAAAAAAAA");
                                 AnimationIn3DObject(entry, transform);
                                 playButton.SetActive(true);
 
@@ -366,25 +297,20 @@ public class TrackingController : MonoBehaviour
                         }
                     }
                 }
-                else
-                {
+                else {
                     Debug.LogError("Error Detail: " + webData.error);
                 }
             }
         }
     }
 
-    private IEnumerator GetDataFromAPIAndGetCardId(KeyValuePair<string, GameObject> target)
-    {
-        // loadingUI.Show("Please Wait...");
+    private IEnumerator GetDataFromAPIAndGetCardId(KeyValuePair<string, GameObject> target) {
         loadingUI.Show("Please Wait...");
-        using (UnityWebRequest webData = UnityWebRequest.Get(getDataGamesUrl))
-        {
+        using (UnityWebRequest webData = UnityWebRequest.Get(getDataGamesUrl)) {
             print("Waitt...");
             yield return webData.SendWebRequest();
 
-            if (webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError)
-            {
+            if (webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError) {
                 // loadingUI.Hide();
                 loadingUI.Hide();
                 Debug.Log("Tidak ada Koneksi/Jaringan");
@@ -392,45 +318,31 @@ public class TrackingController : MonoBehaviour
                 yield return new WaitForSeconds(3f);
                 ConnectionGameObject.SetActive(false);
             }
-            else
-            {
-                if (webData.isDone)
-                {
+            else {
+                if (webData.isDone) {
                     print("success");
                     ConnectionGameObject.SetActive(false);
-                    // loadingUI.Hide();
                     loadingUI.Hide();
                     _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
-                    if (_jsonData == null)
-                    {
+                    if (_jsonData == null) {
                         Debug.Log("Json data Kosong");
                     }
-                    else
-                    {
-                        if (_jsonData["success"] == true)
-                        {
+                    else {
+                        if (_jsonData["success"] == true) {
                             print("Search...");
-                            for (int i = 0; i < _jsonData["data"]["cards"].Count; i++)
-                            {
-                                // print("Card Data : " + _jsonData["data"]["cards"].Count);
-                                // print("target key : " + target.Key);
-                                // print("JSON DATA : " + _jsonData["data"]["cards"][i]["name"]);
-                                if (target.Key == _jsonData["data"]["cards"][i]["name"])
-                                {
+                            for (int i = 0; i < _jsonData["data"]["cards"].Count; i++) {
+                                if (target.Key == _jsonData["data"]["cards"][i]["name"]) {
                                     PlayerPrefs.SetInt("number_of_card", _jsonData["data"]["cards"][i]["id"]);
                                     print("CARD ID " + i + " : " + PlayerPrefs.GetInt("number_of_card"));
                                 }
                             }
                             print("Set Card Id Success");
-                        }
-                        else
-                        {
+                        } else {
                             print("State : Failed");
                         }
                     }
                 }
-                else
-                {
+                else {
                     Debug.LogError("Error Detail: " + webData.error);
                 }
             }

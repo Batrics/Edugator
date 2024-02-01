@@ -4,12 +4,10 @@ public class CamScript : MonoBehaviour
 {
     private Camera _cam;
     // Update is called once per frame
-    void Start()
-    {
+    void Start() {
         _cam = Camera.main;
     }
-    void Update()
-    {
+    void Update() {
         transform.rotation = Quaternion.LookRotation(transform.position - _cam.transform.position);
     }
 }

@@ -8,24 +8,20 @@ public class PopupScript : MonoBehaviour
     public HistoryScript historyScript;
     public GameObject historyUI;
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start() {
         initializationObject();
         historyUI = transform.parent.gameObject;
         print("token Selectedd : " + PlayerPrefs.GetString("tokenSelected"));
     }
     
-    public void initializationObject()
-    {
+    public void initializationObject() {
         string allGames = PlayerPrefs.GetString("history");
         List<string> allGamesArr = new List<string>(allGames.Split(";"));
 
-        for(int i = 0; i < allGamesArr.Count; i++)
-        {
+        for(int i = 0; i < allGamesArr.Count; i++) {
             string[] GameArr = allGamesArr[i].Split(",");
 
-            if(PlayerPrefs.GetString("tokenSelected") == GameArr[0])
-            {
+            if(PlayerPrefs.GetString("tokenSelected") == GameArr[0]) {
                 historyScript = gameObject.transform.parent.GetChild(0).GetChild(4).GetChild(i).GetComponent<HistoryScript>();
                 print("HIstory Script : " + historyScript.token);
                 print("inedex : " + i);
@@ -33,22 +29,18 @@ public class PopupScript : MonoBehaviour
         }
     }
 
-    public void DeleteGame()
-    {
+    public void DeleteGame() {
         StartCoroutine(DeleteGameWorkFlow());
     }
 
-    public IEnumerator DeleteGameWorkFlow()
-    {
+    public IEnumerator DeleteGameWorkFlow() {
         string allGames = PlayerPrefs.GetString("history");
         List<string> allGamesArr = new List<string>(allGames.Split(";"));
 
-        for(int i = 0; i < allGamesArr.Count; i++)
-        {
+        for(int i = 0; i < allGamesArr.Count; i++) {
             string[] GameArr = allGamesArr[i].Split(",");
 
-            if(PlayerPrefs.GetString("tokenSelected") == GameArr[0])
-            {
+            if(PlayerPrefs.GetString("tokenSelected") == GameArr[0]) {
                 yield return null;
                 // yield return historyScript = gameObject.transform.parent.GetChild(0).GetChild(4).GetChild(i).GetComponent<HistoryScript>();
                 // print("History Scripttttt ; " + historyScript.gameObject.name);
@@ -66,8 +58,7 @@ public class PopupScript : MonoBehaviour
         // gameObject.SetActive(false);
     }
 
-    public void DestroyGameObject()
-    {
+    public void DestroyGameObject() {
         Destroy(this.gameObject);
     }
 }

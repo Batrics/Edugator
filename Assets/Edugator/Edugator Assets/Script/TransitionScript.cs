@@ -11,13 +11,11 @@ public class TransitionScript : MonoBehaviour
     {
         StartCoroutine(endTransitionActive());
     }
-    public void startTransitionActive()
-    {
+    public void startTransitionActive() {
         startTransition.SetActive(true);
     }
 
-    IEnumerator endTransitionActive()
-    {
+    IEnumerator endTransitionActive() {
         endTransition.SetActive(transform);
         yield return new WaitForSeconds(1.5f);
     }

@@ -52,8 +52,7 @@ namespace SimpleJSON
         public static JSONContainerType QuaternionContainerType = JSONContainerType.Array;
         public static JSONContainerType RectContainerType = JSONContainerType.Array;
         public static JSONContainerType ColorContainerType = JSONContainerType.Array;
-        private static JSONNode GetContainer(JSONContainerType aType)
-        {
+        private static JSONNode GetContainer(JSONContainerType aType) {
             if (aType == JSONContainerType.Array)
                 return new JSONArray();
             return new JSONObject();
@@ -78,14 +77,12 @@ namespace SimpleJSON
             n.WriteVector4(aVec);
             return n;
         }
-        public static implicit operator JSONNode(Color aCol)
-        {
+        public static implicit operator JSONNode(Color aCol) {
             JSONNode n = GetContainer(ColorContainerType);
             n.WriteColor(aCol);
             return n;
         }
-        public static implicit operator JSONNode(Color32 aCol)
-        {
+        public static implicit operator JSONNode(Color32 aCol) {
             JSONNode n = GetContainer(ColorContainerType);
             n.WriteColor32(aCol);
             return n;
@@ -109,72 +106,57 @@ namespace SimpleJSON
             return n;
         }
 
-        public static implicit operator Vector2(JSONNode aNode)
-        {
+        public static implicit operator Vector2(JSONNode aNode) {
             return aNode.ReadVector2();
         }
-        public static implicit operator Vector3(JSONNode aNode)
-        {
+        public static implicit operator Vector3(JSONNode aNode) {
             return aNode.ReadVector3();
         }
-        public static implicit operator Vector4(JSONNode aNode)
-        {
+        public static implicit operator Vector4(JSONNode aNode) {
             return aNode.ReadVector4();
         }
-        public static implicit operator Color(JSONNode aNode)
-        {
+        public static implicit operator Color(JSONNode aNode) {
             return aNode.ReadColor();
         }
-        public static implicit operator Color32(JSONNode aNode)
-        {
+        public static implicit operator Color32(JSONNode aNode) {
             return aNode.ReadColor32();
         }
-        public static implicit operator Quaternion(JSONNode aNode)
-        {
+        public static implicit operator Quaternion(JSONNode aNode) {
             return aNode.ReadQuaternion();
         }
-        public static implicit operator Rect(JSONNode aNode)
-        {
+        public static implicit operator Rect(JSONNode aNode) {
             return aNode.ReadRect();
         }
-        public static implicit operator RectOffset(JSONNode aNode)
-        {
+        public static implicit operator RectOffset(JSONNode aNode) {
             return aNode.ReadRectOffset();
         }
         #endregion implicit conversion operators
 
         #region Vector2
-        public Vector2 ReadVector2(Vector2 aDefault)
-        {
+        public Vector2 ReadVector2(Vector2 aDefault) {
             if (IsObject)
                 return new Vector2(this["x"].AsFloat, this["y"].AsFloat);
             if (IsArray)
                 return new Vector2(this[0].AsFloat, this[1].AsFloat);
             return aDefault;
         }
-        public Vector2 ReadVector2(string aXName, string aYName)
-        {
-            if (IsObject)
-            {
+        public Vector2 ReadVector2(string aXName, string aYName) {
+            if (IsObject) {
                 return new Vector2(this[aXName].AsFloat, this[aYName].AsFloat);
             }
             return Vector2.zero;
         }
 
-        public Vector2 ReadVector2()
-        {
+        public Vector2 ReadVector2() {
             return ReadVector2(Vector2.zero);
         }
-        public JSONNode WriteVector2(Vector2 aVec, string aXName = "x", string aYName = "y")
-        {
-            if (IsObject)
-            {
+        public JSONNode WriteVector2(Vector2 aVec, string aXName = "x", string aYName = "y") {
+            if (IsObject) {
                 Inline = true;
                 this[aXName].AsFloat = aVec.x;
                 this[aYName].AsFloat = aVec.y;
             }
-            else if (IsArray)
-            {
+            else if (IsArray) {
                 Inline = true;
                 this[0].AsFloat = aVec.x;
                 this[1].AsFloat = aVec.y;
@@ -184,35 +166,29 @@ namespace SimpleJSON
         #endregion Vector2
 
         #region Vector3
-        public Vector3 ReadVector3(Vector3 aDefault)
-        {
+        public Vector3 ReadVector3(Vector3 aDefault) {
             if (IsObject)
                 return new Vector3(this["x"].AsFloat, this["y"].AsFloat, this["z"].AsFloat);
             if (IsArray)
                 return new Vector3(this[0].AsFloat, this[1].AsFloat, this[2].AsFloat);
             return aDefault;
         }
-        public Vector3 ReadVector3(string aXName, string aYName, string aZName)
-        {
+        public Vector3 ReadVector3(string aXName, string aYName, string aZName) {
             if (IsObject)
                 return new Vector3(this[aXName].AsFloat, this[aYName].AsFloat, this[aZName].AsFloat);
             return Vector3.zero;
         }
-        public Vector3 ReadVector3()
-        {
+        public Vector3 ReadVector3() {
             return ReadVector3(Vector3.zero);
         }
-        public JSONNode WriteVector3(Vector3 aVec, string aXName = "x", string aYName = "y", string aZName = "z")
-        {
-            if (IsObject)
-            {
+        public JSONNode WriteVector3(Vector3 aVec, string aXName = "x", string aYName = "y", string aZName = "z") {
+            if (IsObject) {
                 Inline = true;
                 this[aXName].AsFloat = aVec.x;
                 this[aYName].AsFloat = aVec.y;
                 this[aZName].AsFloat = aVec.z;
             }
-            else if (IsArray)
-            {
+            else if (IsArray) {
                 Inline = true;
                 this[0].AsFloat = aVec.x;
                 this[1].AsFloat = aVec.y;
@@ -223,30 +199,25 @@ namespace SimpleJSON
         #endregion Vector3
 
         #region Vector4
-        public Vector4 ReadVector4(Vector4 aDefault)
-        {
+        public Vector4 ReadVector4(Vector4 aDefault) {
             if (IsObject)
                 return new Vector4(this["x"].AsFloat, this["y"].AsFloat, this["z"].AsFloat, this["w"].AsFloat);
             if (IsArray)
                 return new Vector4(this[0].AsFloat, this[1].AsFloat, this[2].AsFloat, this[3].AsFloat);
             return aDefault;
         }
-        public Vector4 ReadVector4()
-        {
+        public Vector4 ReadVector4() {
             return ReadVector4(Vector4.zero);
         }
-        public JSONNode WriteVector4(Vector4 aVec)
-        {
-            if (IsObject)
-            {
+        public JSONNode WriteVector4(Vector4 aVec) {
+            if (IsObject) {
                 Inline = true;
                 this["x"].AsFloat = aVec.x;
                 this["y"].AsFloat = aVec.y;
                 this["z"].AsFloat = aVec.z;
                 this["w"].AsFloat = aVec.w;
             }
-            else if (IsArray)
-            {
+            else if (IsArray) {
                 Inline = true;
                 this[0].AsFloat = aVec.x;
                 this[1].AsFloat = aVec.y;
@@ -258,30 +229,25 @@ namespace SimpleJSON
         #endregion Vector4
 
         #region Color / Color32
-        public Color ReadColor(Color aDefault)
-        {
+        public Color ReadColor(Color aDefault) {
             if (IsObject)
                 return new Color(this["r"].AsFloat, this["g"].AsFloat, this["b"].AsFloat, HasKey("a")?this["a"].AsFloat:ColorDefaultAlpha);
             if (IsArray)
                 return new Color(this[0].AsFloat, this[1].AsFloat, this[2].AsFloat, (Count>3)?this[3].AsFloat:ColorDefaultAlpha);
             return aDefault;
         }
-        public Color ReadColor()
-        {
+        public Color ReadColor() {
             return ReadColor(Color.clear);
         }
-        public JSONNode WriteColor(Color aCol)
-        {
-            if (IsObject)
-            {
+        public JSONNode WriteColor(Color aCol) {
+            if (IsObject) {
                 Inline = true;
                 this["r"].AsFloat = aCol.r;
                 this["g"].AsFloat = aCol.g;
                 this["b"].AsFloat = aCol.b;
                 this["a"].AsFloat = aCol.a;
             }
-            else if (IsArray)
-            {
+            else if (IsArray) {
                 Inline = true;
                 this[0].AsFloat = aCol.r;
                 this[1].AsFloat = aCol.g;
@@ -291,30 +257,25 @@ namespace SimpleJSON
             return this;
         }
 
-        public Color32 ReadColor32(Color32 aDefault)
-        {
+        public Color32 ReadColor32(Color32 aDefault) {
             if (IsObject)
                 return new Color32((byte)this["r"].AsInt, (byte)this["g"].AsInt, (byte)this["b"].AsInt, (byte)(HasKey("a")?this["a"].AsInt:Color32DefaultAlpha));
             if (IsArray)
                 return new Color32((byte)this[0].AsInt, (byte)this[1].AsInt, (byte)this[2].AsInt, (byte)((Count>3)?this[3].AsInt:Color32DefaultAlpha));
             return aDefault;
         }
-        public Color32 ReadColor32()
-        {
+        public Color32 ReadColor32() {
             return ReadColor32(new Color32());
         }
-        public JSONNode WriteColor32(Color32 aCol)
-        {
-            if (IsObject)
-            {
+        public JSONNode WriteColor32(Color32 aCol) {
+            if (IsObject) {
                 Inline = true;
                 this["r"].AsInt = aCol.r;
                 this["g"].AsInt = aCol.g;
                 this["b"].AsInt = aCol.b;
                 this["a"].AsInt = aCol.a;
             }
-            else if (IsArray)
-            {
+            else if (IsArray) {
                 Inline = true;
                 this[0].AsInt = aCol.r;
                 this[1].AsInt = aCol.g;
@@ -327,30 +288,25 @@ namespace SimpleJSON
         #endregion Color / Color32
 
         #region Quaternion
-        public Quaternion ReadQuaternion(Quaternion aDefault)
-        {
+        public Quaternion ReadQuaternion(Quaternion aDefault) {
             if (IsObject)
                 return new Quaternion(this["x"].AsFloat, this["y"].AsFloat, this["z"].AsFloat, this["w"].AsFloat);
             if (IsArray)
                 return new Quaternion(this[0].AsFloat, this[1].AsFloat, this[2].AsFloat, this[3].AsFloat);
             return aDefault;
         }
-        public Quaternion ReadQuaternion()
-        {
+        public Quaternion ReadQuaternion() {
             return ReadQuaternion(Quaternion.identity);
         }
-        public JSONNode WriteQuaternion(Quaternion aRot)
-        {
-            if (IsObject)
-            {
+        public JSONNode WriteQuaternion(Quaternion aRot) {
+            if (IsObject) {
                 Inline = true;
                 this["x"].AsFloat = aRot.x;
                 this["y"].AsFloat = aRot.y;
                 this["z"].AsFloat = aRot.z;
                 this["w"].AsFloat = aRot.w;
             }
-            else if (IsArray)
-            {
+            else if (IsArray) {
                 Inline = true;
                 this[0].AsFloat = aRot.x;
                 this[1].AsFloat = aRot.y;
@@ -362,30 +318,25 @@ namespace SimpleJSON
         #endregion Quaternion
 
         #region Rect
-        public Rect ReadRect(Rect aDefault)
-        {
+        public Rect ReadRect(Rect aDefault) {
             if (IsObject)
                 return new Rect(this["x"].AsFloat, this["y"].AsFloat, this["width"].AsFloat, this["height"].AsFloat);
             if (IsArray)
                 return new Rect(this[0].AsFloat, this[1].AsFloat, this[2].AsFloat, this[3].AsFloat);
             return aDefault;
         }
-        public Rect ReadRect()
-        {
+        public Rect ReadRect() {
             return ReadRect(new Rect());
         }
-        public JSONNode WriteRect(Rect aRect)
-        {
-            if (IsObject)
-            {
+        public JSONNode WriteRect(Rect aRect) {
+            if (IsObject) {
                 Inline = true;
                 this["x"].AsFloat = aRect.x;
                 this["y"].AsFloat = aRect.y;
                 this["width"].AsFloat = aRect.width;
                 this["height"].AsFloat = aRect.height;
             }
-            else if (IsArray)
-            {
+            else if (IsArray) {
                 Inline = true;
                 this[0].AsFloat = aRect.x;
                 this[1].AsFloat = aRect.y;
@@ -397,30 +348,25 @@ namespace SimpleJSON
         #endregion Rect
 
         #region RectOffset
-        public RectOffset ReadRectOffset(RectOffset aDefault)
-        {
+        public RectOffset ReadRectOffset(RectOffset aDefault) {
             if (this is JSONObject)
                 return new RectOffset(this["left"].AsInt, this["right"].AsInt, this["top"].AsInt, this["bottom"].AsInt);
             if (this is JSONArray)
                 return new RectOffset(this[0].AsInt, this[1].AsInt, this[2].AsInt, this[3].AsInt);
             return aDefault;
         }
-        public RectOffset ReadRectOffset()
-        {
+        public RectOffset ReadRectOffset() {
             return ReadRectOffset(new RectOffset());
         }
-        public JSONNode WriteRectOffset(RectOffset aRect)
-        {
-            if (IsObject)
-            {
+        public JSONNode WriteRectOffset(RectOffset aRect) {
+            if (IsObject) {
                 Inline = true;
                 this["left"].AsInt = aRect.left;
                 this["right"].AsInt = aRect.right;
                 this["top"].AsInt = aRect.top;
                 this["bottom"].AsInt = aRect.bottom;
             }
-            else if (IsArray)
-            {
+            else if (IsArray) {
                 Inline = true;
                 this[0].AsInt = aRect.left;
                 this[1].AsInt = aRect.right;
@@ -432,25 +378,19 @@ namespace SimpleJSON
         #endregion RectOffset
 
         #region Matrix4x4
-        public Matrix4x4 ReadMatrix()
-        {
+        public Matrix4x4 ReadMatrix() {
             Matrix4x4 result = Matrix4x4.identity;
-            if (IsArray)
-            {
-                for (int i = 0; i < 16; i++)
-                {
+            if (IsArray) {
+                for (int i = 0; i < 16; i++) {
                     result[i] = this[i].AsFloat;
                 }
             }
             return result;
         }
-        public JSONNode WriteMatrix(Matrix4x4 aMatrix)
-        {
-            if (IsArray)
-            {
+        public JSONNode WriteMatrix(Matrix4x4 aMatrix) {
+            if (IsArray) {
                 Inline = true;
-                for (int i = 0; i < 16; i++)
-                {
+                for (int i = 0; i < 16; i++) {
                     this[i].AsFloat = aMatrix[i];
                 }
             }

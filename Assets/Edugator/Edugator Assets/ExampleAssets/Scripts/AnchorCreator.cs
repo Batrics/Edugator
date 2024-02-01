@@ -25,10 +25,8 @@ public class AnchorCreator : MonoBehaviour
     }
 
     // Removes all the anchors that have been created.
-    public void RemoveAllAnchors()
-    {
-        foreach (var anchor in m_AnchorPoints)
-        {
+    public void RemoveAllAnchors() {
+        foreach (var anchor in m_AnchorPoints) {
             Destroy(anchor);
         }
         m_AnchorPoints.Clear();
@@ -38,16 +36,14 @@ public class AnchorCreator : MonoBehaviour
     // The ARRaycastManager allows us to perform raycasts so that we know where to place an anchor.
     // The ARPlaneManager detects surfaces we can place our objects on.
     // The ARAnchorManager handles the processing of all anchors and updates their position and rotation.
-    void Awake()
-    {
+    void Awake() {
         m_RaycastManager = GetComponent<ARRaycastManager>();
         m_AnchorManager = GetComponent<ARAnchorManager>();
         m_PlaneManager = GetComponent<ARPlaneManager>();
         m_AnchorPoints = new List<ARAnchor>();
     }
 
-    void Update()
-    {
+    void Update() {
         // If there is no tap, then simply do nothing until the next call to Update().
         if (Input.touchCount == 0)
             return;
@@ -56,8 +52,7 @@ public class AnchorCreator : MonoBehaviour
         if (touch.phase != TouchPhase.Began)
             return;
 
-        if (m_RaycastManager.Raycast(touch.position, s_Hits, TrackableType.PlaneWithinPolygon))
-        {
+        if (m_RaycastManager.Raycast(touch.position, s_Hits, TrackableType.PlaneWithinPolygon)) {
             // Raycast hits are sorted by distance, so the first one
             // will be the closest hit.
             var hitPose = s_Hits[0].pose;
@@ -71,12 +66,10 @@ public class AnchorCreator : MonoBehaviour
             var anchor = m_AnchorManager.AttachAnchor(hitPlane, hitPose);
             Instantiate(m_AnchorPrefab, anchor.transform);
 
-            if (anchor == null)
-            {
+            if (anchor == null) {
                 Debug.Log("Error creating anchor.");
             }
-            else
-            {
+            else {
                 // Stores the anchor so that it may be removed later.
                 m_AnchorPoints.Add(anchor);
             }

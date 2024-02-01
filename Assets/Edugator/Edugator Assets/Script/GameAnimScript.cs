@@ -5,18 +5,15 @@ using UnityEngine;
 public class GameAnimScript : MonoBehaviour
 {
     Transform table;
-    public void activateGameObject()
-    {
+    public void activateGameObject() {
         table = GetComponent<Transform>();
         
         print(table.childCount);
         StartCoroutine(FindGameObject());
     }
 
-    private IEnumerator FindGameObject()
-    {
-        for(int i = 0; i < table.childCount; i++)
-        {
+    private IEnumerator FindGameObject() {
+        for(int i = 0; i < table.childCount; i++) {
             table.transform.GetChild(i).gameObject.SetActive(true);
 
             // table.gameObject.SetActive(true);

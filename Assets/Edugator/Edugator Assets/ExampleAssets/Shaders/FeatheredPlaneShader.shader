@@ -45,8 +45,7 @@
             fixed4 _PlaneColor;
             float _ShortestUVMapping;
 
-            v2f vert (appdata v)
-            {
+            v2f vert (appdata v) {
                 v2f o;
 
                 UNITY_SETUP_INSTANCE_ID(v);

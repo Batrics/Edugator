@@ -13,18 +13,15 @@ public class AnimationScript : MonoBehaviour
     [SerializeField] Animator panelHistoryUIAnim;
     [SerializeField] Animator brightnesAnim;
 
-    private void Awake()
-    {
+    private void Awake() {
         // playBtnAnim = HistoryUI.transform.parent.GetChild(4).GetComponent<GameObject>().gameObject;
     }
 
-    private void Start()
-    {
+    private void Start() {
         StartCoroutine(ActivateAnimation());
     }
 
-    private IEnumerator ActivateAnimation()
-    {
+    private IEnumerator ActivateAnimation() {
         //Wait For Transition
         yield return new WaitForSeconds(0.8f);
 
@@ -42,23 +39,20 @@ public class AnimationScript : MonoBehaviour
         yield return new WaitForSeconds(0.175f);
     }
 
-    private IEnumerator SlidingPanelAnimation()
-    {
+    private IEnumerator SlidingPanelAnimation() {
         panelHistoryUIAnim.SetBool("slideOut", true);
         brightnesAnim.SetBool("activateBrightnes",true);
         yield return new WaitForSeconds(0.5f);
         
         Transform childHistoryUI;
         
-        for(int i = 0; i < HistoryUI.transform.GetChild(0).GetChild(4).childCount; i++)
-        {
+        for(int i = 0; i < HistoryUI.transform.GetChild(0).GetChild(4).childCount; i++) {
             childHistoryUI = HistoryUI.transform.GetChild(0).GetChild(4).GetChild(i);
             childHistoryUI.gameObject.SetActive(false);
         }
         HistoryUI.SetActive(false);
     }
-    public void ActivatePanelAnimation()
-    {
+    public void ActivatePanelAnimation() {
         StartCoroutine(SlidingPanelAnimation());
     }
 }
