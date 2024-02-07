@@ -83,17 +83,20 @@ public class HistoryScript : MonoBehaviour
                                 titleText.text = _jsonData["data"][i]["name"];
                                 GameOwnerText.text = "Created By : " + _jsonData["data"][i]["author"];
 
-                                //Download Assets
-                                // loadingUI.Show("Downloading Assets...");
+                                // //Download Assets
                                 string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                string path = "Assets/Resources/3dObject/";
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i));
-                                ExtractFile();
-
-                                string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                path = "Assets/Resources/CardImage/";
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".jpg", i));
                                 
+                                string path = Application.persistentDataPath + "/3dObject/";
+                                // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
+                                print("Dec Var");
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i, "/3dObject/"));
+
+                                path = Application.persistentDataPath + "/Card/";
+                                string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                // path = "Assets/Resources/CardImage/";
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".jpg", i, "/Card/"));
+
+                                yield return StartCoroutine(ExtractFile());
                                 DeleteZipFile();
                                 RefreshDirectory();
 
@@ -184,56 +187,74 @@ public class HistoryScript : MonoBehaviour
     //==============================================================================================================================//
     //Download File
     //==============================================================================================================================//
-    
     string cardName;
     int cardId;
-    string fileName;
-    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame) {
-        string[] files =  Directory.GetFiles(savePath);                        
-        bool fileIsAvailable;
+    // public List<string> files = new List<string>();
+    string[] files;
+    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame, string directorySavePath) {
+        // string file;
+        string directoryPath = Application.persistentDataPath + directorySavePath;
+        
+        if (Directory.Exists(directoryPath)) {
+            files = Directory.GetFiles(directoryPath);
+        }
+        else {
+            Console.WriteLine("Direktori tidak ditemukan.");
+        }
 
+        print("Dec Var\nDec Var in Function");
+
+        bool fileIsAvailable;
+        
+        print("Dec Var\nDec Var in Function\nLanjut");
+
+        // yield return null;
         if(files.Length == 0) {
+            print("Dec Var\nDec Var in Function\nif");
+
             loadingUI.Show("Download Assets...");
             for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count; j++) {
                 cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 
                 yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                // print("FI NAME : " + file);
             }
         }
         else {
+            print("Dec Var\nDec Var in Function\nelse");
             for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count; j++) {
                 cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 fileIsAvailable = false;
 
                 foreach(string file in files) {
-                    fileName = Path.GetFileNameWithoutExtension(file);
-
-                    if(cardName == fileName) {
+                    if(file.Contains(cardName)) {
                         fileIsAvailable = true;
                     }
                 }
 
-                if(cardName == fileName) {
-                    fileIsAvailable = true;
-                }
+                // if(cardName == fileName) {
+                //     fileIsAvailable = true;
+                // }
 
                 if(fileIsAvailable == true)
                     Debug.Log("File is Available");
                 else {
                     loadingUI.Show("Download Assets...");
                     yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                    // print("FI NAME : " + file);
                 }
             }
         }
+
     }
     //==============================================================================================================================//
     //Extract and Delete File
     //==============================================================================================================================//
 
-    private void ExtractFile() {
-        string filePath = "Assets/Resources/3dObject/";
+    private IEnumerator ExtractFile() {
+        string filePath = Application.persistentDataPath + "/3dObject/";
 
         string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
 
@@ -251,10 +272,12 @@ public class HistoryScript : MonoBehaviour
         catch (Exception ex) {
             print($"Error extracting zip file: {ex.Message}");
         }
+
+        yield return null;
     }
 
     private void DeleteZipFile() {
-        string filePath = "Assets/Resources/3dObject/";
+        string filePath = Application.persistentDataPath + "/3dObject/";
 
         string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
 

@@ -36,13 +36,15 @@ public class TrackingController : MonoBehaviour
     GameObject[] prefabs3D;
     Texture2D[] texture2Ds;
 
-    void Awake() {
+    private void Awake() {
         infoForDev.text = "1";
         trackedImageManager = gameObject.AddComponent<ARTrackedImageManager>();
 
         prefabs3D = Resources.LoadAll<GameObject>("3dObject");
 
         texture2Ds = Resources.LoadAll<Texture2D>("CardImage");
+
+        StartCoroutine(LoadDataFile());
 
         library = trackedImageManager.CreateRuntimeLibrary();
         trackedImageManager.referenceLibrary = library;
@@ -97,7 +99,6 @@ public class TrackingController : MonoBehaviour
         infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4\n5\n6";
 
         loadingUI.Prepare();
-        ExtractFile();
         
         infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4\n5\n6\nEND";
         
@@ -108,6 +109,38 @@ public class TrackingController : MonoBehaviour
 
         foreach (KeyValuePair<string, GameObject> entry in gameObjectDictionary) {
             Debug.Log("Key: " + entry.Key + " Value: " + entry.Value);
+        }
+    }
+
+    private IEnumerator LoadDataFile() {
+        string[] files = Directory.GetFiles(Application.persistentDataPath + "/3dObject/");
+        AssetBundleCreateRequest assetBundleCreateRequest = AssetBundle.LoadFromFileAsync(files[0]);
+
+        yield return assetBundleCreateRequest;
+
+        AssetBundle assetBundle = assetBundleCreateRequest.assetBundle;
+
+        if (assetBundle != null) {
+            string assetName = "Fire Extingusher"; // Ganti dengan nama objek yang ingin Anda muat dari file FBX
+            AssetBundleRequest assetLoadRequest = assetBundle.LoadAssetAsync<GameObject>(assetName);
+
+            yield return assetLoadRequest;
+
+            GameObject loadedObject = assetLoadRequest.asset as GameObject;
+            if (loadedObject != null)
+            {
+                // Lakukan sesuatu dengan objek yang dimuat, misalnya menambahkannya ke dalam scene
+                Instantiate(loadedObject, Vector3.zero, Quaternion.identity);
+            }
+            else
+            {
+                Debug.LogError("Objek tidak ditemukan dalam file FBX.");
+            }
+
+            assetBundle.Unload(false); // Jangan lupa untuk membongkar AssetBundle setelah selesai digunakan
+        }
+        else {
+            Debug.LogError("Gagal memuat AssetBundle dari file FBX.");
         }
     }
 
@@ -143,25 +176,6 @@ public class TrackingController : MonoBehaviour
                 tracking = false;
                 print("TrackingState : " + tracking);
             }
-        }
-    }
-
-    private void ExtractFile() {
-        string zipFilePath = "Assets/Resources/3dObject/cat.rar";
-        string extractPath = "Assets/Resources/3dObject/";
-
-        try
-        {
-            if (!Directory.Exists(extractPath)) {
-                Directory.CreateDirectory(extractPath);
-            }
-
-            ZipFile.ExtractToDirectory(zipFilePath, extractPath);
-
-            Console.WriteLine("Zip file extracted successfully.");
-        }
-        catch (Exception ex) {
-            Console.WriteLine($"Error extracting zip file: {ex.Message}");
         }
     }
 
@@ -236,7 +250,7 @@ public class TrackingController : MonoBehaviour
             }
         }
     }
-    private void AnimationIn3DObject(GameObject entry, Transform transform) {
+    private void AnimationIn3dObject(GameObject entry, Transform transform) {
         GameObject object3d = Instantiate(entry, transform);
         Animator anim3dObject = object3d.AddComponent<Animator>();
 
@@ -289,7 +303,7 @@ public class TrackingController : MonoBehaviour
                                 } else {
                                     Destroy(ParticleEffect);
                                 }
-                                AnimationIn3DObject(entry, transform);
+                                AnimationIn3dObject(entry, transform);
                                 playButton.SetActive(true);
 
                             }
