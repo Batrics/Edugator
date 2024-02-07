@@ -86,12 +86,12 @@ public class HistoryScript : MonoBehaviour
                                 // //Download Assets
                                 string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
                                 
-                                string path = Application.persistentDataPath + "/3dObject/";
+                                string path = Application.persistentDataPath + "/Resources/3dObject/";
                                 // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
                                 print("Dec Var");
                                 yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i, "/3dObject/"));
 
-                                path = Application.persistentDataPath + "/Card/";
+                                path = Application.persistentDataPath + "/Resources/CardImage/";
                                 string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
                                 // path = "Assets/Resources/CardImage/";
                                 yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".jpg", i, "/Card/"));

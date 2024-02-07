@@ -36,15 +36,13 @@ public class TrackingController : MonoBehaviour
     GameObject[] prefabs3D;
     Texture2D[] texture2Ds;
 
-    private void Awake() {
+    void Awake() {
         infoForDev.text = "1";
         trackedImageManager = gameObject.AddComponent<ARTrackedImageManager>();
 
         prefabs3D = Resources.LoadAll<GameObject>("3dObject");
 
         texture2Ds = Resources.LoadAll<Texture2D>("CardImage");
-
-        StartCoroutine(LoadDataFile());
 
         library = trackedImageManager.CreateRuntimeLibrary();
         trackedImageManager.referenceLibrary = library;
@@ -112,38 +110,6 @@ public class TrackingController : MonoBehaviour
         }
     }
 
-    private IEnumerator LoadDataFile() {
-        string[] files = Directory.GetFiles(Application.persistentDataPath + "/3dObject/");
-        AssetBundleCreateRequest assetBundleCreateRequest = AssetBundle.LoadFromFileAsync(files[0]);
-
-        yield return assetBundleCreateRequest;
-
-        AssetBundle assetBundle = assetBundleCreateRequest.assetBundle;
-
-        if (assetBundle != null) {
-            string assetName = "Fire Extingusher"; // Ganti dengan nama objek yang ingin Anda muat dari file FBX
-            AssetBundleRequest assetLoadRequest = assetBundle.LoadAssetAsync<GameObject>(assetName);
-
-            yield return assetLoadRequest;
-
-            GameObject loadedObject = assetLoadRequest.asset as GameObject;
-            if (loadedObject != null)
-            {
-                // Lakukan sesuatu dengan objek yang dimuat, misalnya menambahkannya ke dalam scene
-                Instantiate(loadedObject, Vector3.zero, Quaternion.identity);
-            }
-            else
-            {
-                Debug.LogError("Objek tidak ditemukan dalam file FBX.");
-            }
-
-            assetBundle.Unload(false); // Jangan lupa untuk membongkar AssetBundle setelah selesai digunakan
-        }
-        else {
-            Debug.LogError("Gagal memuat AssetBundle dari file FBX.");
-        }
-    }
-
     private void OnEnable() {
         print("Enable");
         trackedImageManager.trackedImagesChanged += OnTrackedImagesChanged;
@@ -178,7 +144,6 @@ public class TrackingController : MonoBehaviour
             }
         }
     }
-
     private IEnumerator AddImages(string imageName, Texture2D imageToAdd) {
         yield return null;
         
@@ -250,7 +215,7 @@ public class TrackingController : MonoBehaviour
             }
         }
     }
-    private void AnimationIn3dObject(GameObject entry, Transform transform) {
+    private void AnimationIn3DObject(GameObject entry, Transform transform) {
         GameObject object3d = Instantiate(entry, transform);
         Animator anim3dObject = object3d.AddComponent<Animator>();
 
@@ -303,7 +268,7 @@ public class TrackingController : MonoBehaviour
                                 } else {
                                     Destroy(ParticleEffect);
                                 }
-                                AnimationIn3dObject(entry, transform);
+                                AnimationIn3DObject(entry, transform);
                                 playButton.SetActive(true);
 
                             }

@@ -1,0 +1,10 @@
+ManifestFileVersion: 0
+CRC: 699378465
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: ardebugmenu
+      Dependencies: {}
+    Info_1:
+      Name: 3dobject.fbx
+      Dependencies: {}

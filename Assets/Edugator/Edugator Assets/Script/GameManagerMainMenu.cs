@@ -10,6 +10,7 @@ using UnityEngine.Audio;
 using Loading.UI;
 using System;
 using Download.file;
+using System.Linq;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
@@ -38,7 +39,6 @@ public class GameManagerMainMenu : MonoBehaviour
     LoadingUI loadingUI = new LoadingUI();
     DownloadFile downloadFile = new DownloadFile();
     public TextMeshProUGUI infoForDev;
-    string directoryPath;
     //Main Menu Script
     //==============================================================================================================================//\
     private void Awake() {
@@ -49,17 +49,6 @@ public class GameManagerMainMenu : MonoBehaviour
 
         // string[] Files = Directory.GetFiles("Assets/Resources/3dObject/");
         // print(Files[0]);
-        directoryPath = Path.Combine(Application.persistentDataPath, "3dObject");
-        
-        if(!Directory.Exists(directoryPath)) {
-            Directory.CreateDirectory(directoryPath);
-            directoryPath = Path.Combine(Application.persistentDataPath, "Card");
-            Directory.CreateDirectory(directoryPath);
-        }
-        else
-        {
-            print("Directory is Available");
-        }
     }
 
     void Start() {
@@ -191,18 +180,16 @@ public class GameManagerMainMenu : MonoBehaviour
 
                                 // //Download Assets
                                 string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                
-                                string path = Application.persistentDataPath + "/3dObject/";
+                                string path = Application.dataPath + "/Resources/3dObject/";
                                 // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
                                 infoForDev.text = "Dec Var";
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i, "/3Object/"));
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i, "3dObject"));
 
-                                path = Application.persistentDataPath + "/Card/";
                                 string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                // path = "Assets/Resources/CardImage/";
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".jpg", i, "/Card/"));
+                                path = Application.dataPath + "/Resources/CardImage/";
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".jpg", i, "CardImage"));
 
-                                yield return StartCoroutine(ExtractFile());
+                                ExtractFile();
                                 DeleteZipFile();
                                 RefreshDirectory();
 
@@ -293,27 +280,30 @@ public class GameManagerMainMenu : MonoBehaviour
     //==============================================================================================================================//
     string cardName;
     int cardId;
+    string fileName;
     // public List<string> files = new List<string>();
-    string[] files;
-    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame, string directorySavePath) {
-        
-        string directoryPath = Application.persistentDataPath + directorySavePath;
-        
-        if (Directory.Exists(directoryPath)) {
-            files = Directory.GetFiles(directoryPath);
-        }
-        else {
-            Console.WriteLine("Direktori tidak ditemukan.");
-        }
-
+    public GameObject[] files3D;
+    public Texture2D[] filescCard;
+    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame, string directoryPath) {
+        // string file;
+        files3D = Resources.LoadAll<GameObject>("3dObject");
+        filescCard = Resources.LoadAll<Texture2D>("CardImage");
+        // print("FIII : " + files[0]);
+        // try {
+        // }
+        // catch(Exception ex) {
+        //     infoForDev.text = ex.ToString();
+        // }
         infoForDev.text = "Dec Var\nDec Var in Function";
+
 
         bool fileIsAvailable;
         
         infoForDev.text = "Dec Var\nDec Var in Function\nLanjut";
 
-        // yield return null;
-        if(files.Length == 0) {
+        // fileName = Path.GetFileName(savePath);
+        yield return null;
+        if(files3D.Length == 0 || filescCard.Length == 0) {
             infoForDev.text = "Dec Var\nDec Var in Function\nif";
 
             loadingUI.Show("Download Assets...");
@@ -322,6 +312,7 @@ public class GameManagerMainMenu : MonoBehaviour
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 
                 yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                // files.Add(downloadFile.filePath);
                 // print("FI NAME : " + file);
             }
         }
@@ -331,9 +322,17 @@ public class GameManagerMainMenu : MonoBehaviour
                 cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 fileIsAvailable = false;
-
-                foreach(string file in files) {
-                    if(file.Contains(cardName)) {
+                
+                if(directoryPath == "3dObject") {
+                    foreach(GameObject file in files3D) {
+                        if(file.name.Contains(cardName)) {
+                            fileIsAvailable = true;
+                        }
+                    }
+                }
+                else if(directoryPath == "CardImage")
+                foreach(Texture2D file in filescCard) {
+                    if(file.name.Contains(cardName)) {
                         fileIsAvailable = true;
                     }
                 }
@@ -347,6 +346,7 @@ public class GameManagerMainMenu : MonoBehaviour
                 else {
                     loadingUI.Show("Download Assets...");
                     yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                    // files.Add(downloadFile.filePath);
                     // print("FI NAME : " + file);
                 }
             }
@@ -356,9 +356,10 @@ public class GameManagerMainMenu : MonoBehaviour
 
     public void CheckFile(int i)
     {
-        // Debug.Log("File Path : " + files[i]);
+        // Debug.Log("File Path : " + files.Count());
+        Debug.Log("FileName : " + fileName);
         Debug.Log("CardName : " + cardName);
-        // Debug.Log("Contains? " + fileName.Contains(cardName));
+        // Debug.Log("Contains? " + files[i].name.Contains(cardName));
         Debug.Log("File Exist? : " + File.Exists(downloadFile.filePath));
     }
     //==============================================================================================================================//
@@ -393,8 +394,8 @@ public class GameManagerMainMenu : MonoBehaviour
     //Extract and Delete File
     //==============================================================================================================================//
 
-    private IEnumerator ExtractFile() {
-        string filePath = Application.persistentDataPath + "/3dObject/";
+    private void ExtractFile() {
+        string filePath = "Assets/Resources/3dObject/";
 
         string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
 
@@ -411,11 +412,10 @@ public class GameManagerMainMenu : MonoBehaviour
         catch (Exception ex) {
             print($"Error extracting zip file: {ex.Message}");
         }
-        yield return null;
     }
 
     private void DeleteZipFile() {
-        string filePath = Application.persistentDataPath + "/3dObject/";
+        string filePath = "Assets/Resources/3dObject/";
 
         string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
 
