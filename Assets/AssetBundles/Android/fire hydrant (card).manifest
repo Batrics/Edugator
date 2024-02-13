@@ -1,0 +1,20 @@
+ManifestFileVersion: 0
+CRC: 301418121
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: b75c382d5db70a1c271928636091d217
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 2612ac43db082a73502ee80f2eceb73f
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: b75c382d5db70a1c271928636091d217
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/AssetsGame/CardImage/Fire Hydrant.jpg
+Dependencies: []

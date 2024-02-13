@@ -8166,6 +8166,8 @@ MonoBehaviour:
   table: {fileID: 938883089}
   historyValue: {fileID: 4472306983728543916, guid: ddfb3c115a911bb4e9766c6e430f9d9c, type: 3}
   infoForDev: {fileID: 1168520019}
+  files3D: []
+  filescCard: []
 --- !u!114 &8671466381606274109
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -86,15 +86,15 @@ public class HistoryScript : MonoBehaviour
                                 // //Download Assets
                                 string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
                                 
-                                string path = Application.persistentDataPath + "/Resources/3dObject/";
+                                string path = Application.persistentDataPath + "/3dObject/";
                                 // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
                                 print("Dec Var");
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i, "/3dObject/"));
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i, "3dObject"));
 
-                                path = Application.persistentDataPath + "/Resources/CardImage/";
+                                path = Application.persistentDataPath + "/CardImage/";
                                 string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
                                 // path = "Assets/Resources/CardImage/";
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".jpg", i, "/Card/"));
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".jpg", i, "CardImage"));
 
                                 yield return StartCoroutine(ExtractFile());
                                 DeleteZipFile();
@@ -189,27 +189,31 @@ public class HistoryScript : MonoBehaviour
     //==============================================================================================================================//
     string cardName;
     int cardId;
+    string fileName;
     // public List<string> files = new List<string>();
-    string[] files;
-    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame, string directorySavePath) {
+    public GameObject[] files3D;
+    public Texture2D[] filescCard;
+    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame, string directoryPath) {
         // string file;
-        string directoryPath = Application.persistentDataPath + directorySavePath;
-        
-        if (Directory.Exists(directoryPath)) {
-            files = Directory.GetFiles(directoryPath);
-        }
-        else {
-            Console.WriteLine("Direktori tidak ditemukan.");
-        }
-
+        files3D = Resources.LoadAll<GameObject>("3dObject");
+        filescCard = Resources.LoadAll<Texture2D>("CardImage");
+        // print("FIII : " + files[0]);
+        // try {
+        // }
+        // catch(Exception ex) {
+        //     infoForDev.text = ex.ToString();
+        // }
+        // print(files3D[0]);
         print("Dec Var\nDec Var in Function");
+
 
         bool fileIsAvailable;
         
         print("Dec Var\nDec Var in Function\nLanjut");
 
-        // yield return null;
-        if(files.Length == 0) {
+        // fileName = Path.GetFileName(savePath);
+        yield return null;
+        if(files3D.Length == 0 || filescCard.Length == 0) {
             print("Dec Var\nDec Var in Function\nif");
 
             loadingUI.Show("Download Assets...");
@@ -218,6 +222,7 @@ public class HistoryScript : MonoBehaviour
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 
                 yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                // files.Add(downloadFile.filePath);
                 // print("FI NAME : " + file);
             }
         }
@@ -227,10 +232,19 @@ public class HistoryScript : MonoBehaviour
                 cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 fileIsAvailable = false;
-
-                foreach(string file in files) {
-                    if(file.Contains(cardName)) {
-                        fileIsAvailable = true;
+                
+                if(directoryPath == "3dObject") {
+                    foreach(GameObject file in files3D) {
+                        if(file.name.Contains(cardName)) {
+                            fileIsAvailable = true;
+                        }
+                    }
+                }
+                else if(directoryPath == "CardImage") {
+                    foreach(Texture2D file in filescCard) {
+                        if(file.name.Contains(cardName)) {
+                            fileIsAvailable = true;
+                        }
                     }
                 }
 
@@ -243,10 +257,19 @@ public class HistoryScript : MonoBehaviour
                 else {
                     loadingUI.Show("Download Assets...");
                     yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
-                    // print("FI NAME : " + file);
+                    print("CName : " + cardName);
                 }
             }
         }
+        
+        try {
+            files3D = Resources.LoadAll<GameObject>("3dObject");
+        }
+        catch (Exception ex) { 
+            print("EX : " + ex);
+        }
+        // filescCard = Resources.LoadAll<Texture2D>("CardImage");
+        // print("F : " + files3D[0]);
 
     }
     //==============================================================================================================================//

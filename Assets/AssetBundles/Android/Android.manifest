@@ -1,0 +1,19 @@
+ManifestFileVersion: 0
+CRC: 1460199116
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: ardebugmenu
+      Dependencies: {}
+    Info_1:
+      Name: fire extingusher (model)
+      Dependencies: {}
+    Info_2:
+      Name: fire hydrant (model)
+      Dependencies: {}
+    Info_3:
+      Name: fire extingusher (card)
+      Dependencies: {}
+    Info_4:
+      Name: fire hydrant (card)
+      Dependencies: {}

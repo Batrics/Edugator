@@ -42,13 +42,39 @@ public class GameManagerMainMenu : MonoBehaviour
     //Main Menu Script
     //==============================================================================================================================//\
     private void Awake() {
+
+        AssetBundle.UnloadAllAssetBundles(true);
+
         loadingUI.Prepare();
-        // string path = Path.Combine(Application.persistentDataPath, fileName);
 
-        // print("Path : " + path);
+        print(Application.persistentDataPath);
+        string directoryPath = Path.Combine(Application.persistentDataPath, "3dObject");
 
-        // string[] Files = Directory.GetFiles("Assets/Resources/3dObject/");
-        // print(Files[0]);
+        // Check if the directory already exists
+        if (!Directory.Exists(directoryPath)) {
+            // Create the directory
+            Directory.CreateDirectory(directoryPath);
+            Debug.Log("Directory created successfully.");
+        }
+        else {
+            Debug.Log("Directory already exists.");
+        }
+        print("D : " + directoryPath);
+
+        directoryPath = Path.Combine(Application.persistentDataPath, "CardImage");
+
+        // Check if the directory already exists
+        if (!Directory.Exists(directoryPath)) {
+            // Create the directory
+            Directory.CreateDirectory(directoryPath);
+            Debug.Log("Directory created successfully.");
+        }
+        else {
+            Debug.Log("Directory already exists.");
+        }
+        print("D2 : " + directoryPath);
+
+        infoForDev.text = Application.persistentDataPath + "\n" + Application.streamingAssetsPath;
     }
 
     void Start() {
@@ -180,13 +206,13 @@ public class GameManagerMainMenu : MonoBehaviour
 
                                 // //Download Assets
                                 string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                string path = Application.dataPath + "/Resources/3dObject/";
+                                string path = Path.Combine(Application.persistentDataPath, "3dObject");
                                 // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
                                 infoForDev.text = "Dec Var";
                                 yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i, "3dObject"));
 
                                 string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                path = Application.dataPath + "/Resources/CardImage/";
+                                path = Path.Combine(Application.persistentDataPath, "CardImage");
                                 yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".jpg", i, "CardImage"));
 
                                 ExtractFile();
@@ -284,18 +310,44 @@ public class GameManagerMainMenu : MonoBehaviour
     // public List<string> files = new List<string>();
     public GameObject[] files3D;
     public Texture2D[] filescCard;
+    // public AssetBundle[] bundles;
+    public List<AssetBundle> bundles = new List<AssetBundle>();
     private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame, string directoryPath) {
-        // string file;
-        files3D = Resources.LoadAll<GameObject>("3dObject");
-        filescCard = Resources.LoadAll<Texture2D>("CardImage");
-        // print("FIII : " + files[0]);
-        // try {
-        // }
-        // catch(Exception ex) {
-        //     infoForDev.text = ex.ToString();
-        // }
-        infoForDev.text = "Dec Var\nDec Var in Function";
+        
+        string filePath;
+        
+        for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count ; j++) {
+            cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
 
+            filePath = $"Assets/AssetBundles/Android/{cardName} (model)";
+
+            if(AssetBundle.GetAllLoadedAssetBundles() != null) {
+                AssetBundle bundle = AssetBundle.LoadFromFile(filePath);
+                bundles.Add(bundle);
+
+                filePath = $"Assets/AssetBundles/Android/{cardName} (card)";
+
+                bundle = AssetBundle.LoadFromFile(filePath);
+                bundles.Add(bundle);
+            }
+
+            // if (bundle != null) {
+            //     Texture2D loadedObject = bundle.LoadAsset<Texture2D>("Fire Extingusher.jpg");
+
+            //     if (loadedObject != null) {
+            //         filescCard.Append(loadedObject);
+            //         Debug.Log("File FBX berhasil dimuat dan diinstansiasi sebagai GameObject");
+            //     }
+            //     else Debug.LogError("Gagal memuat GameObject dari bundle");
+
+            //     bundle.Unload(false);
+            // } 
+            // else Debug.LogError("Gagal memuat AssetBundle dari file: " + filePath);
+        }
+
+        //==================================================================================
+
+        infoForDev.text = "Dec Var\nDec Var in Function";
 
         bool fileIsAvailable;
         
@@ -330,10 +382,11 @@ public class GameManagerMainMenu : MonoBehaviour
                         }
                     }
                 }
-                else if(directoryPath == "CardImage")
-                foreach(Texture2D file in filescCard) {
-                    if(file.name.Contains(cardName)) {
-                        fileIsAvailable = true;
+                else if(directoryPath == "CardImage") {
+                    foreach(Texture2D file in filescCard) {
+                        if(file.name.Contains(cardName)) {
+                            fileIsAvailable = true;
+                        }
                     }
                 }
 
@@ -346,8 +399,7 @@ public class GameManagerMainMenu : MonoBehaviour
                 else {
                     loadingUI.Show("Download Assets...");
                     yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
-                    // files.Add(downloadFile.filePath);
-                    // print("FI NAME : " + file);
+                    print("CName : " + cardName);
                 }
             }
         }
@@ -356,11 +408,71 @@ public class GameManagerMainMenu : MonoBehaviour
 
     public void CheckFile(int i)
     {
-        // Debug.Log("File Path : " + files.Count());
-        Debug.Log("FileName : " + fileName);
-        Debug.Log("CardName : " + cardName);
-        // Debug.Log("Contains? " + files[i].name.Contains(cardName));
-        Debug.Log("File Exist? : " + File.Exists(downloadFile.filePath));
+        
+        // Memuat Asset Bundle yang telah dibangun
+        // AssetBundle loadedBundle = AssetBundle.LoadFromFile("Assets/AssetBundles/Android/3dObject");
+        
+        // // Mengambil prefab dari Asset Bundle
+        // GameObject myPrefab = loadedBundle.LoadAsset<GameObject>("PrefabName"); // Ganti "PrefabName" dengan nama prefab Anda
+        
+        // Instansiasi prefab dari Asset Bundle
+        // Instantiate(myPrefab);
+
+        
+        // files3D = Resources.LoadAll<GameObject>(Application.persistentDataPath + "/3dObject");
+        // filescCard = Resources.LoadAll<Texture2D>(Application.persistentDataPath + "/CardImage");
+        // Texture2D file = Resources.Load<Texture2D>(filePath);
+
+        // string filePath;
+        
+        // for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count; j++) {
+        //     cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
+
+        //     filePath = $"Assets/AssetBundles/Android/{cardName}";
+
+        //     AssetBundle bundle = AssetBundle.LoadFromFile(filePath);
+        //     bundles.Append<AssetBundle>(bundle);
+
+            // if (bundle != null) {
+            //     Texture2D loadedObject = bundle.LoadAsset<Texture2D>("Fire Extingusher.jpg");
+
+            //     if (loadedObject != null) {
+            //         filescCard.Append(loadedObject);
+            //         Debug.Log("File FBX berhasil dimuat dan diinstansiasi sebagai GameObject");
+            //     }
+            //     else Debug.LogError("Gagal memuat GameObject dari bundle");
+
+            //     bundle.Unload(false);
+            // } 
+            // else Debug.LogError("Gagal memuat AssetBundle dari file: " + filePath);
+        // }
+
+        string filePath = "Assets/AssetBundles/Android/fire hydrant";
+        AssetBundle bundle = AssetBundle.LoadFromFile(filePath);
+        bundles.Add(bundle);
+
+        filePath = "Assets/AssetBundles/Android/fire extingusher";
+        bundle = AssetBundle.LoadFromFile(filePath);
+        bundles.Add(bundle);
+
+        // print(bundle);
+        // print(bundles[1]);
+        // if (bundle != null) {
+        //     GameObject loadedObject = bundle.LoadAsset<GameObject>("fire extingusher");
+
+        //     if (loadedObject != null)
+        //     {
+        //         print(loadedObject.GetType());
+        //         Debug.Log("File FBX berhasil dimuat dan diinstansiasi sebagai GameObject");
+        //         Instantiate(loadedObject);
+        //     }
+        //     else
+        //     {
+        //         Debug.LogError("Gagal memuat GameObject dari bundle");
+        //     }
+        //     bundle.Unload(false);
+        // } 
+        // else Debug.LogError("Gagal memuat AssetBundle dari file: " + filePath);
     }
     //==============================================================================================================================//
     
@@ -395,7 +507,7 @@ public class GameManagerMainMenu : MonoBehaviour
     //==============================================================================================================================//
 
     private void ExtractFile() {
-        string filePath = "Assets/Resources/3dObject/";
+        string filePath = Application.persistentDataPath + "/3dObject/";
 
         string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
 
@@ -415,7 +527,7 @@ public class GameManagerMainMenu : MonoBehaviour
     }
 
     private void DeleteZipFile() {
-        string filePath = "Assets/Resources/3dObject/";
+        string filePath = Application.persistentDataPath + "/3dObject/";
 
         string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
 
@@ -465,9 +577,18 @@ namespace Download.file
                 byte[] data = www.downloadHandler.data;
 
                 // Simpan data ke dalam file di folder "Assets".
-                File.WriteAllBytes(filePath, data);
+                // GameManagerMainMenu gameManagerMainMenu;
+                // gameManagerMainMenu = GetComponent<GameManagerMainMenu>();
+                try {
+                    File.WriteAllBytes(filePath, data);
+                    Debug.Log("File berhasil diunduh dan disimpan di " + filePath);
+                    // gameManagerMainMenu.infoForDev.text = "File berhasil diunduh dan disimpan di " + filePath;
+                }
+                catch(Exception ex) {
+                    // gameManagerMainMenu.infoForDev.text = ex.ToString();
+                    print(ex);
+                }
 
-                Debug.Log("File berhasil diunduh dan disimpan di " + filePath);
             }
         }
     }
