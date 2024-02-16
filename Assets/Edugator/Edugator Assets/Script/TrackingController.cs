@@ -21,6 +21,7 @@ public class TrackingController : MonoBehaviour
     private ARTrackedImageManager trackedImageManager;
     private RuntimeReferenceImageLibrary library;
     public XRReferenceImageLibrary referenceImagesLibrary;
+    private string cardName;
 
     [Header("Main")]
     private JSONNode _jsonData;
@@ -33,26 +34,31 @@ public class TrackingController : MonoBehaviour
     [SerializeField] private RuntimeAnimatorController animatorController;
     private LoadingUI loadingUI = new LoadingUI();
     AddReferenceImageJobState referenceImageJobState;
-    GameObject[] prefabs3D;
-    Texture2D[] texture2Ds;
+    [SerializeField] List<GameObject> prefabs3D = new List<GameObject>();
+    [SerializeField] List<Texture2D> textures2D = new List<Texture2D>();
 
     void Awake() {
+        AssetBundle.UnloadAllAssetBundles(true);
+        
         infoForDev.text = "1";
         trackedImageManager = gameObject.AddComponent<ARTrackedImageManager>();
-
-        prefabs3D = Resources.LoadAll<GameObject>("3dObject");
-
-        texture2Ds = Resources.LoadAll<Texture2D>("CardImage");
 
         library = trackedImageManager.CreateRuntimeLibrary();
         trackedImageManager.referenceLibrary = library;
 
         infoForDev.text = "1\n2";
 
+        loadingUI.Prepare();
+        // PlayerPrefs.SetString("token", "44736ebf1ac169b4d5e7d174ca1f8b8e");
     }
 
-    private void Start() {
-        foreach(Texture2D texture2D in texture2Ds) {
+    private IEnumerator Start() {
+
+        getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
+        
+        yield return StartCoroutine(CheckFiles());
+        
+        foreach(Texture2D texture2D in textures2D) {
             cardReferenceImgae.Add(texture2D.name, texture2D);
             if(cardReferenceImgae != null) {
                 infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources";
@@ -96,14 +102,12 @@ public class TrackingController : MonoBehaviour
 
         infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4\n5\n6";
 
-        loadingUI.Prepare();
         
         infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4\n5\n6\nEND";
         
         trackedImageManager.enabled = true;
         playButton.SetActive(false);
 
-        getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
 
         foreach (KeyValuePair<string, GameObject> entry in gameObjectDictionary) {
             Debug.Log("Key: " + entry.Key + " Value: " + entry.Value);
@@ -220,6 +224,58 @@ public class TrackingController : MonoBehaviour
         Animator anim3dObject = object3d.AddComponent<Animator>();
 
         anim3dObject.runtimeAnimatorController = animatorController;
+    }
+
+    private IEnumerator CheckFiles() {
+
+        string filePath;
+
+        loadingUI.Show("Please Wait...");
+        using (UnityWebRequest webData = UnityWebRequest.Get(getDataGamesUrl)) {
+            yield return webData.SendWebRequest();
+
+            if (webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError) {
+                loadingUI.Hide();
+                Debug.Log("Tidak ada Koneksi/Jaringan");
+                ConnectionGameObject.SetActive(true);
+                yield return new WaitForSeconds(3f);
+                ConnectionGameObject.SetActive(false);
+            }
+            else {
+                if (webData.isDone) {
+                    ConnectionGameObject.SetActive(false);
+                    loadingUI.Hide();
+
+                    _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
+                    if (_jsonData == null) {
+                        Debug.Log("Json data Kosong");
+                    }
+                    else {
+                        for(int j = 0; j < _jsonData["data"]["cards"].Count ; j++) {
+                            cardName = _jsonData["data"]["cards"][j]["name"];
+                            
+                            //Harus diganti ke path Local
+                            filePath = $"Assets/AssetBundles/Android/{cardName} (model)";
+
+                            AssetBundle bundleModel = AssetBundle.LoadFromFile(filePath);
+                            GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
+                            prefabs3D.Add(model);
+
+                            filePath = $"Assets/AssetBundles/Android/{cardName} (card)";
+
+                            AssetBundle bundleCard = AssetBundle.LoadFromFile(filePath);
+                            Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
+                            yield return card;
+                            textures2D.Add(card);
+                            
+                        }
+                    }
+                }
+                else {
+                    Debug.LogError("Error Detail: " + webData.error);
+                }
+            }
+        }
     }
 
     private IEnumerator GetDataFromAPIAndInstantiateObject(GameObject entry, Transform transform) {

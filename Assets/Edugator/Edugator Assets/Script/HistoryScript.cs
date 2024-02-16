@@ -89,12 +89,12 @@ public class HistoryScript : MonoBehaviour
                                 string path = Application.persistentDataPath + "/3dObject/";
                                 // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
                                 print("Dec Var");
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i, "3dObject"));
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, "model", i, "3dObject"));
 
                                 path = Application.persistentDataPath + "/CardImage/";
                                 string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
                                 // path = "Assets/Resources/CardImage/";
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".jpg", i, "CardImage"));
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, "card", i, "CardImage"));
 
                                 yield return StartCoroutine(ExtractFile());
                                 DeleteZipFile();
@@ -189,23 +189,35 @@ public class HistoryScript : MonoBehaviour
     //==============================================================================================================================//
     string cardName;
     int cardId;
-    string fileName;
-    // public List<string> files = new List<string>();
-    public GameObject[] files3D;
-    public Texture2D[] filescCard;
-    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame, string directoryPath) {
-        // string file;
-        files3D = Resources.LoadAll<GameObject>("3dObject");
-        filescCard = Resources.LoadAll<Texture2D>("CardImage");
-        // print("FIII : " + files[0]);
-        // try {
-        // }
-        // catch(Exception ex) {
-        //     infoForDev.text = ex.ToString();
-        // }
-        // print(files3D[0]);
-        print("Dec Var\nDec Var in Function");
+    public List<GameObject> files3D = new List<GameObject>();
+    public List<Texture2D> filesCard = new List<Texture2D>();
+    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string bundleType, int indexGame, string directoryPath) {
+        
+        string filePath;
+        
+        for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count ; j++) {
+            cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
 
+            filePath = $"Assets/AssetBundles/Android/{cardName} ({bundleType})";
+
+            switch(bundleType) {
+                case "model" :
+                    AssetBundle bundleModel = AssetBundle.LoadFromFile(filePath);
+                    GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
+                    files3D.Add(model);
+                    break;
+                case "card" : 
+                    AssetBundle bundleCard = AssetBundle.LoadFromFile(filePath);
+                    Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
+                    yield return card;
+                    filesCard.Add(card);
+                    break;
+            }
+        }
+
+        //==================================================================================
+
+        print("Dec Var\nDec Var in Function");
 
         bool fileIsAvailable;
         
@@ -213,7 +225,7 @@ public class HistoryScript : MonoBehaviour
 
         // fileName = Path.GetFileName(savePath);
         yield return null;
-        if(files3D.Length == 0 || filescCard.Length == 0) {
+        if(files3D.Count == 0 && filesCard.Count == 0) {
             print("Dec Var\nDec Var in Function\nif");
 
             loadingUI.Show("Download Assets...");
@@ -221,9 +233,7 @@ public class HistoryScript : MonoBehaviour
                 cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 
-                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
-                // files.Add(downloadFile.filePath);
-                // print("FI NAME : " + file);
+                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, bundleType, savePath));
             }
         }
         else {
@@ -241,36 +251,22 @@ public class HistoryScript : MonoBehaviour
                     }
                 }
                 else if(directoryPath == "CardImage") {
-                    foreach(Texture2D file in filescCard) {
+                    foreach(Texture2D file in filesCard) {
                         if(file.name.Contains(cardName)) {
                             fileIsAvailable = true;
                         }
                     }
                 }
 
-                // if(cardName == fileName) {
-                //     fileIsAvailable = true;
-                // }
-
                 if(fileIsAvailable == true)
                     Debug.Log("File is Available");
                 else {
                     loadingUI.Show("Download Assets...");
-                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, bundleType, savePath));
                     print("CName : " + cardName);
                 }
             }
         }
-        
-        try {
-            files3D = Resources.LoadAll<GameObject>("3dObject");
-        }
-        catch (Exception ex) { 
-            print("EX : " + ex);
-        }
-        // filescCard = Resources.LoadAll<Texture2D>("CardImage");
-        // print("F : " + files3D[0]);
-
     }
     //==============================================================================================================================//
     //Extract and Delete File

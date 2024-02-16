@@ -10,7 +10,7 @@ using UnityEngine.Audio;
 using Loading.UI;
 using System;
 using Download.file;
-using System.Linq;
+using Unity.VisualScripting;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
@@ -209,13 +209,13 @@ public class GameManagerMainMenu : MonoBehaviour
                                 string path = Path.Combine(Application.persistentDataPath, "3dObject");
                                 // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
                                 infoForDev.text = "Dec Var";
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i, "3dObject"));
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, "model", i, "3dObject"));
 
                                 string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
                                 path = Path.Combine(Application.persistentDataPath, "CardImage");
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".jpg", i, "CardImage"));
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, "card", i, "CardImage"));
 
-                                ExtractFile();
+                                yield return StartCoroutine(ExtractFile());
                                 DeleteZipFile();
                                 RefreshDirectory();
 
@@ -306,43 +306,30 @@ public class GameManagerMainMenu : MonoBehaviour
     //==============================================================================================================================//
     string cardName;
     int cardId;
-    string fileName;
-    // public List<string> files = new List<string>();
-    public GameObject[] files3D;
-    public Texture2D[] filescCard;
-    // public AssetBundle[] bundles;
-    public List<AssetBundle> bundles = new List<AssetBundle>();
-    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame, string directoryPath) {
+    public List<GameObject> files3D = new List<GameObject>();
+    public List<Texture2D> filesCard = new List<Texture2D>();
+    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string bundleType, int indexGame, string directoryPath) {
         
         string filePath;
         
         for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count ; j++) {
             cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
 
-            filePath = $"Assets/AssetBundles/Android/{cardName} (model)";
+            filePath = $"Assets/AssetBundles/Android/{cardName} ({bundleType})";
 
-            if(AssetBundle.GetAllLoadedAssetBundles() != null) {
-                AssetBundle bundle = AssetBundle.LoadFromFile(filePath);
-                bundles.Add(bundle);
-
-                filePath = $"Assets/AssetBundles/Android/{cardName} (card)";
-
-                bundle = AssetBundle.LoadFromFile(filePath);
-                bundles.Add(bundle);
+            switch(bundleType) {
+                case "model" :
+                    AssetBundle bundleModel = AssetBundle.LoadFromFile(filePath);
+                    GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
+                    files3D.Add(model);
+                    break;
+                case "card" : 
+                    AssetBundle bundleCard = AssetBundle.LoadFromFile(filePath);
+                    Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
+                    yield return card;
+                    filesCard.Add(card);
+                    break;
             }
-
-            // if (bundle != null) {
-            //     Texture2D loadedObject = bundle.LoadAsset<Texture2D>("Fire Extingusher.jpg");
-
-            //     if (loadedObject != null) {
-            //         filescCard.Append(loadedObject);
-            //         Debug.Log("File FBX berhasil dimuat dan diinstansiasi sebagai GameObject");
-            //     }
-            //     else Debug.LogError("Gagal memuat GameObject dari bundle");
-
-            //     bundle.Unload(false);
-            // } 
-            // else Debug.LogError("Gagal memuat AssetBundle dari file: " + filePath);
         }
 
         //==================================================================================
@@ -355,7 +342,7 @@ public class GameManagerMainMenu : MonoBehaviour
 
         // fileName = Path.GetFileName(savePath);
         yield return null;
-        if(files3D.Length == 0 || filescCard.Length == 0) {
+        if(files3D.Count == 0 && filesCard.Count == 0) {
             infoForDev.text = "Dec Var\nDec Var in Function\nif";
 
             loadingUI.Show("Download Assets...");
@@ -363,9 +350,7 @@ public class GameManagerMainMenu : MonoBehaviour
                 cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 
-                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
-                // files.Add(downloadFile.filePath);
-                // print("FI NAME : " + file);
+                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, bundleType, savePath));
             }
         }
         else {
@@ -383,22 +368,18 @@ public class GameManagerMainMenu : MonoBehaviour
                     }
                 }
                 else if(directoryPath == "CardImage") {
-                    foreach(Texture2D file in filescCard) {
+                    foreach(Texture2D file in filesCard) {
                         if(file.name.Contains(cardName)) {
                             fileIsAvailable = true;
                         }
                     }
                 }
 
-                // if(cardName == fileName) {
-                //     fileIsAvailable = true;
-                // }
-
                 if(fileIsAvailable == true)
                     Debug.Log("File is Available");
                 else {
                     loadingUI.Show("Download Assets...");
-                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, bundleType, savePath));
                     print("CName : " + cardName);
                 }
             }
@@ -447,13 +428,13 @@ public class GameManagerMainMenu : MonoBehaviour
             // else Debug.LogError("Gagal memuat AssetBundle dari file: " + filePath);
         // }
 
-        string filePath = "Assets/AssetBundles/Android/fire hydrant";
-        AssetBundle bundle = AssetBundle.LoadFromFile(filePath);
-        bundles.Add(bundle);
+        // string filePath = "Assets/AssetBundles/Android/fire hydrant";
+        // AssetBundle bundle = AssetBundle.LoadFromFile(filePath);
+        // bundles.Add(bundle);
 
-        filePath = "Assets/AssetBundles/Android/fire extingusher";
-        bundle = AssetBundle.LoadFromFile(filePath);
-        bundles.Add(bundle);
+        // filePath = "Assets/AssetBundles/Android/fire extingusher";
+        // bundle = AssetBundle.LoadFromFile(filePath);
+        // bundles.Add(bundle);
 
         // print(bundle);
         // print(bundles[1]);
@@ -506,7 +487,7 @@ public class GameManagerMainMenu : MonoBehaviour
     //Extract and Delete File
     //==============================================================================================================================//
 
-    private void ExtractFile() {
+    private IEnumerator ExtractFile() {
         string filePath = Application.persistentDataPath + "/3dObject/";
 
         string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
@@ -524,6 +505,8 @@ public class GameManagerMainMenu : MonoBehaviour
         catch (Exception ex) {
             print($"Error extracting zip file: {ex.Message}");
         }
+
+        yield return null;
     }
 
     private void DeleteZipFile() {
