@@ -79,6 +79,7 @@ public class GameManagerMainMenu : MonoBehaviour
 
     void Start() {
         // PlayerPrefs.DeleteAll();
+        // print("Delete Prefabs Success");
         // RefreshDirectory();
         // print(PlayerPrefs.GetString("history"));
         PlayerPrefs.DeleteKey("token");

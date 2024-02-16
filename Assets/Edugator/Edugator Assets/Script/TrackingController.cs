@@ -7,10 +7,7 @@ using SimpleJSON;
 using UnityEngine.Networking;
 using Loading.UI;
 using Unity.Collections;
-using System;
 using TMPro;
-using System.IO;
-using System.IO.Compression;
 
 public class TrackingController : MonoBehaviour
 {
@@ -39,7 +36,7 @@ public class TrackingController : MonoBehaviour
 
     void Awake() {
         AssetBundle.UnloadAllAssetBundles(true);
-        
+
         infoForDev.text = "1";
         trackedImageManager = gameObject.AddComponent<ARTrackedImageManager>();
 
@@ -130,6 +127,7 @@ public class TrackingController : MonoBehaviour
             print("Reference Image : " + trackedImage.referenceImage);
             getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
             
+            trackedImage.transform.localScale = new Vector3(-trackedImage.referenceImage.size.x, 0.005f, -trackedImage.referenceImage.size.y);
             StartCoroutine(FirstTrackedImage(trackedImage));
         }
 
@@ -137,6 +135,7 @@ public class TrackingController : MonoBehaviour
             if (trackedImage.trackingState == TrackingState.Tracking) {
                 if(tracking == false) {
                     tracking = true;
+                    trackedImage.transform.localScale = new Vector3(-trackedImage.referenceImage.size.x, 0.005f, -trackedImage.referenceImage.size.y);
                     StartCoroutine(UpdateImage(trackedImage));
                 }
             }
