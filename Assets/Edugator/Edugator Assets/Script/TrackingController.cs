@@ -106,9 +106,14 @@ public class TrackingController : MonoBehaviour
         playButton.SetActive(false);
 
 
-        foreach (KeyValuePair<string, GameObject> entry in gameObjectDictionary) {
-            Debug.Log("Key: " + entry.Key + " Value: " + entry.Value);
-        }
+        // foreach (KeyValuePair<string, GameObject> entry in gameObjectDictionary) {
+        //     Debug.Log("Key: " + entry.Key + " Value: " + entry.Value);
+        // }
+        // foreach (KeyValuePair<string, Texture2D> entry in cardReferenceImgae) {
+        //     Debug.Log("Key: " + entry.Key + " Value: " + entry.Value);
+        // }
+            
+        
     }
 
     private void OnEnable() {
@@ -160,7 +165,8 @@ public class TrackingController : MonoBehaviour
             }
 
             referenceImageJobState.jobHandle.Complete();
-            print("IMAAAAAGEE : " + mutableLibrary[0].name);
+            print("IMAAAAAGEE : " + mutableLibrary[0]);
+            print("Reference Image JobState : " + referenceImageJobState);
         }
         else {
             Debug.LogError("Reference library is not MutableRuntimeReferenceImageLibrary.");

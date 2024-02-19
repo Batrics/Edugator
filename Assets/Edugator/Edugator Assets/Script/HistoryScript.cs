@@ -73,37 +73,39 @@ public class HistoryScript : MonoBehaviour
                         Debug.Log("Json data Kosong");
                     }
                     else {
-                        for (int i = 0; i < _jsonData["data"].Count; i++) {
-                            if (token == _jsonData["data"][i]["token"]) {
-                                PlayerPrefs.SetString("token", token);
-                                PlayerPrefs.SetInt("game_id", _jsonData["data"][i]["id"]);
+                        if(_jsonData["success"] == true) {
+                            for (int i = 0; i < _jsonData["data"].Count; i++) {
+                                if (token == _jsonData["data"][i]["token"]) {
+                                    PlayerPrefs.SetString("token", token);
+                                    PlayerPrefs.SetInt("game_id", _jsonData["data"][i]["id"]);
 
-                                print("Jumlah Card : " + _jsonData["data"][i]["cards"].Count);
+                                    print("Jumlah Card : " + _jsonData["data"][i]["cards"].Count);
 
-                                titleText.text = _jsonData["data"][i]["name"];
-                                GameOwnerText.text = "Created By : " + _jsonData["data"][i]["author"];
+                                    titleText.text = _jsonData["data"][i]["name"];
+                                    GameOwnerText.text = "Created By : " + _jsonData["data"][i]["author"];
 
-                                // //Download Assets
-                                string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                
-                                string path = Application.persistentDataPath + "/3dObject/";
-                                // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
-                                print("Dec Var");
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, "model", i, "3dObject"));
+                                    // //Download Assets
+                                    string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                    
+                                    string path = Application.persistentDataPath + "/3dObject/";
+                                    // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
+                                    print("Dec Var");
+                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, "model", i, "3dObject"));
 
-                                path = Application.persistentDataPath + "/CardImage/";
-                                string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                // path = "Assets/Resources/CardImage/";
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, "card", i, "CardImage"));
+                                    path = Application.persistentDataPath + "/CardImage/";
+                                    string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                    // path = "Assets/Resources/CardImage/";
+                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, "card", i, "CardImage"));
 
-                                yield return StartCoroutine(ExtractFile());
-                                DeleteZipFile();
-                                RefreshDirectory();
+                                    yield return StartCoroutine(ExtractFile());
+                                    DeleteZipFile();
+                                    RefreshDirectory();
 
-                                loadingUI.Hide();
+                                    loadingUI.Hide();
 
-                                transform.parent.parent.parent.gameObject.SetActive(false);
-                                
+                                    transform.parent.parent.parent.gameObject.SetActive(false);
+                                    
+                                }
                             }
                         }
                     }

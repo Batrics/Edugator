@@ -169,67 +169,70 @@ public class GameManagerMainMenu : MonoBehaviour
                         Debug.Log("Json data Kosong");
                     }
                     else {
-                        for (int i = 0; i < _jsonData["data"].Count; i++) {
+                        if(_jsonData["success"] == true) {
+                            for (int i = 0; i < _jsonData["data"].Count; i++) {
+                                if (inputToken.text == _jsonData["data"][i]["token"]) {
+                                    PlayerPrefs.SetString("token", inputToken.text);
+                                    PlayerPrefs.SetInt("game_id", _jsonData["data"][i]["id"]);
+                                    titleText.text = _jsonData["data"][i]["name"];
+                                    GameOwnerText.text = "Created By : " + _jsonData["data"][i]["author"];
+                                    print(PlayerPrefs.GetInt("game_id"));
+                                    inputTokenUI.SetActive(false);
 
-                            if (inputToken.text == _jsonData["data"][i]["token"]) {
-                                PlayerPrefs.SetString("token", inputToken.text);
-                                PlayerPrefs.SetInt("game_id", _jsonData["data"][i]["id"]);
-                                titleText.text = _jsonData["data"][i]["name"];
-                                GameOwnerText.text = "Created By : " + _jsonData["data"][i]["author"];
-                                print(PlayerPrefs.GetInt("game_id"));
-                                inputTokenUI.SetActive(false);
+                                    //Update History Data
+                                    string storage = PlayerPrefs.GetString("history");
 
-                                //Update History Data
-                                string storage = PlayerPrefs.GetString("history");
+                                    if(storage != "") {
+                                        List<string> allHistory = new List<string>(storage.Split(";"));
 
-                                if(storage != "") {
-                                    List<string> allHistory = new List<string>(storage.Split(";"));
+                                        bool ketemu = false;
+                                        foreach(string history in allHistory) {
+                                            string[] historyArr = history.Split(",");
 
-                                    bool ketemu = false;
-                                    foreach(string history in allHistory) {
-                                        string[] historyArr = history.Split(",");
+                                            if(inputToken.text == historyArr[0]) {
+                                                ketemu = true;
+                                                break;
+                                            }
+                                        }
 
-                                        if(inputToken.text == historyArr[0]) {
-                                            ketemu = true;
-                                            break;
+                                        if(!ketemu) {
+                                            allHistory.Insert(0, inputToken.text + "," + _jsonData["data"][i]["name"]);
+                                            storage = string.Join(";", allHistory);
+                                            PlayerPrefs.SetString("history", storage);
                                         }
                                     }
-
-                                    if(!ketemu) {
-                                        allHistory.Insert(0, inputToken.text + "," + _jsonData["data"][i]["name"]);
-                                        storage = string.Join(";", allHistory);
-                                        PlayerPrefs.SetString("history", storage);
+                                    else {
+                                        PlayerPrefs.SetString("history", inputToken.text + "," + _jsonData["data"][i]["name"]);
                                     }
+
+                                    // //Download Assets
+                                    string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                    string path = Path.Combine(Application.persistentDataPath, "3dObject");
+                                    // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
+                                    infoForDev.text = "Dec Var";
+                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, "model", i, "3dObject"));
+
+                                    string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                    path = Path.Combine(Application.persistentDataPath, "CardImage");
+                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, "card", i, "CardImage"));
+
+                                    yield return StartCoroutine(ExtractFile());
+                                    DeleteZipFile();
+                                    RefreshDirectory();
+
+                                    loadingUI.Hide();
+
+                                }
+                                else if (inputToken.text == "") {
+                                    info.text = "Masukkan Token";
                                 }
                                 else {
-                                    PlayerPrefs.SetString("history", inputToken.text + "," + _jsonData["data"][i]["name"]);
+                                    info.text = "Token anda salah";
                                 }
-
-                                // //Download Assets
-                                string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                string path = Path.Combine(Application.persistentDataPath, "3dObject");
-                                // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
-                                infoForDev.text = "Dec Var";
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, "model", i, "3dObject"));
-
-                                string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                path = Path.Combine(Application.persistentDataPath, "CardImage");
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, "card", i, "CardImage"));
-
-                                yield return StartCoroutine(ExtractFile());
-                                DeleteZipFile();
-                                RefreshDirectory();
-
-                                loadingUI.Hide();
-
                             }
-                            else if (inputToken.text == "") {
-                                info.text = "Masukkan Token";
-                            }
-                            else {
-                                info.text = "Token anda salah";
-                            }
-
+                        }
+                        else {
+                            print("API Request Json Success = False");
                         }
                     }
                 }
@@ -388,73 +391,8 @@ public class GameManagerMainMenu : MonoBehaviour
 
     }
 
-    public void CheckFile(int i)
-    {
-        
-        // Memuat Asset Bundle yang telah dibangun
-        // AssetBundle loadedBundle = AssetBundle.LoadFromFile("Assets/AssetBundles/Android/3dObject");
-        
-        // // Mengambil prefab dari Asset Bundle
-        // GameObject myPrefab = loadedBundle.LoadAsset<GameObject>("PrefabName"); // Ganti "PrefabName" dengan nama prefab Anda
-        
-        // Instansiasi prefab dari Asset Bundle
-        // Instantiate(myPrefab);
+    public void CheckFile(int i) {
 
-        
-        // files3D = Resources.LoadAll<GameObject>(Application.persistentDataPath + "/3dObject");
-        // filescCard = Resources.LoadAll<Texture2D>(Application.persistentDataPath + "/CardImage");
-        // Texture2D file = Resources.Load<Texture2D>(filePath);
-
-        // string filePath;
-        
-        // for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count; j++) {
-        //     cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
-
-        //     filePath = $"Assets/AssetBundles/Android/{cardName}";
-
-        //     AssetBundle bundle = AssetBundle.LoadFromFile(filePath);
-        //     bundles.Append<AssetBundle>(bundle);
-
-            // if (bundle != null) {
-            //     Texture2D loadedObject = bundle.LoadAsset<Texture2D>("Fire Extingusher.jpg");
-
-            //     if (loadedObject != null) {
-            //         filescCard.Append(loadedObject);
-            //         Debug.Log("File FBX berhasil dimuat dan diinstansiasi sebagai GameObject");
-            //     }
-            //     else Debug.LogError("Gagal memuat GameObject dari bundle");
-
-            //     bundle.Unload(false);
-            // } 
-            // else Debug.LogError("Gagal memuat AssetBundle dari file: " + filePath);
-        // }
-
-        // string filePath = "Assets/AssetBundles/Android/fire hydrant";
-        // AssetBundle bundle = AssetBundle.LoadFromFile(filePath);
-        // bundles.Add(bundle);
-
-        // filePath = "Assets/AssetBundles/Android/fire extingusher";
-        // bundle = AssetBundle.LoadFromFile(filePath);
-        // bundles.Add(bundle);
-
-        // print(bundle);
-        // print(bundles[1]);
-        // if (bundle != null) {
-        //     GameObject loadedObject = bundle.LoadAsset<GameObject>("fire extingusher");
-
-        //     if (loadedObject != null)
-        //     {
-        //         print(loadedObject.GetType());
-        //         Debug.Log("File FBX berhasil dimuat dan diinstansiasi sebagai GameObject");
-        //         Instantiate(loadedObject);
-        //     }
-        //     else
-        //     {
-        //         Debug.LogError("Gagal memuat GameObject dari bundle");
-        //     }
-        //     bundle.Unload(false);
-        // } 
-        // else Debug.LogError("Gagal memuat AssetBundle dari file: " + filePath);
     }
     //==============================================================================================================================//
     
