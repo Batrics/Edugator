@@ -260,13 +260,13 @@ public class TrackingController : MonoBehaviour
                             cardName = _jsonData["data"]["cards"][j]["name"];
                             
                             //Harus diganti ke path Local
-                            filePath = $"Assets/AssetBundles/Android/{cardName} (model)";
+                            filePath = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " +  "(model)";
 
                             AssetBundle bundleModel = AssetBundle.LoadFromFile(filePath);
                             GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
                             prefabs3D.Add(model);
 
-                            filePath = $"Assets/AssetBundles/Android/{cardName} (card)";
+                            filePath = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " + "(card)";
 
                             AssetBundle bundleCard = AssetBundle.LoadFromFile(filePath);
                             Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");

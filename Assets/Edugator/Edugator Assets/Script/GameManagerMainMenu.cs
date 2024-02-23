@@ -10,7 +10,6 @@ using UnityEngine.Audio;
 using Loading.UI;
 using System;
 using Download.file;
-using Unity.VisualScripting;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
@@ -48,7 +47,7 @@ public class GameManagerMainMenu : MonoBehaviour
         loadingUI.Prepare();
 
         print(Application.persistentDataPath);
-        string directoryPath = Path.Combine(Application.persistentDataPath, "3dObject");
+        string directoryPath = Path.Combine(Application.persistentDataPath, "AssetsBundle");
 
         // Check if the directory already exists
         if (!Directory.Exists(directoryPath)) {
@@ -207,16 +206,15 @@ public class GameManagerMainMenu : MonoBehaviour
 
                                     // //Download Assets
                                     string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                    string path = Path.Combine(Application.persistentDataPath, "3dObject");
+                                    string path = Application.persistentDataPath + "/AssetsBundle/";
                                     // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
                                     infoForDev.text = "Dec Var";
-                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, "model", i, "3dObject"));
+                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i, "AssetsBundle", "model"));
 
-                                    string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                    path = Path.Combine(Application.persistentDataPath, "CardImage");
-                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, "card", i, "CardImage"));
+                                    // string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                    // path = Application.persistentDataPath + "/AssetsBundle/";
+                                    // yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".zip", i, "AssetsBundle", "card"));
 
-                                    yield return StartCoroutine(ExtractFile());
                                     DeleteZipFile();
                                     RefreshDirectory();
 
@@ -310,31 +308,13 @@ public class GameManagerMainMenu : MonoBehaviour
     //==============================================================================================================================//
     string cardName;
     int cardId;
+    // List<string> files = new List<string>();
     public List<GameObject> files3D = new List<GameObject>();
     public List<Texture2D> filesCard = new List<Texture2D>();
-    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string bundleType, int indexGame, string directoryPath) {
-        
-        string filePath;
-        
-        for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count ; j++) {
-            cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
+    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame, string directoryPath, string bundleType) {
+        string[] files;
 
-            filePath = $"Assets/AssetBundles/Android/{cardName} ({bundleType})";
-
-            switch(bundleType) {
-                case "model" :
-                    AssetBundle bundleModel = AssetBundle.LoadFromFile(filePath);
-                    GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
-                    files3D.Add(model);
-                    break;
-                case "card" : 
-                    AssetBundle bundleCard = AssetBundle.LoadFromFile(filePath);
-                    Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
-                    yield return card;
-                    filesCard.Add(card);
-                    break;
-            }
-        }
+        files = Directory.GetFiles(Application.persistentDataPath + "/AssetsBundle/");
 
         //==================================================================================
 
@@ -346,7 +326,7 @@ public class GameManagerMainMenu : MonoBehaviour
 
         // fileName = Path.GetFileName(savePath);
         yield return null;
-        if(files3D.Count == 0 && filesCard.Count == 0) {
+        if(files.Length == 0) {
             infoForDev.text = "Dec Var\nDec Var in Function\nif";
 
             loadingUI.Show("Download Assets...");
@@ -354,7 +334,8 @@ public class GameManagerMainMenu : MonoBehaviour
                 cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 
-                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, bundleType, savePath));
+                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath, bundleType));
+                yield return StartCoroutine(ExtractFile());
             }
         }
         else {
@@ -363,36 +344,65 @@ public class GameManagerMainMenu : MonoBehaviour
                 cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 fileIsAvailable = false;
+
+                foreach(string file in files) {
+                    if(file.Contains(cardName.ToLower())) {
+                        fileIsAvailable = true;
+                    }
+                }
                 
-                if(directoryPath == "3dObject") {
-                    foreach(GameObject file in files3D) {
-                        if(file.name.Contains(cardName)) {
-                            fileIsAvailable = true;
-                        }
-                    }
-                }
-                else if(directoryPath == "CardImage") {
-                    foreach(Texture2D file in filesCard) {
-                        if(file.name.Contains(cardName)) {
-                            fileIsAvailable = true;
-                        }
-                    }
-                }
+                // if(directoryPath == "AssetsBundle") {
+                //     foreach(GameObject file in files3D) {
+                //         if(file.name.Contains(cardName)) {
+                //             fileIsAvailable = true;
+                //         }
+                //     }
+                // }
+                // else if(directoryPath == "AssetsBundle") {
+                //     foreach(Texture2D file in filesCard) {
+                //         if(file.name.Contains(cardName)) {
+                //             fileIsAvailable = true;
+                //         }
+                //     }
+                // }
 
                 if(fileIsAvailable == true)
                     Debug.Log("File is Available");
                 else {
                     loadingUI.Show("Download Assets...");
-                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, bundleType, savePath));
+                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath, bundleType));
+                    yield return StartCoroutine(ExtractFile());
                     print("CName : " + cardName);
                 }
             }
         }
 
+        for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count ; j++) {
+            cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
+
+            string filePathModel = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " + $"(model)";
+            string filePathCard = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " + $"(card)";
+
+                AssetBundle bundleModel = AssetBundle.LoadFromFile(filePathModel);
+                GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
+                files3D.Add(model);
+
+                AssetBundle bundleCard = AssetBundle.LoadFromFile(filePathCard);
+                Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
+                yield return card;
+                filesCard.Add(card);
+        }
+
     }
 
     public void CheckFile(int i) {
+        string filePath = Application.persistentDataPath + "/AssetsBundle/fire extingusher (model)";
 
+        AssetBundle bundleModel = AssetBundle.LoadFromFile(filePath);
+        GameObject model = bundleModel.LoadAsset<GameObject>("Fire Extingusher.fbx");
+
+        Instantiate(model);
+        files3D.Add(model);
     }
     //==============================================================================================================================//
     
@@ -427,7 +437,7 @@ public class GameManagerMainMenu : MonoBehaviour
     //==============================================================================================================================//
 
     private IEnumerator ExtractFile() {
-        string filePath = Application.persistentDataPath + "/3dObject/";
+        string filePath = Application.persistentDataPath + "/AssetsBundle/";
 
         string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
 
@@ -449,7 +459,7 @@ public class GameManagerMainMenu : MonoBehaviour
     }
 
     private void DeleteZipFile() {
-        string filePath = Application.persistentDataPath + "/3dObject/";
+        string filePath = Application.persistentDataPath + "/AssetsBundle/";
 
         string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
 
@@ -480,7 +490,7 @@ namespace Download.file
         private string downloadFileURL;
         public string filePath;
 
-        public IEnumerator Download(string URLWithoutCardId, string fileName, int cardId, string extention, string savePath) {
+        public IEnumerator Download(string URLWithoutCardId, string fileName, int cardId, string extention, string savePath, string bundleType) {
             downloadFileURL = URLWithoutCardId + cardId;
             
             Debug.Log("URLFILE : " + downloadFileURL);

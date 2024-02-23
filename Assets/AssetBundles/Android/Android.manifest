@@ -1,5 +1,5 @@
 ManifestFileVersion: 0
-CRC: 1460199116
+CRC: 3981214341
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
@@ -7,13 +7,4 @@ AssetBundleManifest:
       Dependencies: {}
     Info_1:
       Name: fire extingusher (model)
-      Dependencies: {}
-    Info_2:
-      Name: fire hydrant (model)
-      Dependencies: {}
-    Info_3:
-      Name: fire extingusher (card)
-      Dependencies: {}
-    Info_4:
-      Name: fire hydrant (card)
       Dependencies: {}

@@ -87,15 +87,15 @@ public class HistoryScript : MonoBehaviour
                                     // //Download Assets
                                     string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
                                     
-                                    string path = Application.persistentDataPath + "/3dObject/";
+                                    string path = Application.persistentDataPath + "/AssetsBundle/";
                                     // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
                                     print("Dec Var");
-                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, "model", i, "3dObject"));
+                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i, "AssetsBundle", "model"));
 
-                                    path = Application.persistentDataPath + "/CardImage/";
-                                    string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                    // path = "Assets/Resources/CardImage/";
-                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, "card", i, "CardImage"));
+                                    path = Application.persistentDataPath + "/AssetsBundle/";
+                                    // string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                    // // path = "Assets/Resources/CardImage/";
+                                    // yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".zip", i, "AssetsBundle", "card"));
 
                                     yield return StartCoroutine(ExtractFile());
                                     DeleteZipFile();
@@ -193,14 +193,14 @@ public class HistoryScript : MonoBehaviour
     int cardId;
     public List<GameObject> files3D = new List<GameObject>();
     public List<Texture2D> filesCard = new List<Texture2D>();
-    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string bundleType, int indexGame, string directoryPath) {
+    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame, string directoryPath, string bundleType) {
         
         string filePath;
         
         for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count ; j++) {
             cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
 
-            filePath = $"Assets/AssetBundles/Android/{cardName} ({bundleType})";
+            filePath = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " + $"({bundleType})";
 
             switch(bundleType) {
                 case "model" :
@@ -235,7 +235,7 @@ public class HistoryScript : MonoBehaviour
                 cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 
-                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, bundleType, savePath));
+                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath, bundleType));
             }
         }
         else {
@@ -245,14 +245,14 @@ public class HistoryScript : MonoBehaviour
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 fileIsAvailable = false;
                 
-                if(directoryPath == "3dObject") {
+                if(directoryPath == "AssetsBundle") {
                     foreach(GameObject file in files3D) {
                         if(file.name.Contains(cardName)) {
                             fileIsAvailable = true;
                         }
                     }
                 }
-                else if(directoryPath == "CardImage") {
+                else if(directoryPath == "AssetsBundle") {
                     foreach(Texture2D file in filesCard) {
                         if(file.name.Contains(cardName)) {
                             fileIsAvailable = true;
@@ -264,7 +264,7 @@ public class HistoryScript : MonoBehaviour
                     Debug.Log("File is Available");
                 else {
                     loadingUI.Show("Download Assets...");
-                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, bundleType, savePath));
+                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath, bundleType));
                     print("CName : " + cardName);
                 }
             }
@@ -275,7 +275,7 @@ public class HistoryScript : MonoBehaviour
     //==============================================================================================================================//
 
     private IEnumerator ExtractFile() {
-        string filePath = Application.persistentDataPath + "/3dObject/";
+        string filePath = Application.persistentDataPath + "/AssetsBundle/";
 
         string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
 
@@ -298,7 +298,7 @@ public class HistoryScript : MonoBehaviour
     }
 
     private void DeleteZipFile() {
-        string filePath = Application.persistentDataPath + "/3dObject/";
+        string filePath = Application.persistentDataPath + "/AssetsBundle/";
 
         string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
 
