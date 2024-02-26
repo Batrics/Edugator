@@ -43,44 +43,23 @@ public class GameManagerMainMenu : MonoBehaviour
     private void Awake() {
 
         AssetBundle.UnloadAllAssetBundles(true);
-
         loadingUI.Prepare();
+        RefreshHistory();
 
-        print(Application.persistentDataPath);
         string directoryPath = Path.Combine(Application.persistentDataPath, "AssetsBundle");
 
-        // Check if the directory already exists
         if (!Directory.Exists(directoryPath)) {
-            // Create the directory
             Directory.CreateDirectory(directoryPath);
             Debug.Log("Directory created successfully.");
         }
         else {
             Debug.Log("Directory already exists.");
         }
-        print("D : " + directoryPath);
-
-        directoryPath = Path.Combine(Application.persistentDataPath, "CardImage");
-
-        // Check if the directory already exists
-        if (!Directory.Exists(directoryPath)) {
-            // Create the directory
-            Directory.CreateDirectory(directoryPath);
-            Debug.Log("Directory created successfully.");
-        }
-        else {
-            Debug.Log("Directory already exists.");
-        }
-        print("D2 : " + directoryPath);
 
         infoForDev.text = Application.persistentDataPath + "\n" + Application.streamingAssetsPath;
     }
 
     void Start() {
-        // PlayerPrefs.DeleteAll();
-        // print("Delete Prefabs Success");
-        // RefreshDirectory();
-        // print(PlayerPrefs.GetString("history"));
         PlayerPrefs.DeleteKey("token");
         historyBtn.text = "History";
         url = "https://dev.unimasoft.id/edugator/api/getAllGames/a49fdc824fe7c4ac29ed8c7b460d7338";
@@ -205,18 +184,12 @@ public class GameManagerMainMenu : MonoBehaviour
                                     }
 
                                     // //Download Assets
-                                    string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                    string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/";
                                     string path = Application.persistentDataPath + "/AssetsBundle/";
                                     // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
                                     infoForDev.text = "Dec Var";
-                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i, "AssetsBundle", "model"));
-
-                                    // string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                    // path = Application.persistentDataPath + "/AssetsBundle/";
-                                    // yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".zip", i, "AssetsBundle", "card"));
-
+                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i));
                                     DeleteZipFile();
-                                    RefreshDirectory();
 
                                     loadingUI.Hide();
 
@@ -230,7 +203,8 @@ public class GameManagerMainMenu : MonoBehaviour
                             }
                         }
                         else {
-                            print("API Request Json Success = False");
+                             print("API Request Json Success = False");
+                             info.text = "API Request Json Success = False";
                         }
                     }
                 }
@@ -267,41 +241,6 @@ public class GameManagerMainMenu : MonoBehaviour
         }
     }
 
-    void RefreshDirectory() {
-
-        string directoryPath = Application.persistentDataPath; // Contoh path, sesuaikan dengan kebutuhan Anda
-
-        // Create a DirectoryInfo object for the specified directory
-        DirectoryInfo directoryInfo = new DirectoryInfo(directoryPath);
-
-        try {
-            // Refresh the directory information
-            directoryInfo.Refresh();
-
-            // // Get the updated list of files and subdirectories
-            // FileInfo[] files = directoryInfo.GetFiles();
-            // DirectoryInfo[] subdirectories = directoryInfo.GetDirectories();
-
-            // Debug.Log("Files:");
-            // foreach (var file in files)
-            // {
-            //     Debug.Log(file.Name);
-            // }
-
-            // Debug.Log("\nSubdirectories:");
-            // foreach (var subdirectory in subdirectories)
-            // {
-            //     Debug.Log(subdirectory.Name);
-            // }
-            print("Refresh Complete");
-        }
-        catch (Exception ex) {
-            Debug.LogError($"An error occurred: {ex.Message}");
-        }
-    }
-
-
-
     //==============================================================================================================================//
 
     //Download Model
@@ -311,12 +250,12 @@ public class GameManagerMainMenu : MonoBehaviour
     // List<string> files = new List<string>();
     public List<GameObject> files3D = new List<GameObject>();
     public List<Texture2D> filesCard = new List<Texture2D>();
-    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame, string directoryPath, string bundleType) {
+    private const string _BUNDLETYPEMODEL = " (model)";
+    private const string _BUNDLETYPECARD = " (card)";
+    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame) {
         string[] files;
 
         files = Directory.GetFiles(Application.persistentDataPath + "/AssetsBundle/");
-
-        //==================================================================================
 
         infoForDev.text = "Dec Var\nDec Var in Function";
 
@@ -334,8 +273,9 @@ public class GameManagerMainMenu : MonoBehaviour
                 cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 
-                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath, bundleType));
+                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
                 yield return StartCoroutine(ExtractFile());
+                yield return StartCoroutine(InitializationBundleToObject());
             }
         }
         else {
@@ -350,49 +290,20 @@ public class GameManagerMainMenu : MonoBehaviour
                         fileIsAvailable = true;
                     }
                 }
-                
-                // if(directoryPath == "AssetsBundle") {
-                //     foreach(GameObject file in files3D) {
-                //         if(file.name.Contains(cardName)) {
-                //             fileIsAvailable = true;
-                //         }
-                //     }
-                // }
-                // else if(directoryPath == "AssetsBundle") {
-                //     foreach(Texture2D file in filesCard) {
-                //         if(file.name.Contains(cardName)) {
-                //             fileIsAvailable = true;
-                //         }
-                //     }
-                // }
 
-                if(fileIsAvailable == true)
+                if(fileIsAvailable == true) {
                     Debug.Log("File is Available");
+                    yield return StartCoroutine(InitializationBundleToObject());
+                }
                 else {
                     loadingUI.Show("Download Assets...");
-                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath, bundleType));
+                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
                     yield return StartCoroutine(ExtractFile());
+                    yield return StartCoroutine(InitializationBundleToObject());
                     print("CName : " + cardName);
                 }
             }
         }
-
-        for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count ; j++) {
-            cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
-
-            string filePathModel = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " + $"(model)";
-            string filePathCard = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " + $"(card)";
-
-                AssetBundle bundleModel = AssetBundle.LoadFromFile(filePathModel);
-                GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
-                files3D.Add(model);
-
-                AssetBundle bundleCard = AssetBundle.LoadFromFile(filePathCard);
-                Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
-                yield return card;
-                filesCard.Add(card);
-        }
-
     }
 
     public void CheckFile(int i) {
@@ -403,6 +314,24 @@ public class GameManagerMainMenu : MonoBehaviour
 
         Instantiate(model);
         files3D.Add(model);
+    }
+
+    private IEnumerator InitializationBundleToObject() {
+        string filePathModel = Application.persistentDataPath + "/AssetsBundle/" + cardName + _BUNDLETYPEMODEL;
+        string filePathCard = Application.persistentDataPath + "/AssetsBundle/" + cardName + _BUNDLETYPECARD;
+        
+        AssetBundle bundleCard = AssetBundle.LoadFromFile(filePathCard);
+        Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
+        card.name = cardName;
+        yield return card;
+        filesCard.Add(card);
+
+        AssetBundle bundleModel = AssetBundle.LoadFromFile(filePathModel);
+        GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
+        model.name = cardName;
+        yield return model;
+        files3D.Add(model);
+
     }
     //==============================================================================================================================//
     
@@ -485,12 +414,12 @@ namespace Download.file
     public class DownloadFile : MonoBehaviour
     {
         /// <summary>
-        /// URL for edugator = https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/
+        /// URL for edugator = https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/
         /// </summary>
         private string downloadFileURL;
         public string filePath;
 
-        public IEnumerator Download(string URLWithoutCardId, string fileName, int cardId, string extention, string savePath, string bundleType) {
+        public IEnumerator Download(string URLWithoutCardId, string fileName, int cardId, string extention, string savePath) {
             downloadFileURL = URLWithoutCardId + cardId;
             
             Debug.Log("URLFILE : " + downloadFileURL);
@@ -507,17 +436,11 @@ namespace Download.file
             }
             else {
                 byte[] data = www.downloadHandler.data;
-
-                // Simpan data ke dalam file di folder "Assets".
-                // GameManagerMainMenu gameManagerMainMenu;
-                // gameManagerMainMenu = GetComponent<GameManagerMainMenu>();
                 try {
                     File.WriteAllBytes(filePath, data);
                     Debug.Log("File berhasil diunduh dan disimpan di " + filePath);
-                    // gameManagerMainMenu.infoForDev.text = "File berhasil diunduh dan disimpan di " + filePath;
                 }
                 catch(Exception ex) {
-                    // gameManagerMainMenu.infoForDev.text = ex.ToString();
                     print(ex);
                 }
 

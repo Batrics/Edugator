@@ -46,7 +46,7 @@ public class TrackingController : MonoBehaviour
         infoForDev.text = "1\n2";
 
         loadingUI.Prepare();
-        // PlayerPrefs.SetString("token", "44736ebf1ac169b4d5e7d174ca1f8b8e");
+        PlayerPrefs.SetString("token", "fe0e50396723b6dbe04c21afff6349c7");
     }
 
     private IEnumerator Start() {
@@ -132,7 +132,7 @@ public class TrackingController : MonoBehaviour
             print("Reference Image : " + trackedImage.referenceImage);
             getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
             
-            trackedImage.transform.localScale = new Vector3(-trackedImage.referenceImage.size.x, 0.005f, -trackedImage.referenceImage.size.y);
+            trackedImage.transform.localScale = new Vector3(trackedImage.referenceImage.size.x, 50f, trackedImage.referenceImage.size.y);
             StartCoroutine(FirstTrackedImage(trackedImage));
         }
 
@@ -140,7 +140,7 @@ public class TrackingController : MonoBehaviour
             if (trackedImage.trackingState == TrackingState.Tracking) {
                 if(tracking == false) {
                     tracking = true;
-                    trackedImage.transform.localScale = new Vector3(-trackedImage.referenceImage.size.x, 0.005f, -trackedImage.referenceImage.size.y);
+                    trackedImage.transform.localScale = new Vector3(trackedImage.referenceImage.size.x, 50f, trackedImage.referenceImage.size.y);
                     StartCoroutine(UpdateImage(trackedImage));
                 }
             }
@@ -158,7 +158,7 @@ public class TrackingController : MonoBehaviour
         infoForDev.text =  $"1\n2\n3\n3.5";
 
         if(trackedImageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary) {
-            yield return referenceImageJobState = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
+            yield return referenceImageJobState = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, imageToAdd.width);
 
             while(!referenceImageJobState.jobHandle.IsCompleted) {
                 infoForDev.text = "Running...";

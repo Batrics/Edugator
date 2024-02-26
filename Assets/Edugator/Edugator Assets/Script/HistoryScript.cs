@@ -85,21 +85,12 @@ public class HistoryScript : MonoBehaviour
                                     GameOwnerText.text = "Created By : " + _jsonData["data"][i]["author"];
 
                                     // //Download Assets
-                                    string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadModel/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                    string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/";
                                     
                                     string path = Application.persistentDataPath + "/AssetsBundle/";
-                                    // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
                                     print("Dec Var");
-                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i, "AssetsBundle", "model"));
-
-                                    path = Application.persistentDataPath + "/AssetsBundle/";
-                                    // string urlDownloadCard = "https://dev.unimasoft.id/edugator/api/downloadCard/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                    // // path = "Assets/Resources/CardImage/";
-                                    // yield return StartCoroutine(DownloadFileLogic(urlDownloadCard, path, ".zip", i, "AssetsBundle", "card"));
-
-                                    yield return StartCoroutine(ExtractFile());
+                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i));
                                     DeleteZipFile();
-                                    RefreshDirectory();
 
                                     loadingUI.Hide();
 
@@ -140,39 +131,6 @@ public class HistoryScript : MonoBehaviour
 
     }
 
-    void RefreshDirectory() {
-
-        string directoryPath = Application.persistentDataPath; // Contoh path, sesuaikan dengan kebutuhan Anda
-
-        // Create a DirectoryInfo object for the specified directory
-        DirectoryInfo directoryInfo = new DirectoryInfo(directoryPath);
-
-        try {
-            // Refresh the directory information
-            directoryInfo.Refresh();
-
-            // // Get the updated list of files and subdirectories
-            // FileInfo[] files = directoryInfo.GetFiles();
-            // DirectoryInfo[] subdirectories = directoryInfo.GetDirectories();
-
-            // Debug.Log("Files:");
-            // foreach (var file in files)
-            // {
-            //     Debug.Log(file.Name);
-            // }
-
-            // Debug.Log("\nSubdirectories:");
-            // foreach (var subdirectory in subdirectories)
-            // {
-            //     Debug.Log(subdirectory.Name);
-            // }
-            print("Refresh Complete");
-        }
-        catch (Exception ex) {
-            Debug.LogError($"An error occurred: {ex.Message}");
-        }
-    }
-
     //Animation
     //==============================================================================================================================//
     
@@ -191,31 +149,15 @@ public class HistoryScript : MonoBehaviour
     //==============================================================================================================================//
     string cardName;
     int cardId;
+    // List<string> files = new List<string>();
     public List<GameObject> files3D = new List<GameObject>();
     public List<Texture2D> filesCard = new List<Texture2D>();
-    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame, string directoryPath, string bundleType) {
-        
-        string filePath;
-        
-        for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count ; j++) {
-            cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
+    private const string _BUNDLETYPEMODEL = " (model)";
+    private const string _BUNDLETYPECARD = " (card)";
+    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame) {
+        string[] files;
 
-            filePath = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " + $"({bundleType})";
-
-            switch(bundleType) {
-                case "model" :
-                    AssetBundle bundleModel = AssetBundle.LoadFromFile(filePath);
-                    GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
-                    files3D.Add(model);
-                    break;
-                case "card" : 
-                    AssetBundle bundleCard = AssetBundle.LoadFromFile(filePath);
-                    Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
-                    yield return card;
-                    filesCard.Add(card);
-                    break;
-            }
-        }
+        files = Directory.GetFiles(Application.persistentDataPath + "/AssetsBundle/");
 
         //==================================================================================
 
@@ -225,9 +167,8 @@ public class HistoryScript : MonoBehaviour
         
         print("Dec Var\nDec Var in Function\nLanjut");
 
-        // fileName = Path.GetFileName(savePath);
         yield return null;
-        if(files3D.Count == 0 && filesCard.Count == 0) {
+        if(files.Length == 0) {
             print("Dec Var\nDec Var in Function\nif");
 
             loadingUI.Show("Download Assets...");
@@ -235,7 +176,9 @@ public class HistoryScript : MonoBehaviour
                 cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 
-                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath, bundleType));
+                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                yield return StartCoroutine(ExtractFile());
+                yield return StartCoroutine(InitializationBundleToObject());
             }
         }
         else {
@@ -244,31 +187,44 @@ public class HistoryScript : MonoBehaviour
                 cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
                 cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
                 fileIsAvailable = false;
-                
-                if(directoryPath == "AssetsBundle") {
-                    foreach(GameObject file in files3D) {
-                        if(file.name.Contains(cardName)) {
-                            fileIsAvailable = true;
-                        }
-                    }
-                }
-                else if(directoryPath == "AssetsBundle") {
-                    foreach(Texture2D file in filesCard) {
-                        if(file.name.Contains(cardName)) {
-                            fileIsAvailable = true;
-                        }
+
+                foreach(string file in files) {
+                    if(file.Contains(cardName.ToLower())) {
+                        fileIsAvailable = true;
                     }
                 }
 
-                if(fileIsAvailable == true)
+                if(fileIsAvailable == true) {
                     Debug.Log("File is Available");
+                    yield return StartCoroutine(InitializationBundleToObject());
+                }
                 else {
                     loadingUI.Show("Download Assets...");
-                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath, bundleType));
+                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                    yield return StartCoroutine(ExtractFile());
+                    yield return StartCoroutine(InitializationBundleToObject());
                     print("CName : " + cardName);
                 }
             }
         }
+    }
+
+    private IEnumerator InitializationBundleToObject() {
+        string filePathModel = Application.persistentDataPath + "/AssetsBundle/" + cardName + _BUNDLETYPEMODEL;
+        string filePathCard = Application.persistentDataPath + "/AssetsBundle/" + cardName + _BUNDLETYPECARD;
+        
+        AssetBundle bundleCard = AssetBundle.LoadFromFile(filePathCard);
+        Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
+        card.name = cardName;
+        yield return card;
+        filesCard.Add(card);
+
+        AssetBundle bundleModel = AssetBundle.LoadFromFile(filePathModel);
+        GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
+        model.name = cardName;
+        yield return model;
+        files3D.Add(model);
+
     }
     //==============================================================================================================================//
     //Extract and Delete File
@@ -285,9 +241,6 @@ public class HistoryScript : MonoBehaviour
                 print("ZIPFILE : " + zipFile);
                 ZipFile.ExtractToDirectory(zipFile, filePath);
             }
-
-            // Extract the contents of the zip file
-
             print("Zip file extracted successfully.");
         }
         catch (Exception ex) {

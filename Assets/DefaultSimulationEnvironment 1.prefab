@@ -294,7 +294,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8687952604547441517}
-  - component: {fileID: 7027700216025616306}
+  - component: {fileID: 2865086424261994025}
   m_Layer: 31
   m_Name: Simulated Tracked Image
   m_TagString: Untagged
@@ -319,7 +319,7 @@ Transform:
   - {fileID: 2102184750908522590}
   m_Father: {fileID: 4365528357719543085}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!114 &7027700216025616306
+--- !u!114 &2865086424261994025
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -331,8 +331,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c39bb24e2bd7a482ca08117fb44b8e44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Image: {fileID: 2800000, guid: e5f09492e3a176d449da401095a34280, type: 3}
-  m_ImagePhysicalSizeMeters: {x: 0.5, y: 0.5}
+  m_Image: {fileID: 2800000, guid: 556a440cc88be8845b17560d3b8e7336, type: 3}
+  m_ImagePhysicalSizeMeters: {x: 0.21, y: 0.27}
 --- !u!1 &5056272964426416779
 GameObject:
   m_ObjectHideFlags: 0
@@ -739,4 +739,4 @@ MonoBehaviour:
       sh[25]: 0
       sh[26]: 0
   m_PostProcessProfile: {fileID: 0}
-  m_ExcludeFromSelectionUI: 0
+  m_ExcludeFromSelectionUI: 1
