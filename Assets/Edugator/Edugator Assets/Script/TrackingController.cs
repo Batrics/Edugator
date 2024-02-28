@@ -8,6 +8,7 @@ using UnityEngine.Networking;
 using Loading.UI;
 using Unity.Collections;
 using TMPro;
+using Unity.VisualScripting;
 
 public class TrackingController : MonoBehaviour
 {
@@ -33,6 +34,12 @@ public class TrackingController : MonoBehaviour
     AddReferenceImageJobState referenceImageJobState;
     [SerializeField] List<GameObject> prefabs3D = new List<GameObject>();
     [SerializeField] List<Texture2D> textures2D = new List<Texture2D>();
+    Transform model;
+    Transform particleParent;
+    Transform particleChild1;
+    Transform particleChild2;
+    Transform particleChild3;
+    // public GameObject model3d;
 
     void Awake() {
         AssetBundle.UnloadAllAssetBundles(true);
@@ -47,9 +54,16 @@ public class TrackingController : MonoBehaviour
 
         loadingUI.Prepare();
         PlayerPrefs.SetString("token", "fe0e50396723b6dbe04c21afff6349c7");
+        PlayerPrefs.SetInt("game_id", 13);
+        PlayerPrefs.SetInt("visualEffect", 1);
     }
 
     private IEnumerator Start() {
+
+        // Bounds bounds = model3d.GetComponent<Renderer>().bounds;
+
+        // print("Bound x : " + bounds.size.x);
+        // print("Bound y : " + bounds.size.y);
 
         getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
         
@@ -112,7 +126,6 @@ public class TrackingController : MonoBehaviour
         // foreach (KeyValuePair<string, Texture2D> entry in cardReferenceImgae) {
         //     Debug.Log("Key: " + entry.Key + " Value: " + entry.Value);
         // }
-            
         
     }
 
@@ -126,13 +139,13 @@ public class TrackingController : MonoBehaviour
         trackedImageManager.trackedImagesChanged -= OnTrackedImagesChanged;
     }
 
+
     private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs) {
 
         foreach(ARTrackedImage trackedImage in eventArgs.added) {
             print("Reference Image : " + trackedImage.referenceImage);
             getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
             
-            trackedImage.transform.localScale = new Vector3(trackedImage.referenceImage.size.x, 50f, trackedImage.referenceImage.size.y);
             StartCoroutine(FirstTrackedImage(trackedImage));
         }
 
@@ -140,7 +153,6 @@ public class TrackingController : MonoBehaviour
             if (trackedImage.trackingState == TrackingState.Tracking) {
                 if(tracking == false) {
                     tracking = true;
-                    trackedImage.transform.localScale = new Vector3(trackedImage.referenceImage.size.x, 50f, trackedImage.referenceImage.size.y);
                     StartCoroutine(UpdateImage(trackedImage));
                 }
             }
@@ -150,7 +162,24 @@ public class TrackingController : MonoBehaviour
                 tracking = false;
                 print("TrackingState : " + tracking);
             }
+
+            if(particleChild1 != null && particleChild2 != null && particleChild3 != null) { 
+                // particleParent.localScale = new Vector3(trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x);
+                // model.localScale = new Vector3(trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x);
+                particleChild1.localScale = particleParent.localScale;
+                particleChild2.localScale = particleParent.localScale;
+                particleChild3.localScale = particleParent.localScale;
+                print("A");
+            }
+            else {
+                print("PARTICLE CHILD = null");
+            }
+
+            // particleChild1 = particleParent.GetChild(0).GetComponent<Transform>();
+            // particleChild2 = particleParent.GetChild(1).GetComponent<Transform>();
+            // particleChild3 = particleParent.GetChild(2).GetComponent<Transform>();
         }
+
     }
     private IEnumerator AddImages(string imageName, Texture2D imageToAdd) {
         yield return null;
@@ -158,7 +187,7 @@ public class TrackingController : MonoBehaviour
         infoForDev.text =  $"1\n2\n3\n3.5";
 
         if(trackedImageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary) {
-            yield return referenceImageJobState = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, imageToAdd.width);
+            yield return referenceImageJobState = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
 
             while(!referenceImageJobState.jobHandle.IsCompleted) {
                 infoForDev.text = "Running...";
@@ -177,14 +206,19 @@ public class TrackingController : MonoBehaviour
 
     private IEnumerator FirstTrackedImage(ARTrackedImage trackedImage) {
         url = "https://dev.unimasoft.id/edugator/api/getquestions/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetInt("game_id") + "/" + PlayerPrefs.GetInt("number_of_card");
-
+        print("URL : " + url);
+        print(trackedImage.gameObject);
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
             print("A : " + trackedImage.referenceImage.name);
             print("B : " + go.Key);
             if (trackedImage.referenceImage.name == go.Key) {
                 yield return StartCoroutine(GetDataFromAPIAndGetCardId(go));
 
-                yield return StartCoroutine(GetDataFromAPIAndInstantiateObject(go.Value, trackedImage.transform));
+                particleParent = trackedImage.transform.GetChild(0).GetComponent<Transform>();
+                model = trackedImage.transform.GetChild(1).GetComponent<Transform>();
+                particleChild1 = particleParent.transform.GetChild(0).GetComponent<Transform>();
+                particleChild2 = particleParent.transform.GetChild(1).GetComponent<Transform>();
+                particleChild3 = particleParent.transform.GetChild(2).GetComponent<Transform>();
             }
             else {
                     print("Error");
@@ -193,8 +227,9 @@ public class TrackingController : MonoBehaviour
     }
 
     private IEnumerator UpdateImage(ARTrackedImage trackedImage) {
+
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
-            if (trackedImage.referenceImage.name == go.Key) {
+            if ("Fire Glove" == go.Key) {
                 yield return StartCoroutine(GetDataFromAPIAndGetCardId(go));
                 
                 for(int i = 0; i < trackedImage.transform.childCount; i++) {
@@ -212,7 +247,7 @@ public class TrackingController : MonoBehaviour
 
     private void resetData(ARTrackedImage trackedImage) {
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
-            if (trackedImage.referenceImage.name == go.Key) {
+            if ("Fire Glove" == go.Key) {
                 for(int i = 0; i < trackedImage.transform.childCount; i++) {
                     trackedImage.transform.GetChild(i).gameObject.SetActive(false);
                 }
@@ -320,12 +355,12 @@ public class TrackingController : MonoBehaviour
                                 // Destroy(ParticleEffect);
                                 playButton.SetActive(false);
                             } else {
-
                                 if (PlayerPrefs.GetInt("visualEffect") == 1) {
                                     GameObject particle = Instantiate(ParticleEffect);
                                     particle.transform.SetParent(transform);
                                     particle.transform.localPosition = new Vector3(0f, 0.1f, 0f);
                                     particle.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+
                                 } else {
                                     Destroy(ParticleEffect);
                                 }
@@ -377,6 +412,7 @@ public class TrackingController : MonoBehaviour
                                 }
                             }
                             print("Set Card Id Success");
+                            
                         } else {
                             print("State : Failed");
                         }
@@ -387,5 +423,13 @@ public class TrackingController : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void Information() {
+        print(model);
+        print(particleParent);
+        print(particleChild1);
+        print(particleChild2);
+        print(particleChild3);
     }
 }

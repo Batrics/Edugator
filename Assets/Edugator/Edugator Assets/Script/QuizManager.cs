@@ -30,7 +30,6 @@ public class QuizManager : MonoBehaviour
 
     private void Awake() {
         loadingUI.Prepare();
-        PlayerPrefs.SetString("token", "44736ebf1ac169b4d5e7d174ca1f8b8e");
     }
     void Start() {
         indexQuestions = 0;

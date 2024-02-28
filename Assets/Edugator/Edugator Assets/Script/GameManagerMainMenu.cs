@@ -41,7 +41,8 @@ public class GameManagerMainMenu : MonoBehaviour
     //Main Menu Script
     //==============================================================================================================================//\
     private void Awake() {
-
+        // PlayerPrefs.DeleteAll();
+        // print("Delete All PlayerPref");
         AssetBundle.UnloadAllAssetBundles(true);
         loadingUI.Prepare();
         RefreshHistory();

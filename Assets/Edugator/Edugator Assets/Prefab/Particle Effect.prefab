@@ -29,7 +29,7 @@ Transform:
   m_LocalRotation: {x: 0.7071068, y: -3.4924597e-10, z: 2.910383e-10, w: 0.70710677}
   m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 703043198333272205}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
@@ -4927,6 +4927,7 @@ GameObject:
   - component: {fileID: 703043198333272205}
   - component: {fileID: 3311885960965426176}
   - component: {fileID: 4919604072325540949}
+  - component: {fileID: 7357718993802806251}
   m_Layer: 0
   m_Name: Particle Effect
   m_TagString: Untagged
@@ -4961,8 +4962,7 @@ AudioSource:
   m_GameObject: {fileID: 4898683273964801186}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: -3203822351781895241, guid: 70225b999512d9742bec8b767d0cdb36,
-    type: 2}
+  OutputAudioMixerGroup: {fileID: -3203822351781895241, guid: 70225b999512d9742bec8b767d0cdb36, type: 2}
   m_audioClip: {fileID: 8300000, guid: 0dd1bd2aa715d104ba5604682ee031eb, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
@@ -5058,8 +5058,7 @@ AudioSource:
   m_GameObject: {fileID: 4898683273964801186}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: -3203822351781895241, guid: 70225b999512d9742bec8b767d0cdb36,
-    type: 2}
+  OutputAudioMixerGroup: {fileID: -3203822351781895241, guid: 70225b999512d9742bec8b767d0cdb36, type: 2}
   m_audioClip: {fileID: 8300000, guid: 8c10c92cf367b1f489f045fcf7b87eaa, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
@@ -5146,6 +5145,29 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1773428102 &7357718993802806251
+ParentConstraint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4898683273964801186}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Weight: 1
+  m_TranslationAtRest: {x: 0, y: 0, z: 0}
+  m_RotationAtRest: {x: 0, y: 0, z: 0}
+  m_TranslationOffsets: []
+  m_RotationOffsets: []
+  m_AffectTranslationX: 1
+  m_AffectTranslationY: 1
+  m_AffectTranslationZ: 1
+  m_AffectRotationX: 1
+  m_AffectRotationY: 1
+  m_AffectRotationZ: 1
+  m_Active: 1
+  m_IsLocked: 1
+  m_Sources: []
 --- !u!1 &8208528380790392755
 GameObject:
   m_ObjectHideFlags: 0
@@ -5175,7 +5197,7 @@ Transform:
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 703043198333272205}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
