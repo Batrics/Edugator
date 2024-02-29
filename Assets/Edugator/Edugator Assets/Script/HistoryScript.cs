@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using SimpleJSON;
 using UnityEngine.Networking;
 using TMPro;
 using Loading.UI;
@@ -12,7 +11,8 @@ using System;
 
 public class HistoryScript : MonoBehaviour
 {
-    private JSONNode _jsonData;
+    MainDataJson mainData;
+    private string jsonstring;
     private string url;
     public string token;
     private TextMeshProUGUI titleText;
@@ -40,17 +40,13 @@ public class HistoryScript : MonoBehaviour
         Debug.Log("All Game : " + allGamesArr[0]);
         Debug.Log("Game Selected : " + gameSelected);
 
-        url = "https://dev.unimasoft.id/edugator/api/getAllGames/a49fdc824fe7c4ac29ed8c7b460d7338";
     }
 
     public void StartQuiz() {
+        url = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
         StartCoroutine(GetDataFromAPI());
     }
 
-    private void CallAllCoroutine() {
-        StartCoroutine(GetDataFromAPI());
-        // yield return StartCoroutine(DownloadingModel());
-    }
     private IEnumerator GetDataFromAPI() {
         using(UnityWebRequest webData = UnityWebRequest.Get(url)) {
             loadingUI.Show("Please Wait...");
@@ -68,41 +64,48 @@ public class HistoryScript : MonoBehaviour
             else {
                 if(webData.isDone) {
                     loadingUI.Hide();
-                    _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
-                    if(_jsonData == null) {
-                        Debug.Log("Json data Kosong");
+
+                    jsonstring = webData.downloadHandler.text;
+                    PlayerPrefs.SetString("jsonData", jsonstring);
+
+                    mainData = JsonUtility.FromJson<MainDataJson>(PlayerPrefs.GetString("jsonData"));
+                    print(mainData.data.cards[0].id);
+
+                    if(mainData == null) {
+                        print("JSON Data Null");
                     }
                     else {
-                        if(_jsonData["success"] == true) {
-                            for (int i = 0; i < _jsonData["data"].Count; i++) {
-                                if (token == _jsonData["data"][i]["token"]) {
-                                    PlayerPrefs.SetString("token", token);
-                                    PlayerPrefs.SetInt("game_id", _jsonData["data"][i]["id"]);
+                        if(mainData.success == true) { 
+                            if (token == mainData.data.token) {
+                                PlayerPrefs.SetString("token", token);
+                                PlayerPrefs.SetInt("game_id", mainData.data.id);
 
-                                    print("Jumlah Card : " + _jsonData["data"][i]["cards"].Count);
+                                print("Jumlah Card : " + mainData.data.cards.Length);
 
-                                    titleText.text = _jsonData["data"][i]["name"];
-                                    GameOwnerText.text = "Created By : " + _jsonData["data"][i]["author"];
+                                titleText.text = mainData.data.name;
+                                GameOwnerText.text = "Created By : " + mainData.data.author;
 
-                                    // //Download Assets
-                                    string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                    
-                                    string path = Application.persistentDataPath + "/AssetsBundle/";
-                                    print("Dec Var");
-                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i));
-                                    DeleteZipFile();
+                                // //Download Assets
+                                string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                
+                                string path = Application.persistentDataPath + "/AssetsBundle/";
+                                print("Dec Var");
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip"));
+                                DeleteZipFile();
 
-                                    loadingUI.Hide();
+                                loadingUI.Hide();
 
-                                    transform.parent.parent.parent.gameObject.SetActive(false);
-                                    
-                                }
+                                transform.parent.parent.parent.gameObject.SetActive(false);
+                                
+                            }
+                            else {
+                                print("Token Anda salah");
                             }
                         }
+                        else {
+                            Debug.LogError("Error Detail: " + webData.error);
+                        }
                     }
-                }
-                else {
-                    Debug.LogError("Error Detail: " + webData.error);
                 }
             }
         }
@@ -125,9 +128,8 @@ public class HistoryScript : MonoBehaviour
 
     public void SetGame(GameObject game) {
         gameSelected = game;
-        PlayerPrefs.SetString("tokenSelected", token);
+        PlayerPrefs.SetString("token", token);
         print("Game Selected : " + gameSelected);
-        print("Token Selected : " + PlayerPrefs.GetString("tokenSelected"));
 
     }
 
@@ -148,13 +150,13 @@ public class HistoryScript : MonoBehaviour
     //Download File
     //==============================================================================================================================//
     string cardName;
-    int cardId;
+    string cardId;
     // List<string> files = new List<string>();
     public List<GameObject> files3D = new List<GameObject>();
     public List<Texture2D> filesCard = new List<Texture2D>();
     private const string _BUNDLETYPEMODEL = " (model)";
     private const string _BUNDLETYPECARD = " (card)";
-    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame) {
+    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention) {
         string[] files;
 
         files = Directory.GetFiles(Application.persistentDataPath + "/AssetsBundle/");
@@ -172,9 +174,9 @@ public class HistoryScript : MonoBehaviour
             print("Dec Var\nDec Var in Function\nif");
 
             loadingUI.Show("Download Assets...");
-            for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count; j++) {
-                cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
-                cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
+            for(int j = 0; j < mainData.data.cards.Length; j++) {
+                cardName = mainData.data.cards[j].name;
+                cardId = mainData.data.cards[j].id;
                 
                 yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
                 yield return StartCoroutine(ExtractFile());
@@ -183,9 +185,9 @@ public class HistoryScript : MonoBehaviour
         }
         else {
             print("Dec Var\nDec Var in Function\nelse");
-            for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count; j++) {
-                cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
-                cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
+            for(int j = 0; j < mainData.data.cards.Length; j++) {
+                cardName = mainData.data.cards[j].name;
+                cardId = mainData.data.cards[j].id;
                 fileIsAvailable = false;
 
                 foreach(string file in files) {

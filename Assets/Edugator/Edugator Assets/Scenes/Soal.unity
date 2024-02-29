@@ -598,6 +598,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
       objectReference: {fileID: 1937861078}
+    - target: {fileID: 5096605315914341716, guid: 5b3374ed20a890e45ac264327376ed5b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7152142847612629503, guid: 5b3374ed20a890e45ac264327376ed5b, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -734,10 +738,10 @@ MonoBehaviour:
   pilihanJawaban1: {fileID: 1865946328937192604}
   pilihanJawaban2: {fileID: 3528055879151651567}
   pilihanJawaban3: {fileID: 5060873687026362413}
-  nilaiText: {fileID: 264747290875372173}
-  nilai: 0
-  jawabanBenar: 
-  bobotSoal: 20
+  finalScoreText: {fileID: 264747290875372173}
+  finalScore: 0
+  correctAnswer: 
+  score: 0
   transitionQuestion: {fileID: 2051491587825841992}
   connection: {fileID: 3375556196881428516}
   scoreSFX: {fileID: 6088416564973562394}

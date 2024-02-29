@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using SimpleJSON;
 using UnityEngine.Networking;
 using TMPro;
 using System.IO;
@@ -13,7 +12,8 @@ using Download.file;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
-    private JSONNode _jsonData;
+    MainDataJson mainData;
+    private string jsonstring;
     private string url;
     public TMP_InputField inputToken;
     public TextMeshProUGUI info;
@@ -23,7 +23,7 @@ public class GameManagerMainMenu : MonoBehaviour
     public LoadNextScene loadNextScene;
     public TransitionScript transitionScript;
     public AudioMixer audioMixer;
-    private int checkVisualEffectInt = 1;
+    private int checkVisualEffectInt;
     public TextMeshProUGUI historyBtn;
     public Transform panel;
 
@@ -46,6 +46,7 @@ public class GameManagerMainMenu : MonoBehaviour
         AssetBundle.UnloadAllAssetBundles(true);
         loadingUI.Prepare();
         RefreshHistory();
+        checkVisualEffectInt = 1;
 
         string directoryPath = Path.Combine(Application.persistentDataPath, "AssetsBundle");
 
@@ -63,10 +64,12 @@ public class GameManagerMainMenu : MonoBehaviour
     void Start() {
         PlayerPrefs.DeleteKey("token");
         historyBtn.text = "History";
-        url = "https://dev.unimasoft.id/edugator/api/getAllGames/a49fdc824fe7c4ac29ed8c7b460d7338";
+
     }
 
     public void StartGame() {
+        url = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + inputToken.text;
+        print(url);
         StartCoroutine(StartQuiz());
     }
 
@@ -143,64 +146,67 @@ public class GameManagerMainMenu : MonoBehaviour
             else {
                 if(webData.isDone) {
                     loadingUI.Hide();
-                    _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
-                    if(_jsonData == null) {
+
+                    jsonstring = webData.downloadHandler.text;
+                    PlayerPrefs.SetString("jsonData", jsonstring);
+
+                    mainData = JsonUtility.FromJson<MainDataJson>(PlayerPrefs.GetString("jsonData"));
+
+                    if(mainData == null) {
                         Debug.Log("Json data Kosong");
                     }
                     else {
-                        if(_jsonData["success"] == true) {
-                            for (int i = 0; i < _jsonData["data"].Count; i++) {
-                                if (inputToken.text == _jsonData["data"][i]["token"]) {
-                                    PlayerPrefs.SetString("token", inputToken.text);
-                                    PlayerPrefs.SetInt("game_id", _jsonData["data"][i]["id"]);
-                                    titleText.text = _jsonData["data"][i]["name"];
-                                    GameOwnerText.text = "Created By : " + _jsonData["data"][i]["author"];
-                                    print(PlayerPrefs.GetInt("game_id"));
-                                    inputTokenUI.SetActive(false);
+                        if(mainData.success == true) {
+                            
+                            if (inputToken.text == mainData.data.token) {
+                                PlayerPrefs.SetString("token", inputToken.text);
+                                PlayerPrefs.SetInt("game_id", mainData.data.id);
+                                titleText.text = mainData.data.name;
+                                GameOwnerText.text = "Created By : " + mainData.data.author;
+                                inputTokenUI.SetActive(false);
 
-                                    //Update History Data
-                                    string storage = PlayerPrefs.GetString("history");
+                                //Update History Data
+                                string storage = PlayerPrefs.GetString("history");
 
-                                    if(storage != "") {
-                                        List<string> allHistory = new List<string>(storage.Split(";"));
+                                if(storage != "") {
+                                    List<string> allHistory = new List<string>(storage.Split(";"));
 
-                                        bool ketemu = false;
-                                        foreach(string history in allHistory) {
-                                            string[] historyArr = history.Split(",");
+                                    bool ketemu = false;
+                                    foreach(string history in allHistory) {
+                                        string[] historyArr = history.Split(",");
 
-                                            if(inputToken.text == historyArr[0]) {
-                                                ketemu = true;
-                                                break;
-                                            }
-                                        }
-
-                                        if(!ketemu) {
-                                            allHistory.Insert(0, inputToken.text + "," + _jsonData["data"][i]["name"]);
-                                            storage = string.Join(";", allHistory);
-                                            PlayerPrefs.SetString("history", storage);
+                                        if(inputToken.text == historyArr[0]) {
+                                            ketemu = true;
+                                            break;
                                         }
                                     }
-                                    else {
-                                        PlayerPrefs.SetString("history", inputToken.text + "," + _jsonData["data"][i]["name"]);
+
+                                    if(!ketemu) {
+                                        allHistory.Insert(0, inputToken.text + "," + mainData.data.name);
+                                        storage = string.Join(";", allHistory);
+                                        PlayerPrefs.SetString("history", storage);
                                     }
-
-                                    // //Download Assets
-                                    string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                    string path = Application.persistentDataPath + "/AssetsBundle/";
-                                    // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
-                                    infoForDev.text = "Dec Var";
-                                    yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip", i));
-                                    DeleteZipFile();
-
-                                    loadingUI.Hide();
-
-                                }
-                                else if (inputToken.text == "") {
-                                    info.text = "Masukkan Token";
                                 }
                                 else {
-                                    info.text = "Token anda salah";
+                                    PlayerPrefs.SetString("history", inputToken.text + "," + mainData.data.name);
                                 }
+
+                                // //Download Assets
+                                string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                string path = Application.persistentDataPath + "/AssetsBundle/";
+                                // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
+                                infoForDev.text = "Dec Var";
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip"));
+                                DeleteZipFile();
+
+                                loadingUI.Hide();
+
+                            }
+                            else if (inputToken.text == "") {
+                                info.text = "Masukkan Token";
+                            }
+                            else {
+                                info.text = "Token anda salah";
                             }
                         }
                         else {
@@ -247,13 +253,13 @@ public class GameManagerMainMenu : MonoBehaviour
     //Download Model
     //==============================================================================================================================//
     string cardName;
-    int cardId;
+    string cardId;
     // List<string> files = new List<string>();
     public List<GameObject> files3D = new List<GameObject>();
     public List<Texture2D> filesCard = new List<Texture2D>();
     private const string _BUNDLETYPEMODEL = " (model)";
     private const string _BUNDLETYPECARD = " (card)";
-    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention, int indexGame) {
+    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention) {
         string[] files;
 
         files = Directory.GetFiles(Application.persistentDataPath + "/AssetsBundle/");
@@ -270,9 +276,9 @@ public class GameManagerMainMenu : MonoBehaviour
             infoForDev.text = "Dec Var\nDec Var in Function\nif";
 
             loadingUI.Show("Download Assets...");
-            for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count; j++) {
-                cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
-                cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
+            for(int j = 0; j < mainData.data.cards.Length; j++) {
+                cardName = mainData.data.cards[j].name;
+                cardId = mainData.data.cards[j].id;
                 
                 yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
                 yield return StartCoroutine(ExtractFile());
@@ -281,9 +287,9 @@ public class GameManagerMainMenu : MonoBehaviour
         }
         else {
             infoForDev.text = "Dec Var\nDec Var in Function\nelse";
-            for(int j = 0; j < _jsonData["data"][indexGame]["cards"].Count; j++) {
-                cardName = _jsonData["data"][indexGame]["cards"][j]["name"];
-                cardId = _jsonData["data"][indexGame]["cards"][j]["id"];
+            for(int j = 0; j < mainData.data.cards.Length; j++) {
+                cardName = mainData.data.cards[j].name;
+                cardId = mainData.data.cards[j].id;
                 fileIsAvailable = false;
 
                 foreach(string file in files) {
@@ -420,7 +426,7 @@ namespace Download.file
         private string downloadFileURL;
         public string filePath;
 
-        public IEnumerator Download(string URLWithoutCardId, string fileName, int cardId, string extention, string savePath) {
+        public IEnumerator Download(string URLWithoutCardId, string fileName, string cardId, string extention, string savePath) {
             downloadFileURL = URLWithoutCardId + cardId;
             
             Debug.Log("URLFILE : " + downloadFileURL);

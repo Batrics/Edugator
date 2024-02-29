@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using SimpleJSON;
 using UnityEngine.Networking;
 using TMPro;
-
 using Loading.UI;
 
 public class QuizManager : MonoBehaviour
@@ -15,14 +13,15 @@ public class QuizManager : MonoBehaviour
     public TextMeshProUGUI pilihanJawaban1;
     public TextMeshProUGUI pilihanJawaban2;
     public TextMeshProUGUI pilihanJawaban3;
-    public TextMeshProUGUI nilaiText;
+    public TextMeshProUGUI finalScoreText;
 
-    private JSONNode _jsonData;
+    MainDataJsonQuestions mainData;
+    private string jsonstring;
     private string url;
-    public int nilai;
+    public int finalScore;
     private int indexQuestions;
-    public string jawabanBenar;
-    public int bobotSoal;
+    public string correctAnswer;
+    public int score;
     public GameObject transitionQuestion;
     public GameObject connection;
     public AudioSource scoreSFX;
@@ -33,18 +32,15 @@ public class QuizManager : MonoBehaviour
     }
     void Start() {
         indexQuestions = 0;
-        // print("Link : " + url);
-        StartCoroutine(switchLink());
+        // PlayerPrefs.SetInt("game_id", 13);
+        // PlayerPrefs.SetInt("number_of_card", 41);
+        StartCoroutine(GetDataQuestions());
     }
 
-    private IEnumerator switchLink() {
-        url = "https://dev.unimasoft.id/edugator/api/getDataGames/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token"); // + PlayerPref.GetString("Token");
+    private IEnumerator GetDataQuestions() {
+        url = "https://dev.unimasoft.id/edugator/api/getquestions/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetInt("game_id") + "/" + PlayerPrefs.GetString("number_of_card");
         
         yield return StartCoroutine(CalculatingQuestionsFromAPI());
-        
-        url = "https://dev.unimasoft.id/edugator/api/getquestions/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetInt("game_id") + "/" + PlayerPrefs.GetInt("number_of_card");
-
-        StartCoroutine(GetDataFromAPI());
     }
     private IEnumerator NextQuestionsFunc() {
         indexQuestions++;
@@ -59,10 +55,10 @@ public class QuizManager : MonoBehaviour
         StartCoroutine(NextQuestionsFunc());
     }
 
-    private void CheckAnswer(string jawabanSaya) {
-        if(jawabanSaya == jawabanBenar) {
-            nilai += bobotSoal;
-            nilaiText.text = nilai.ToString();
+    private void CheckAnswer(string myAnswer) {
+        if(myAnswer == correctAnswer) {
+            finalScore += score;
+            finalScoreText.text = finalScore.ToString();
         }
     }
 
@@ -78,45 +74,17 @@ public class QuizManager : MonoBehaviour
 
     public void loadQuestion(int index) {
         if (index < PlayerPrefs.GetInt("total_soal_setiap_kartu")) {
-            soal.text = _jsonData["data"][index]["question"];
-            pilihanJawaban1.text = _jsonData["data"][index]["option1"];
-            pilihanJawaban2.text = _jsonData["data"][index]["option2"];
-            pilihanJawaban3.text = _jsonData["data"][index]["option3"];
-            jawabanBenar = _jsonData["data"][index]["answer"];
-            bobotSoal = _jsonData["data"][index]["score"];
+            soal.text = mainData.data[index].question;
+            pilihanJawaban1.text = mainData.data[index].option1;
+            pilihanJawaban2.text = mainData.data[index].option2;
+            pilihanJawaban3.text = mainData.data[index].option3;
+            correctAnswer = mainData.data[index].answer;
+            score = mainData.data[index].score;
         }
         else {
             soalGameObject.SetActive(false);
             scoreSFX.Play();
             resultGameObject.SetActive(true);
-        }
-    }
-
-    private IEnumerator GetDataFromAPI() {
-        using(UnityWebRequest webData = UnityWebRequest.Get(url)) {
-            // loadingUI.Show("Please Wait...");
-            loadingUI.Show("Please Wait...");
-            yield return webData.SendWebRequest();
-            if(webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError) {
-                // loadingUI.Hide();
-                loadingUI.Hide();
-                Debug.Log("tidak ada Koneksi/Jaringan");
-            }
-            else {
-                if(webData.isDone) {
-                    loadingUI.Hide();
-                    loadingUI.Hide();
-                    _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
-                    if(_jsonData == null) {
-                        Debug.Log("Json data Kosong");
-                    }
-                    else {
-                        print("Card id : " + PlayerPrefs.GetInt("number_of_card"));
-                        print(PlayerPrefs.GetString("token"));
-                        loadQuestion(indexQuestions);
-                    }
-                }
-            }
         }
     }
 
@@ -144,27 +112,25 @@ public class QuizManager : MonoBehaviour
                 if(webData.isDone) {
                     // loadingUI.Hide();
                     loadingUI.Hide();
-                    _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
-                    if(_jsonData == null) {
+                    
+                    jsonstring = webData.downloadHandler.text;
+                    PlayerPrefs.SetString("jsonDataQuestions", jsonstring);
+                    mainData = JsonUtility.FromJson<MainDataJsonQuestions>(PlayerPrefs.GetString("jsonDataQuestions"));
+
+                    if(mainData == null) {
                         Debug.Log("Json data Kosong");
                     }
                     else {
-                        for(int j = 0; j < _jsonData["data"].Count; j++) {
-                            if (PlayerPrefs.GetString("token") == _jsonData["data"][j]["token"]) {
-                                Debug.Log("token benar");
-                                int i = 0;
-                                int total_soal_setiap_kartu = 0;
-                                while (i < _jsonData["data"].Count) {
-                                    if (_jsonData["data"][j]["cards"][i]["id"] == PlayerPrefs.GetInt("number_of_card")) {
-                                        total_soal_setiap_kartu++;
-                                        PlayerPrefs.SetInt("total_soal_setiap_kartu", total_soal_setiap_kartu);
-                                    }
-                                    i++;
-                                }
+                        for(int j = 0; j < mainData.data.Length; j++) {
+                            int i = 0;
+                            int total_soal_setiap_kartu = 0;
+                            while (i < mainData.data.Length) {
+                                total_soal_setiap_kartu++;
+                                PlayerPrefs.SetInt("total_soal_setiap_kartu", total_soal_setiap_kartu);
+                                i++;
                             }
                         }
-
-
+                        loadQuestion(indexQuestions);
                     }
                 }
                 else {

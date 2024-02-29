@@ -599,6 +599,7 @@ MonoBehaviour:
   animatorController: {fileID: 9100000, guid: cbb34b5499e8a8040a6d2c09e7e0862a, type: 2}
   prefabs3D: []
   textures2D: []
+  rotationSpeed: 300
 --- !u!1001 &340457219
 PrefabInstance:
   m_ObjectHideFlags: 0
