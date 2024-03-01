@@ -37,7 +37,6 @@ public class GameManagerMainMenu : MonoBehaviour
     [Space]
     LoadingUI loadingUI = new LoadingUI();
     DownloadFile downloadFile = new DownloadFile();
-    public TextMeshProUGUI infoForDev;
     //Main Menu Script
     //==============================================================================================================================//\
     private void Awake() {
@@ -46,7 +45,6 @@ public class GameManagerMainMenu : MonoBehaviour
         AssetBundle.UnloadAllAssetBundles(true);
         loadingUI.Prepare();
         RefreshHistory();
-        checkVisualEffectInt = 1;
 
         string directoryPath = Path.Combine(Application.persistentDataPath, "AssetsBundle");
 
@@ -57,14 +55,15 @@ public class GameManagerMainMenu : MonoBehaviour
         else {
             Debug.Log("Directory already exists.");
         }
-
-        infoForDev.text = Application.persistentDataPath + "\n" + Application.streamingAssetsPath;
+        
     }
 
     void Start() {
         PlayerPrefs.DeleteKey("token");
         historyBtn.text = "History";
 
+        checkVisualEffectInt = 1;
+        PlayerPrefs.SetInt("visualEffect", checkVisualEffectInt);
     }
 
     public void StartGame() {
@@ -100,10 +99,10 @@ public class GameManagerMainMenu : MonoBehaviour
         info.text = "";
     }
 
-    public void CheckVisualEffect(bool checkVisualEffect) {
+    public void SetVisualEffect(bool checkVisualEffect) {
         UpdateToggle(checkVisualEffect);
 
-        PlayerPrefs.SetInt("visualEffect", checkVisualEffectInt);
+        // PlayerPrefs.SetInt("visualEffect", checkVisualEffectInt);
         Debug.Log("Bool : " + checkVisualEffectInt);
     }
 
@@ -122,10 +121,12 @@ public class GameManagerMainMenu : MonoBehaviour
     public void UpdateToggle(bool is_on) {
         if (is_on) {
             checkVisualEffectInt = 1;
+            PlayerPrefs.SetInt("visualEffect", 1);
             VFXAnim.SetBool("toggle", true);
         }
         else {
             checkVisualEffectInt = 0;
+            PlayerPrefs.SetInt("visualEffect", 0);
             VFXAnim.SetBool("toggle", false);
         }
     }
@@ -194,8 +195,7 @@ public class GameManagerMainMenu : MonoBehaviour
                                 // //Download Assets
                                 string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/";
                                 string path = Application.persistentDataPath + "/AssetsBundle/";
-                                // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));
-                                infoForDev.text = "Dec Var";
+                                // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));                                
                                 yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip"));
                                 DeleteZipFile();
 
@@ -263,17 +263,14 @@ public class GameManagerMainMenu : MonoBehaviour
         string[] files;
 
         files = Directory.GetFiles(Application.persistentDataPath + "/AssetsBundle/");
-
-        infoForDev.text = "Dec Var\nDec Var in Function";
+        
 
         bool fileIsAvailable;
-        
-        infoForDev.text = "Dec Var\nDec Var in Function\nLanjut";
+                
 
         // fileName = Path.GetFileName(savePath);
         yield return null;
-        if(files.Length == 0) {
-            infoForDev.text = "Dec Var\nDec Var in Function\nif";
+        if(files.Length == 0) {            
 
             loadingUI.Show("Download Assets...");
             for(int j = 0; j < mainData.data.cards.Length; j++) {
@@ -285,8 +282,7 @@ public class GameManagerMainMenu : MonoBehaviour
                 yield return StartCoroutine(InitializationBundleToObject());
             }
         }
-        else {
-            infoForDev.text = "Dec Var\nDec Var in Function\nelse";
+        else {            
             for(int j = 0; j < mainData.data.cards.Length; j++) {
                 cardName = mainData.data.cards[j].name;
                 cardId = mainData.data.cards[j].id;
@@ -313,7 +309,7 @@ public class GameManagerMainMenu : MonoBehaviour
         }
     }
 
-    public void CheckFile(int i) {
+    public void CheckFile() {
         string filePath = Application.persistentDataPath + "/AssetsBundle/fire extingusher (model)";
 
         AssetBundle bundleModel = AssetBundle.LoadFromFile(filePath);

@@ -16,8 +16,6 @@ public class GameAnimScript : MonoBehaviour
         for(int i = 0; i < table.childCount; i++) {
             table.transform.GetChild(i).gameObject.SetActive(true);
 
-            // table.gameObject.SetActive(true);
-            print(i);
             yield return new WaitForSeconds(0.225f);
         }
         

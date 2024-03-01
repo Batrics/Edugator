@@ -11,9 +11,7 @@ using TMPro;
 public class TrackingController : MonoBehaviour
 {
     public List<GameObject> objectsToShow = new List<GameObject>();
-    public Dictionary<string, Texture2D> cardReferenceImgae = new Dictionary<string, Texture2D>();
-    [SerializeField] private TextMeshProUGUI infoForDev;
-    private Dictionary<string, GameObject> gameObjectDictionary = new Dictionary<string, GameObject>();
+    public Dictionary<string, Texture2D> cardReferenceImgae = new Dictionary<string, Texture2D>();    private Dictionary<string, GameObject> gameObjectDictionary = new Dictionary<string, GameObject>();
     private ARTrackedImageManager trackedImageManager;
     private RuntimeReferenceImageLibrary library;
     public XRReferenceImageLibrary referenceImagesLibrary;
@@ -38,18 +36,15 @@ public class TrackingController : MonoBehaviour
     Transform particleChild1;
     Transform particleChild2;
     Transform particleChild3;
-    // public GameObject model3d;
 
     void Awake() {
         AssetBundle.UnloadAllAssetBundles(true);
-
-        infoForDev.text = "1";
+        
         trackedImageManager = gameObject.AddComponent<ARTrackedImageManager>();
 
         library = trackedImageManager.CreateRuntimeLibrary();
         trackedImageManager.referenceLibrary = library;
-
-        infoForDev.text = "1\n2";
+        
 
         loadingUI.Prepare();
         // PlayerPrefs.SetString("token", "fe0e50396723b6dbe04c21afff6349c7");
@@ -65,14 +60,10 @@ public class TrackingController : MonoBehaviour
         
         foreach(Texture2D texture2D in textures2D) {
             cardReferenceImgae.Add(texture2D.name, texture2D);
-            if(cardReferenceImgae != null) {
-                infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources";
+            if(cardReferenceImgae != null) {                
             }
             print(texture2D);
         }
-
-        infoForDev.text = "1\n2\nGambar ada di dalam folder Resources\n3";
-
 
         foreach(KeyValuePair<string, Texture2D> imageReference in cardReferenceImgae) {
            if (imageReference.Value != null) {
@@ -86,29 +77,19 @@ public class TrackingController : MonoBehaviour
             else {
                 Debug.LogError("Failed to load image from Resources");
             }
-
-            infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}";
+            
 
         }
-
-        infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4";
 
         foreach(GameObject obj in prefabs3D) {
             objectsToShow.Add(obj);
         }
-
-        infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4\n5";
 
         foreach(GameObject prefabs in objectsToShow) {
             GameObject newPrefabs = prefabs;
             newPrefabs.name = prefabs.name;
             gameObjectDictionary.Add(prefabs.name, newPrefabs);
         }
-
-        infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4\n5\n6";
-
-        
-        infoForDev.text = $"1\n2\nGambar ada di dalam folder Resources\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}\n4\n5\n6\nEND";
         
         trackedImageManager.enabled = true;
         playButton.SetActive(false);
@@ -152,12 +133,18 @@ public class TrackingController : MonoBehaviour
                 print("TrackingState : " + tracking);
             }
 
-            if(particleChild1 != null && particleChild2 != null && particleChild3 != null) { 
+            if(particleChild1 != null && particleChild2 != null && particleChild3 != null && model != null && particleParent != null) { 
                 particleParent.localScale = new Vector3(trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x);
                 model.localScale = new Vector3(trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x);
                 particleChild1.localScale = particleParent.localScale;
                 particleChild2.localScale = particleParent.localScale;
                 particleChild3.localScale = particleParent.localScale;
+
+                if (PlayerPrefs.GetInt("visualEffect") == 1) {
+                    particleParent.gameObject.SetActive(true);
+                } else {
+                    particleParent.gameObject.SetActive(false);
+                }
                 print("A");
             }
             else {
@@ -168,14 +155,12 @@ public class TrackingController : MonoBehaviour
     }
     private IEnumerator AddImages(string imageName, Texture2D imageToAdd) {
         yield return null;
-        
-        infoForDev.text =  $"1\n2\n3\n3.5";
+                
 
         if(trackedImageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary) {
             yield return referenceImageJobState = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
 
-            while(!referenceImageJobState.jobHandle.IsCompleted) {
-                infoForDev.text = "Running...";
+            while(!referenceImageJobState.jobHandle.IsCompleted) {                
             }
 
             referenceImageJobState.jobHandle.Complete();
@@ -184,8 +169,7 @@ public class TrackingController : MonoBehaviour
         }
         else {
             Debug.LogError("Reference library is not MutableRuntimeReferenceImageLibrary.");
-        }
-        infoForDev.text = $"1\n2\n3\n3.5\n{referenceImageJobState}\n{referenceImageJobState.jobHandle.IsCompleted}";
+        }        
 
     }
 
@@ -196,18 +180,24 @@ public class TrackingController : MonoBehaviour
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
             print("A : " + trackedImage.referenceImage.name);
             print("B : " + go.Key);
-            if (trackedImage.referenceImage.name == go.Key) {
+            if (trackedImage.referenceImage.name  == go.Key) {
                 GetDataFromAPIAndGetCardId(go);
                 Instantiate3dObject(go.Value, trackedImage);
-                // yield return StartCoroutine(GetDataFromAPIAndGetCardId(go, trackedImage));
-
-                // yield return StartCoroutine(GetDataFromAPIAndInstantiateObject(go.Value, trackedImage));
 
                 particleParent = trackedImage.transform.GetChild(0).GetComponent<Transform>();
                 model = trackedImage.transform.GetChild(1).GetComponent<Transform>();
                 particleChild1 = particleParent.transform.GetChild(0).GetComponent<Transform>();
                 particleChild2 = particleParent.transform.GetChild(1).GetComponent<Transform>();
                 particleChild3 = particleParent.transform.GetChild(2).GetComponent<Transform>();
+
+                if (PlayerPrefs.GetInt("visualEffect") == 1) {
+                    particleParent.gameObject.SetActive(true);
+                    print("GAMEOBJECT ACtive");
+                } else {
+                    particleParent.gameObject.SetActive(false);
+                    print("GAMEOBJECT inACtive");
+                    // Destroy(ParticleEffect);
+                }
             }
             else {
                     print("Error");
@@ -218,7 +208,7 @@ public class TrackingController : MonoBehaviour
     private void UpdateImage(ARTrackedImage trackedImage) {
 
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
-            if (trackedImage.referenceImage.name == go.Key) {
+            if (trackedImage.referenceImage.name  == go.Key) {
                 GetDataFromAPIAndGetCardId(go);
                 // yield return StartCoroutine(GetDataFromAPIAndGetCardId(go, trackedImage));
                 
@@ -237,7 +227,7 @@ public class TrackingController : MonoBehaviour
 
     private void resetData(ARTrackedImage trackedImage) {
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
-            if (trackedImage.referenceImage.name == go.Key) {
+            if (trackedImage.referenceImage.name  == go.Key) {
                 for(int i = 0; i < trackedImage.transform.childCount; i++) {
                     trackedImage.transform.GetChild(i).gameObject.SetActive(false);
                 }
@@ -281,58 +271,6 @@ public class TrackingController : MonoBehaviour
             
         }
     }
-
-    // private IEnumerator GetDataFromAPIAndInstantiateObject(GameObject entry, ARTrackedImage trackedImage) {
-    //     loadingUI.Show("Please Wait...");
-    //     using (UnityWebRequest webData = UnityWebRequest.Get(url)) {
-    //         yield return webData.SendWebRequest();
-
-    //         if (webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError) {
-    //             loadingUI.Hide();
-    //             Debug.Log("Tidak ada Koneksi/Jaringan");
-    //             ConnectionGameObject.SetActive(true);
-    //             yield return new WaitForSeconds(3f);
-    //             ConnectionGameObject.SetActive(false);
-    //         }
-    //         else {
-    //             if (webData.isDone) {
-    //                 ConnectionGameObject.SetActive(false);
-    //                 loadingUI.Hide();
-
-    //                 _jsonData = JSON.Parse(System.Text.Encoding.UTF8.GetString(webData.downloadHandler.data));
-    //                 if (_jsonData == null) {
-    //                     Debug.Log("Json data Kosong");
-    //                 }
-    //                 else {
-    //                     print(_jsonData);
-    //                     if (_jsonData["success"] == true) {
-    //                         int i = 0;
-    //                         int total_soal_setiap_kartu = 0;
-
-    //                         while (i < _jsonData["data"].Count) {
-    //                             total_soal_setiap_kartu++;
-    //                             PlayerPrefs.SetInt("total_soal_setiap_kartu", total_soal_setiap_kartu);
-    //                             i++;
-    //                         }
-
-    //                         if (_jsonData["data"].Count == 0) {
-    //                             // Destroy(ParticleEffect);
-    //                             playButton.SetActive(false);
-    //                         } else {
-                                
-
-    //                         }
-
-    //                     }
-    //                 }
-    //             }
-    //             else {
-    //                 Debug.LogError("Error Detail: " + webData.error);
-    //             }
-    //         }
-    //     }
-    // }
-
     private void GetDataFromAPIAndGetCardId(KeyValuePair<string, GameObject> target) {
 
         mainData = JsonUtility.FromJson<MainDataJson>(PlayerPrefs.GetString("jsonData"));
@@ -358,15 +296,12 @@ public class TrackingController : MonoBehaviour
     }
 
     private void Instantiate3dObject(GameObject target, ARTrackedImage trackedImage) {
-        if (PlayerPrefs.GetInt("visualEffect") == 1) {
-            GameObject particle = Instantiate(ParticleEffect);
-            particle.transform.SetParent(trackedImage.transform);
-            particle.transform.localPosition = new Vector3(0f, 0.1f, 0f);
-            particle.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+        GameObject particle = Instantiate(ParticleEffect);
+        particle.transform.SetParent(trackedImage.transform);
+        particle.transform.localPosition = new Vector3(0f, 0.1f, 0f);
+        particle.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
 
-        } else {
-            Destroy(ParticleEffect);
-        }
+        
         AnimationIn3DObject(target, trackedImage.transform);
         playButton.SetActive(true);
     }

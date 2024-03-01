@@ -591,7 +591,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectsToShow: []
-  infoForDev: {fileID: 1468012495}
   referenceImagesLibrary: {fileID: 11400000, guid: 59269d3cd0f2bca4d89c7ef08876489b, type: 2}
   ConnectionGameObject: {fileID: 944869962}
   ParticleEffect: {fileID: 4898683273964801186, guid: fc155dc84f6f4b24a8e4b87994858cf0, type: 3}
@@ -599,7 +598,6 @@ MonoBehaviour:
   animatorController: {fileID: 9100000, guid: cbb34b5499e8a8040a6d2c09e7e0862a, type: 2}
   prefabs3D: []
   textures2D: []
-  rotationSpeed: 300
 --- !u!1001 &340457219
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1720,7 +1718,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1413052844
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1852,7 +1850,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1468012494
 RectTransform:
   m_ObjectHideFlags: 0
