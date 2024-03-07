@@ -199,7 +199,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: Fire Fighter
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -467,7 +467,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.9150943, g: 0.5050285, b: 0.64562255, a: 1}
+  m_Color: {r: 0.96470594, g: 0.4901961, b: 0.65882355, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -613,8 +613,11 @@ MonoBehaviour:
   gameSelected: {fileID: 0}
   popup: {fileID: 3566284912749649833, guid: f4e6de1d80c872e439fd8d5b08d9724f, type: 3}
   PanelHistoryUI: {fileID: 0}
+  progressBarGameObject: {fileID: 0}
+  progressBarGameObjectClone: {fileID: 0}
   files3D: []
   filesCard: []
+  filePath: 
 --- !u!1 &4510442073318878431
 GameObject:
   m_ObjectHideFlags: 0
@@ -680,7 +683,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: fe0e50396723b6dbe04c21afff6349c7
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

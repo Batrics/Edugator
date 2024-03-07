@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
 using Loading.UI;
-using Download.file;
 using System.IO;
 using System.IO.Compression;
 using System;
@@ -22,28 +21,31 @@ public class HistoryScript : MonoBehaviour
     public GameObject popup;
     public Transform PanelHistoryUI;
     private LoadingUI loadingUI = new LoadingUI();
-    private DownloadFile downloadFile = new DownloadFile();
+    public GameObject progressBarGameObject;
+    public GameObject progressBarGameObjectClone;
 
-    private void Awake() {
-        loadingUI.Prepare();
-    }
     private void Start() {
         titleText = gameObject.transform.parent.parent.parent.parent.GetChild(1).GetComponent<TextMeshProUGUI>();
         GameOwnerText = gameObject.transform.parent.parent.parent.parent.GetChild(2).GetComponent<TextMeshProUGUI>();
         koneksi = gameObject.transform.parent.parent.parent.parent.GetChild(10).gameObject;
-        // popup = gameObject.transform.parent.parent.GetChild(5).gameObject;
         PanelHistoryUI = gameObject.transform.parent.parent.parent;
+        progressBarGameObject = gameObject.transform.parent.parent.parent.parent.parent.GetChild(1).gameObject;
+        popup = Resources.Load<GameObject>("Popup");
         string allGames = PlayerPrefs.GetString("history");
         string[] allGamesArr = allGames.Split(";");
 
         Debug.Log("All Game : " + allGames);
         Debug.Log("All Game : " + allGamesArr[0]);
         Debug.Log("Game Selected : " + gameSelected);
-
+        
+        AssetBundle.UnloadAllAssetBundles(true);
     }
 
     public void StartQuiz() {
-        url = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
+        loadingUI.Prepare();
+        progressBarGameObject = Resources.Load<GameObject>("DownloadPopup");
+        progressBarGameObjectClone = Instantiate(progressBarGameObject);
+        url = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("tokenSelected");
         StartCoroutine(GetDataFromAPI());
     }
 
@@ -77,6 +79,23 @@ public class HistoryScript : MonoBehaviour
                     else {
                         if(mainData.success == true) { 
                             if (token == mainData.data.token) {
+
+                                // //Download Assets
+                                progressBarGameObjectClone.SetActive(true);
+                                string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/";
+                                
+                                string path = Application.persistentDataPath + "/AssetsBundle/";
+                                print("Dec Var");
+                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip"));
+                                if (DownloadPopup.userCancelledDownload == true) {
+                                    progressBarGameObjectClone.SetActive(false);
+                                    DownloadPopup.userCancelledDownload = false;
+                                    yield break;
+                                }
+                                DeleteZipFile();
+
+                                loadingUI.Hide();
+
                                 PlayerPrefs.SetString("token", token);
                                 PlayerPrefs.SetInt("game_id", mainData.data.id);
 
@@ -85,16 +104,7 @@ public class HistoryScript : MonoBehaviour
                                 titleText.text = mainData.data.name;
                                 GameOwnerText.text = "Created By : " + mainData.data.author;
 
-                                // //Download Assets
-                                string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/";
-                                
-                                string path = Application.persistentDataPath + "/AssetsBundle/";
-                                print("Dec Var");
-                                yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip"));
-                                DeleteZipFile();
-
-                                loadingUI.Hide();
-
+                                progressBarGameObjectClone.SetActive(false);
                                 transform.parent.parent.parent.gameObject.SetActive(false);
                                 
                             }
@@ -128,7 +138,7 @@ public class HistoryScript : MonoBehaviour
 
     public void SetGame(GameObject game) {
         gameSelected = game;
-        PlayerPrefs.SetString("token", token);
+        PlayerPrefs.SetString("tokenSelected", token);
         print("Game Selected : " + gameSelected);
 
     }
@@ -173,12 +183,15 @@ public class HistoryScript : MonoBehaviour
         if(files.Length == 0) {
             print("Dec Var\nDec Var in Function\nif");
 
-            loadingUI.Show("Download Assets...");
+            // loadingUI.Show("Download Assets...");
             for(int j = 0; j < mainData.data.cards.Length; j++) {
                 cardName = mainData.data.cards[j].name;
                 cardId = mainData.data.cards[j].id;
                 
-                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                yield return StartCoroutine(DownloadFile(URLWithoutCardId, cardName, cardId, extention, savePath));
+                if (DownloadPopup.userCancelledDownload == true) {
+                    yield break;
+                }
                 yield return StartCoroutine(ExtractFile());
                 yield return StartCoroutine(InitializationBundleToObject());
             }
@@ -201,8 +214,11 @@ public class HistoryScript : MonoBehaviour
                     yield return StartCoroutine(InitializationBundleToObject());
                 }
                 else {
-                    loadingUI.Show("Download Assets...");
-                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                    // loadingUI.Show("Download Assets...");
+                    yield return StartCoroutine(DownloadFile(URLWithoutCardId, cardName, cardId, extention, savePath));
+                    if (DownloadPopup.userCancelledDownload == true) {
+                        yield break;
+                    }
                     yield return StartCoroutine(ExtractFile());
                     yield return StartCoroutine(InitializationBundleToObject());
                     print("CName : " + cardName);
@@ -271,5 +287,62 @@ public class HistoryScript : MonoBehaviour
         }
     }
 
+    //==============================================================================================================================//
+
+    //Download
+    //==============================================================================================================================//
+    /// <summary>
+    /// URL for edugator = https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/
+    /// </summary>
+    private string downloadFileURL;
+    public string filePath;
+    // private GameManagerMainMenu gameManagerMainMenu;
+    private UnityEngine.UI.Image progressBarFilled;
+    UnityWebRequest www;
+    public IEnumerator DownloadFile(string URLWithoutCardId, string fileName, string cardId, string extention, string savePath) {
+        yield return null;
+        
+        progressBarFilled = progressBarGameObjectClone.transform.GetChild(0).GetChild(1).GetChild(1).GetComponent<UnityEngine.UI.Image>();
+
+        downloadFileURL = URLWithoutCardId + cardId;
+        
+        Debug.Log("URLFILE : " + downloadFileURL);
+
+        filePath = savePath + fileName + extention;
+        
+        www = UnityWebRequest.Get(downloadFileURL);
+
+        yield return new WaitForSeconds(0.1f);
+
+        www.SendWebRequest();
+
+        while(!www.isDone) {
+            if (DownloadPopup.userCancelledDownload) {
+                www.Abort(); // Batalkan unduhan jika user meminta
+                Debug.Log("Download dibatalkan.");
+                yield break; // Keluar dari coroutine
+            }
+            progressBarFilled.fillAmount = www.downloadProgress;
+            yield return null;
+        }
+        if(www.isDone) {
+            print("Is Done");
+        }
+
+        if (www.result != UnityWebRequest.Result.Success) {
+            print("WebRequest Failed");
+        }
+        else {
+            byte[] data = www.downloadHandler.data;
+            try {
+                File.WriteAllBytes(filePath, data);
+                Debug.Log("File berhasil diunduh dan disimpan di " + filePath);
+            }
+            catch(Exception ex) {
+                print(ex);
+            }
+
+        }
+    }
     //==============================================================================================================================//
 }

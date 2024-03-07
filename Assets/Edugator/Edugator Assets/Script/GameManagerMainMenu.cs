@@ -8,15 +8,15 @@ using System.IO.Compression;
 using UnityEngine.Audio;
 using Loading.UI;
 using System;
-using Download.file;
+// using UnityEngine.UIElements;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
+    public string downloadCount;
     MainDataJson mainData;
     private string jsonstring;
     private string url;
     public TMP_InputField inputToken;
-    public TextMeshProUGUI info;
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI GameOwnerText;
     public Animator VFXAnim;
@@ -33,10 +33,12 @@ public class GameManagerMainMenu : MonoBehaviour
     public GameObject startTransitionObject;
     public Transform table;
     public GameObject historyValue;
+    public GameObject Connection;
     
     [Space]
     LoadingUI loadingUI = new LoadingUI();
-    DownloadFile downloadFile = new DownloadFile();
+    private GameObject progressBarGameObject;
+    GameObject progressBarGameObjectClone;
     //Main Menu Script
     //==============================================================================================================================//\
     private void Awake() {
@@ -56,6 +58,7 @@ public class GameManagerMainMenu : MonoBehaviour
             Debug.Log("Directory already exists.");
         }
         
+        progressBarGameObject = Resources.Load<GameObject>("DownloadPopup");
     }
 
     void Start() {
@@ -69,6 +72,7 @@ public class GameManagerMainMenu : MonoBehaviour
     public void StartGame() {
         url = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + inputToken.text;
         print(url);
+        progressBarGameObjectClone =  Instantiate(progressBarGameObject);
         StartCoroutine(StartQuiz());
     }
 
@@ -96,7 +100,7 @@ public class GameManagerMainMenu : MonoBehaviour
     public void AddGame() {
         inputTokenUI.SetActive(true);
         inputToken.text = "";
-        info.text = "";
+        
     }
 
     public void SetVisualEffect(bool checkVisualEffect) {
@@ -130,6 +134,12 @@ public class GameManagerMainMenu : MonoBehaviour
             VFXAnim.SetBool("toggle", false);
         }
     }
+
+    private IEnumerator NoConnection() {
+        Connection.SetActive(true);
+        yield return new WaitForSeconds(3f);
+        Connection.SetActive(false);
+    }
     private IEnumerator GetDataFromAPI() {
 
         using(UnityWebRequest webData = UnityWebRequest.Get(url)) {
@@ -141,8 +151,9 @@ public class GameManagerMainMenu : MonoBehaviour
 
             if(webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError) {
                 loadingUI.Hide();
+                StartCoroutine(NoConnection());
                 Debug.Log("tidak ada Koneksi/Jaringan"); 
-                info.text = "tidak ada Koneksi/Jaringan";
+                
             }
             else {
                 if(webData.isDone) {
@@ -160,11 +171,6 @@ public class GameManagerMainMenu : MonoBehaviour
                         if(mainData.success == true) {
                             
                             if (inputToken.text == mainData.data.token) {
-                                PlayerPrefs.SetString("token", inputToken.text);
-                                PlayerPrefs.SetInt("game_id", mainData.data.id);
-                                titleText.text = mainData.data.name;
-                                GameOwnerText.text = "Created By : " + mainData.data.author;
-                                inputTokenUI.SetActive(false);
 
                                 //Update History Data
                                 string storage = PlayerPrefs.GetString("history");
@@ -193,25 +199,39 @@ public class GameManagerMainMenu : MonoBehaviour
                                 }
 
                                 // //Download Assets
+                                loadingUI.Hide();
+
+                                progressBarGameObjectClone.SetActive(true);
                                 string urlDownloadModel = "https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/";
                                 string path = Application.persistentDataPath + "/AssetsBundle/";
-                                // print("FILE EXIST ) : " + File.Exists(path + "Gold Fish.fbx"));                                
                                 yield return StartCoroutine(DownloadFileLogic(urlDownloadModel, path, ".zip"));
+                                if (DownloadPopup.userCancelledDownload == true) {
+                                    progressBarGameObjectClone.SetActive(false);
+                                    DownloadPopup.userCancelledDownload = false;
+                                    yield break;
+                                }
+                                
                                 DeleteZipFile();
+                                
+                                PlayerPrefs.SetString("token", inputToken.text);
+                                PlayerPrefs.SetInt("game_id", mainData.data.id);
+                                titleText.text = mainData.data.name;
+                                GameOwnerText.text = "Created By : " + mainData.data.author;
+                                inputTokenUI.SetActive(false);
 
-                                loadingUI.Hide();
+                                progressBarGameObjectClone.SetActive(false);
 
                             }
                             else if (inputToken.text == "") {
-                                info.text = "Masukkan Token";
+                                
                             }
                             else {
-                                info.text = "Token anda salah";
+                                
                             }
                         }
                         else {
                              print("API Request Json Success = False");
-                             info.text = "API Request Json Success = False";
+                             
                         }
                     }
                 }
@@ -272,12 +292,15 @@ public class GameManagerMainMenu : MonoBehaviour
         yield return null;
         if(files.Length == 0) {            
 
-            loadingUI.Show("Download Assets...");
+            // loadingUI.Show("Download Assets...");
             for(int j = 0; j < mainData.data.cards.Length; j++) {
                 cardName = mainData.data.cards[j].name;
                 cardId = mainData.data.cards[j].id;
                 
-                yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                yield return StartCoroutine(DownloadFile(URLWithoutCardId, cardName, cardId, extention, savePath));
+                if (DownloadPopup.userCancelledDownload == true) {
+                    yield break;
+                }
                 yield return StartCoroutine(ExtractFile());
                 yield return StartCoroutine(InitializationBundleToObject());
             }
@@ -300,7 +323,10 @@ public class GameManagerMainMenu : MonoBehaviour
                 }
                 else {
                     loadingUI.Show("Download Assets...");
-                    yield return StartCoroutine(downloadFile.Download(URLWithoutCardId, cardName, cardId, extention, savePath));
+                    yield return StartCoroutine(DownloadFile(URLWithoutCardId, cardName, cardId, extention, savePath));
+                    if (DownloadPopup.userCancelledDownload == true) {
+                        yield break;
+                    }
                     yield return StartCoroutine(ExtractFile());
                     yield return StartCoroutine(InitializationBundleToObject());
                     print("CName : " + cardName);
@@ -410,44 +436,61 @@ public class GameManagerMainMenu : MonoBehaviour
     }
 
     //==============================================================================================================================//
-}
 
-namespace Download.file
-{
-    public class DownloadFile : MonoBehaviour
-    {
-        /// <summary>
-        /// URL for edugator = https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/
-        /// </summary>
-        private string downloadFileURL;
-        public string filePath;
+    //Download
+    //==============================================================================================================================//
+    /// <summary>
+    /// URL for edugator = https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/
+    /// </summary>
+    private string downloadFileURL;
+    public string filePath;
+    // private GameManagerMainMenu gameManagerMainMenu;
+    private UnityEngine.UI.Image progressBarFilled;
+    UnityWebRequest www;
+    public IEnumerator DownloadFile(string URLWithoutCardId, string fileName, string cardId, string extention, string savePath) {
+        yield return null;
+        
+        progressBarFilled = progressBarGameObjectClone.transform.GetChild(0).GetChild(1).GetChild(1).GetComponent<UnityEngine.UI.Image>();
 
-        public IEnumerator Download(string URLWithoutCardId, string fileName, string cardId, string extention, string savePath) {
-            downloadFileURL = URLWithoutCardId + cardId;
-            
-            Debug.Log("URLFILE : " + downloadFileURL);
-            //Create "Resources" Folder First
-            filePath = savePath + fileName + extention;
+        downloadFileURL = URLWithoutCardId + cardId;
+        
+        Debug.Log("URLFILE : " + downloadFileURL);
+        //Create "Resources" Folder First
+        filePath = savePath + fileName + extention;
+        
+        www = UnityWebRequest.Get(downloadFileURL);
 
-            
-            
-            UnityWebRequest www = UnityWebRequest.Get(downloadFileURL);
-            yield return www.SendWebRequest();
+        yield return new WaitForSeconds(0.1f);
 
-            if (www.result != UnityWebRequest.Result.Success) {
-                Debug.LogError("Gagal mengunduh file: " + www.error);
+        www.SendWebRequest();
+
+        while(!www.isDone) {
+            if (DownloadPopup.userCancelledDownload) {
+                www.Abort(); // Batalkan unduhan jika user meminta
+                Debug.Log("Download dibatalkan.");
+                yield break; // Keluar dari coroutine
             }
-            else {
-                byte[] data = www.downloadHandler.data;
-                try {
-                    File.WriteAllBytes(filePath, data);
-                    Debug.Log("File berhasil diunduh dan disimpan di " + filePath);
-                }
-                catch(Exception ex) {
-                    print(ex);
-                }
-
+            progressBarFilled.fillAmount = www.downloadProgress;
+            yield return null;
+        }
+        if(www.isDone) {
+            print("Is Done");
+        }
+        
+        if (www.result != UnityWebRequest.Result.Success) {
+            print("WebRequest Failed");
+        }
+        else {
+            byte[] data = www.downloadHandler.data;
+            try {
+                File.WriteAllBytes(filePath, data);
+                Debug.Log("File berhasil diunduh dan disimpan di " + filePath);
             }
+            catch(Exception ex) {
+                print(ex);
+            }
+
         }
     }
+    //==============================================================================================================================//
 }
