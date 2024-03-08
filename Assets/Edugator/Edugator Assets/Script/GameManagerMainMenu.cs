@@ -168,8 +168,7 @@ public class GameManagerMainMenu : MonoBehaviour
                         Debug.Log("Json data Kosong");
                     }
                     else {
-                        if(mainData.success == true) {
-                            
+                        if(mainData.success == true) { 
                             if (inputToken.text == mainData.data.token) {
 
                                 //Update History Data

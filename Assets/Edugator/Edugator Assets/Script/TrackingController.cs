@@ -31,8 +31,8 @@ public class TrackingController : MonoBehaviour
     AddReferenceImageJobState referenceImageJobState;
     [SerializeField] List<GameObject> prefabs3D = new List<GameObject>();
     [SerializeField] List<Texture2D> textures2D = new List<Texture2D>();
-    Transform model;
-    Transform particleParent;
+    GameObject model;
+    GameObject particleParent;
     Transform particleChild1;
     Transform particleChild2;
     Transform particleChild3;
@@ -133,23 +133,13 @@ public class TrackingController : MonoBehaviour
                 print("TrackingState : " + tracking);
             }
 
-            if(particleChild1 != null && particleChild2 != null && particleChild3 != null && model != null && particleParent != null) { 
-                particleParent.localScale = new Vector3(trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x);
-                model.localScale = new Vector3(trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x);
-                particleChild1.localScale = particleParent.localScale;
-                particleChild2.localScale = particleParent.localScale;
-                particleChild3.localScale = particleParent.localScale;
+            // model = GameObject.Find(trackedImage.referenceImage.name + "(Clone)");
 
-                if (PlayerPrefs.GetInt("visualEffect") == 1) {
-                    particleParent.gameObject.SetActive(true);
-                } else {
-                    particleParent.gameObject.SetActive(false);
-                }
-                print("A");
-            }
-            else {
-                print("PARTICLE CHILD = null");
-            }
+            particleParent.transform.localScale = new Vector3(trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x);
+            model.transform.localScale = new Vector3(trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x);
+            particleChild1.localScale = particleParent.transform.localScale;
+            particleChild2.localScale = particleParent.transform.localScale;
+            particleChild3.localScale = particleParent.transform.localScale;
         }
 
     }
@@ -184,20 +174,12 @@ public class TrackingController : MonoBehaviour
                 GetDataFromAPIAndGetCardId(go);
                 Instantiate3dObject(go.Value, trackedImage);
 
-                particleParent = trackedImage.transform.GetChild(0).GetComponent<Transform>();
-                model = trackedImage.transform.GetChild(1).GetComponent<Transform>();
+                // particleParent = trackedImage.transform.GetChild(0).GetComponent<Transform>();
+                // model = trackedImage.transform.GetChild(1).GetComponent<GameObject>();
                 particleChild1 = particleParent.transform.GetChild(0).GetComponent<Transform>();
                 particleChild2 = particleParent.transform.GetChild(1).GetComponent<Transform>();
                 particleChild3 = particleParent.transform.GetChild(2).GetComponent<Transform>();
 
-                if (PlayerPrefs.GetInt("visualEffect") == 1) {
-                    particleParent.gameObject.SetActive(true);
-                    print("GAMEOBJECT ACtive");
-                } else {
-                    particleParent.gameObject.SetActive(false);
-                    print("GAMEOBJECT inACtive");
-                    // Destroy(ParticleEffect);
-                }
             }
             else {
                     print("Error");
@@ -240,8 +222,8 @@ public class TrackingController : MonoBehaviour
         }
     }
     private void AnimationIn3DObject(GameObject entry, Transform transform) {
-        GameObject object3d = Instantiate(entry, transform);
-        Animator anim3dObject = object3d.AddComponent<Animator>();
+        model = Instantiate(entry, transform);
+        Animator anim3dObject = model.AddComponent<Animator>();
 
         anim3dObject.runtimeAnimatorController = animatorController;
     }
@@ -296,11 +278,16 @@ public class TrackingController : MonoBehaviour
     }
 
     private void Instantiate3dObject(GameObject target, ARTrackedImage trackedImage) {
-        GameObject particle = Instantiate(ParticleEffect);
-        particle.transform.SetParent(trackedImage.transform);
-        particle.transform.localPosition = new Vector3(0f, 0.1f, 0f);
-        particle.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+        particleParent = Instantiate(ParticleEffect, trackedImage.transform);
 
+        if (PlayerPrefs.GetInt("visualEffect") == 1) {
+            particleParent.SetActive(true);
+            print($"GAMEOBJECT {particleParent} ACtive");
+        } else {
+            // particleParent.SetActive(false);
+            print($"GAMEOBJECT {particleParent} inACtive");
+            Destroy(particleParent);
+        }
         
         AnimationIn3DObject(target, trackedImage.transform);
         playButton.SetActive(true);
