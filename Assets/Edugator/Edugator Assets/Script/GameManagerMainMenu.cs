@@ -8,7 +8,6 @@ using System.IO.Compression;
 using UnityEngine.Audio;
 using Loading.UI;
 using System;
-// using UnityEngine.UIElements;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
@@ -33,7 +32,8 @@ public class GameManagerMainMenu : MonoBehaviour
     public GameObject startTransitionObject;
     public Transform table;
     public GameObject historyValue;
-    public GameObject Connection;
+    public GameObject connection;
+    public GameObject panelToken;
     
     [Space]
     LoadingUI loadingUI = new LoadingUI();
@@ -136,9 +136,14 @@ public class GameManagerMainMenu : MonoBehaviour
     }
 
     private IEnumerator NoConnection() {
-        Connection.SetActive(true);
+        connection.SetActive(true);
         yield return new WaitForSeconds(3f);
-        Connection.SetActive(false);
+        connection.SetActive(false);
+    }
+    private IEnumerator IncorrectToken() {
+        panelToken.SetActive(true);
+        yield return new WaitForSeconds(3f);
+        panelToken.SetActive(false);
     }
     private IEnumerator GetDataFromAPI() {
 
@@ -221,16 +226,12 @@ public class GameManagerMainMenu : MonoBehaviour
                                 progressBarGameObjectClone.SetActive(false);
 
                             }
-                            else if (inputToken.text == "") {
-                                
-                            }
                             else {
-                                
+                                StartCoroutine(IncorrectToken());
                             }
                         }
                         else {
                              print("API Request Json Success = False");
-                             
                         }
                     }
                 }
@@ -377,7 +378,7 @@ public class GameManagerMainMenu : MonoBehaviour
         audioMixer.SetFloat("volume", volume);
     }
 
-    public void SetVFX(float volume) {
+    public void SetSFX(float volume) {
         Debug.Log(volume);
         if(volume <= -20f && volume >= -30) {
             volume = -80f;

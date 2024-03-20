@@ -27,7 +27,7 @@ public class HistoryScript : MonoBehaviour
     private void Start() {
         titleText = gameObject.transform.parent.parent.parent.parent.GetChild(1).GetComponent<TextMeshProUGUI>();
         GameOwnerText = gameObject.transform.parent.parent.parent.parent.GetChild(2).GetComponent<TextMeshProUGUI>();
-        koneksi = gameObject.transform.parent.parent.parent.parent.GetChild(10).gameObject;
+        koneksi = gameObject.transform.parent.parent.parent.parent.GetChild(11).gameObject;
         PanelHistoryUI = gameObject.transform.parent.parent.parent;
         progressBarGameObject = gameObject.transform.parent.parent.parent.parent.parent.GetChild(1).gameObject;
         popup = Resources.Load<GameObject>("Popup");

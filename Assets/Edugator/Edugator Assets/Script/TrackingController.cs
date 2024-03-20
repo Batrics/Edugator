@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using UnityEngine.Networking;
 using Loading.UI;
 using Unity.Collections;
 using TMPro;
@@ -36,6 +35,7 @@ public class TrackingController : MonoBehaviour
     Transform particleChild1;
     Transform particleChild2;
     Transform particleChild3;
+    public TextMeshProUGUI infoForDev;
 
     void Awake() {
         AssetBundle.UnloadAllAssetBundles(true);
@@ -92,8 +92,8 @@ public class TrackingController : MonoBehaviour
         }
         
         trackedImageManager.enabled = true;
+
         playButton.SetActive(false);
-        
     }
 
     private void OnEnable() {
@@ -106,46 +106,60 @@ public class TrackingController : MonoBehaviour
         trackedImageManager.trackedImagesChanged -= OnTrackedImagesChanged;
     }
 
-
+    List<ARTrackedImage> trackedImages = new List<ARTrackedImage>();
     private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs) {
+
+        // for(int i = 0; i < eventArgs.added.Count; i++) {
+        //     trackedImages.Add(eventArgs.added[i]);
+        // }
 
         foreach(ARTrackedImage trackedImage in eventArgs.added) {
             print("Reference Image : " + trackedImage.referenceImage);
             getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
             
             FirstTrackedImage(trackedImage);
-            // StartCoroutine(FirstTrackedImage(trackedImage));
+            print("Reference Image Name : " + trackedImage.referenceImage.name);
+            print("Reference Image Size : " + trackedImage.referenceImage.size);
+            infoForDev.text = "First tracked";
         }
 
         foreach(ARTrackedImage trackedImage in eventArgs.updated) {
+            print(eventArgs);
+            print(trackedImage.trackingState);
+            // print(trackedImage.transform.GetChild(0));
+            infoForDev.text = trackedImage.ToString();
+
             if (trackedImage.trackingState == TrackingState.Tracking) {
                 if(tracking == false) {
-                    tracking = true;
-
                     UpdateImage(trackedImage);
-                    // StartCoroutine(UpdateImage(trackedImage));
+                    playButton.SetActive(true);
+                    // infoForDev.text = "First tracked\nPlay button Active";
                 }
+                tracking = true;
             }
             else {
-                resetData(trackedImage);
-                playButton.SetActive(false);
                 tracking = false;
-                print("TrackingState : " + tracking);
+                playButton.SetActive(false);
+                ResetData(trackedImage);
+                // infoForDev.text = "First tracked\nPlay button InActive";
             }
 
-            // model = GameObject.Find(trackedImage.referenceImage.name + "(Clone)");
+            if (PlayerPrefs.GetInt("visualEffect") == 1) {
+                particleParent.transform.localScale = new Vector3(trackedImage.referenceImage.size.y, trackedImage.referenceImage.size.y, trackedImage.referenceImage.size.y);
+                // particleParent.transform.localScale = new Vector3(1f, 1f, 1f);
+                particleChild1.localScale = particleParent.transform.localScale;
+                particleChild2.localScale = particleParent.transform.localScale;
+                particleChild3.localScale = particleParent.transform.localScale;
 
-            particleParent.transform.localScale = new Vector3(trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x);
-            model.transform.localScale = new Vector3(trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x);
-            particleChild1.localScale = particleParent.transform.localScale;
-            particleChild2.localScale = particleParent.transform.localScale;
-            particleChild3.localScale = particleParent.transform.localScale;
+            }
+            
+            model.transform.localScale = new Vector3(trackedImage.referenceImage.size.y, trackedImage.referenceImage.size.y, trackedImage.referenceImage.size.y);
+            // model.transform.localScale = new Vector3(1f, 1f, 1f);
         }
 
     }
     private IEnumerator AddImages(string imageName, Texture2D imageToAdd) {
         yield return null;
-                
 
         if(trackedImageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary) {
             yield return referenceImageJobState = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
@@ -168,18 +182,15 @@ public class TrackingController : MonoBehaviour
         print("URL : " + url);
         print(trackedImage.gameObject);
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
-            print("A : " + trackedImage.referenceImage.name);
-            print("B : " + go.Key);
             if (trackedImage.referenceImage.name  == go.Key) {
                 GetDataFromAPIAndGetCardId(go);
-                Instantiate3dObject(go.Value, trackedImage);
+                Instantiate3DObject(go.Value, trackedImage.transform);
+                InstantiateParticleSystem(trackedImage);
 
-                // particleParent = trackedImage.transform.GetChild(0).GetComponent<Transform>();
-                // model = trackedImage.transform.GetChild(1).GetComponent<GameObject>();
                 particleChild1 = particleParent.transform.GetChild(0).GetComponent<Transform>();
                 particleChild2 = particleParent.transform.GetChild(1).GetComponent<Transform>();
                 particleChild3 = particleParent.transform.GetChild(2).GetComponent<Transform>();
-
+                
             }
             else {
                     print("Error");
@@ -188,18 +199,13 @@ public class TrackingController : MonoBehaviour
     }
 
     private void UpdateImage(ARTrackedImage trackedImage) {
-
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
-            if (trackedImage.referenceImage.name  == go.Key) {
+            if (trackedImage.referenceImage.name == go.Key) {
                 GetDataFromAPIAndGetCardId(go);
-                // yield return StartCoroutine(GetDataFromAPIAndGetCardId(go, trackedImage));
                 
                 for(int i = 0; i < trackedImage.transform.childCount; i++) {
                     trackedImage.transform.GetChild(i).gameObject.SetActive(true);
                 }
-                
-                if(go.Value.activeSelf == true)
-                    playButton.SetActive(true);
             }
             else {
                 print("Error");
@@ -207,21 +213,19 @@ public class TrackingController : MonoBehaviour
         }
     }
 
-    private void resetData(ARTrackedImage trackedImage) {
+    private void ResetData(ARTrackedImage trackedImage) {
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
             if (trackedImage.referenceImage.name  == go.Key) {
                 for(int i = 0; i < trackedImage.transform.childCount; i++) {
                     trackedImage.transform.GetChild(i).gameObject.SetActive(false);
                 }
-
-                playButton.SetActive(false);
             }
             else {
                 print("Error");
             }
         }
     }
-    private void AnimationIn3DObject(GameObject entry, Transform transform) {
+    private void Instantiate3DObject(GameObject entry, Transform transform) {
         model = Instantiate(entry, transform);
         Animator anim3dObject = model.AddComponent<Animator>();
 
@@ -277,7 +281,7 @@ public class TrackingController : MonoBehaviour
         }
     }
 
-    private void Instantiate3dObject(GameObject target, ARTrackedImage trackedImage) {
+    private void InstantiateParticleSystem(ARTrackedImage trackedImage) {
         particleParent = Instantiate(ParticleEffect, trackedImage.transform);
 
         if (PlayerPrefs.GetInt("visualEffect") == 1) {
@@ -288,9 +292,6 @@ public class TrackingController : MonoBehaviour
             print($"GAMEOBJECT {particleParent} inACtive");
             Destroy(particleParent);
         }
-        
-        AnimationIn3DObject(target, trackedImage.transform);
-        playButton.SetActive(true);
     }
 
     public void Information() {
