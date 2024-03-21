@@ -18,7 +18,6 @@ public class TrackingController : MonoBehaviour
 
     [Header("Main")]
     MainDataJson mainData;
-    private string jsonstring;
     private string url;
     private string getDataGamesUrl;
     private bool tracking = false;
@@ -93,7 +92,6 @@ public class TrackingController : MonoBehaviour
         
         trackedImageManager.enabled = true;
 
-        playButton.SetActive(false);
     }
 
     private void OnEnable() {
@@ -106,18 +104,13 @@ public class TrackingController : MonoBehaviour
         trackedImageManager.trackedImagesChanged -= OnTrackedImagesChanged;
     }
 
-    List<ARTrackedImage> trackedImages = new List<ARTrackedImage>();
     private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs) {
-
-        // for(int i = 0; i < eventArgs.added.Count; i++) {
-        //     trackedImages.Add(eventArgs.added[i]);
-        // }
-
         foreach(ARTrackedImage trackedImage in eventArgs.added) {
             print("Reference Image : " + trackedImage.referenceImage);
             getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
             
             FirstTrackedImage(trackedImage);
+            playButton.SetActive(true);
             print("Reference Image Name : " + trackedImage.referenceImage.name);
             print("Reference Image Size : " + trackedImage.referenceImage.size);
             infoForDev.text = "First tracked";
