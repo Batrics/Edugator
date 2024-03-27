@@ -106,7 +106,7 @@ public class GameManagerMainMenu : MonoBehaviour
     public void SetVisualEffect(bool checkVisualEffect) {
         UpdateToggle(checkVisualEffect);
 
-        // PlayerPrefs.SetInt("visualEffect", checkVisualEffectInt);
+        PlayerPrefs.SetInt("visualEffect", checkVisualEffectInt);
         Debug.Log("Bool : " + checkVisualEffectInt);
     }
 
@@ -214,7 +214,6 @@ public class GameManagerMainMenu : MonoBehaviour
                                     DownloadPopup.userCancelledDownload = false;
                                     yield break;
                                 }
-                                
                                 DeleteZipFile();
                                 
                                 PlayerPrefs.SetString("token", inputToken.text);
@@ -350,7 +349,7 @@ public class GameManagerMainMenu : MonoBehaviour
         string filePathCard = Application.persistentDataPath + "/AssetsBundle/" + cardName + _BUNDLETYPECARD;
         
         AssetBundle bundleCard = AssetBundle.LoadFromFile(filePathCard);
-        Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
+        Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".png");
         card.name = cardName;
         yield return card;
         filesCard.Add(card);

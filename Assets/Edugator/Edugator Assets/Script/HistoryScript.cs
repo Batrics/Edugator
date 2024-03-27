@@ -92,6 +92,7 @@ public class HistoryScript : MonoBehaviour
                                     DownloadPopup.userCancelledDownload = false;
                                     yield break;
                                 }
+                                
                                 DeleteZipFile();
 
                                 loadingUI.Hide();
@@ -232,7 +233,7 @@ public class HistoryScript : MonoBehaviour
         string filePathCard = Application.persistentDataPath + "/AssetsBundle/" + cardName + _BUNDLETYPECARD;
         
         AssetBundle bundleCard = AssetBundle.LoadFromFile(filePathCard);
-        Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
+        Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".png");
         card.name = cardName;
         yield return card;
         filesCard.Add(card);

@@ -35,6 +35,7 @@ public class TrackingController : MonoBehaviour
     Transform particleChild2;
     Transform particleChild3;
     public TextMeshProUGUI infoForDev;
+    Vector3 modelScale;
 
     void Awake() {
         AssetBundle.UnloadAllAssetBundles(true);
@@ -113,6 +114,8 @@ public class TrackingController : MonoBehaviour
             playButton.SetActive(true);
             print("Reference Image Name : " + trackedImage.referenceImage.name);
             print("Reference Image Size : " + trackedImage.referenceImage.size);
+            
+            // modelScale = particleParent.transform.localScale / 5;
             infoForDev.text = "First tracked";
         }
 
@@ -138,15 +141,15 @@ public class TrackingController : MonoBehaviour
             }
 
             if (PlayerPrefs.GetInt("visualEffect") == 1) {
-                particleParent.transform.localScale = new Vector3(trackedImage.referenceImage.size.y, trackedImage.referenceImage.size.y, trackedImage.referenceImage.size.y);
+                particleParent.transform.localScale = new Vector3(trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x);
                 // particleParent.transform.localScale = new Vector3(1f, 1f, 1f);
                 particleChild1.localScale = particleParent.transform.localScale;
                 particleChild2.localScale = particleParent.transform.localScale;
                 particleChild3.localScale = particleParent.transform.localScale;
-
             }
             
-            model.transform.localScale = new Vector3(trackedImage.referenceImage.size.y, trackedImage.referenceImage.size.y, trackedImage.referenceImage.size.y);
+            model.transform.localScale = new Vector3(trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x, trackedImage.referenceImage.size.x); 
+            infoForDev.text = trackedImage.referenceImage.name + " : " + trackedImage.referenceImage.size + "\n" + particleParent.name + " : " + particleParent.transform.localScale.ToString() + "\n" + model.name + " : " + model.transform.localScale.ToString();
             // model.transform.localScale = new Vector3(1f, 1f, 1f);
         }
 
@@ -161,7 +164,6 @@ public class TrackingController : MonoBehaviour
             }
 
             referenceImageJobState.jobHandle.Complete();
-            print("IMAAAAAGEE : " + mutableLibrary[0]);
             print("Reference Image JobState : " + referenceImageJobState);
         }
         else {
@@ -175,7 +177,7 @@ public class TrackingController : MonoBehaviour
         print("URL : " + url);
         print(trackedImage.gameObject);
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
-            if (trackedImage.referenceImage.name  == go.Key) {
+            if (trackedImage.referenceImage.name == go.Key) {
                 GetDataFromAPIAndGetCardId(go);
                 Instantiate3DObject(go.Value, trackedImage.transform);
                 InstantiateParticleSystem(trackedImage);
@@ -208,7 +210,7 @@ public class TrackingController : MonoBehaviour
 
     private void ResetData(ARTrackedImage trackedImage) {
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
-            if (trackedImage.referenceImage.name  == go.Key) {
+            if (trackedImage.referenceImage.name == go.Key) {
                 for(int i = 0; i < trackedImage.transform.childCount; i++) {
                     trackedImage.transform.GetChild(i).gameObject.SetActive(false);
                 }
@@ -244,7 +246,7 @@ public class TrackingController : MonoBehaviour
             filePath = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " + "(card)";
 
             AssetBundle bundleCard = AssetBundle.LoadFromFile(filePath);
-            Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
+            Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".png");
             yield return card;
             textures2D.Add(card);
             
