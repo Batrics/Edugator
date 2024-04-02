@@ -6,6 +6,7 @@ using UnityEngine.XR.ARSubsystems;
 using Loading.UI;
 using Unity.Collections;
 using TMPro;
+using Unity.VisualScripting;
 
 public class TrackingController : MonoBehaviour
 {
@@ -35,7 +36,6 @@ public class TrackingController : MonoBehaviour
     Transform particleChild2;
     Transform particleChild3;
     public TextMeshProUGUI infoForDev;
-    Vector3 modelScale;
 
     void Awake() {
         AssetBundle.UnloadAllAssetBundles(true);
@@ -158,12 +158,15 @@ public class TrackingController : MonoBehaviour
         yield return null;
 
         if(trackedImageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary) {
+            infoForDev.text = "1";
+            
             yield return referenceImageJobState = mutableLibrary.ScheduleAddImageWithValidationJob(imageToAdd, imageName, 0.21f);
 
-            while(!referenceImageJobState.jobHandle.IsCompleted) {                
-            }
+            infoForDev.text = "1\n2";
 
             referenceImageJobState.jobHandle.Complete();
+            infoForDev.text = "1\n2\nReference Image JobState : " + referenceImageJobState;
+
             print("Reference Image JobState : " + referenceImageJobState);
         }
         else {
@@ -246,7 +249,17 @@ public class TrackingController : MonoBehaviour
             filePath = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " + "(card)";
 
             AssetBundle bundleCard = AssetBundle.LoadFromFile(filePath);
-            Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".png");
+            Texture2D card = null;
+            if(card == null) {
+                card = bundleCard.LoadAsset<Texture2D>(cardName + ".png");
+                if(card == null) {
+                    card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
+                    if(card == null) {
+                        card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpeg");
+                        print("File Extention is jpeg");
+                    }
+                }
+            }
             yield return card;
             textures2D.Add(card);
             
