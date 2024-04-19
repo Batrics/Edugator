@@ -38,7 +38,6 @@ public class TrackingController : MonoBehaviour
     public TextMeshProUGUI infoForDev;
 
     void Awake() {
-        AssetBundle.UnloadAllAssetBundles(true);
         
         trackedImageManager = gameObject.AddComponent<ARTrackedImageManager>();
 
@@ -54,17 +53,20 @@ public class TrackingController : MonoBehaviour
 
     private IEnumerator Start() {
 
+        AssetBundle.UnloadAllAssetBundles(true);
         getDataGamesUrl = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("token");
         
+        yield return new WaitForSeconds(.5f);
+        loadingUI.Show("Check Files...");
         yield return StartCoroutine(CheckFiles());
+        loadingUI.Hide();
         
         foreach(Texture2D texture2D in textures2D) {
             cardReferenceImgae.Add(texture2D.name, texture2D);
-            if(cardReferenceImgae != null) {                
-            }
             print(texture2D);
         }
 
+        loadingUI.Show("Please Wait...");
         foreach(KeyValuePair<string, Texture2D> imageReference in cardReferenceImgae) {
            if (imageReference.Value != null) {
                 NativeArray<byte> imageBytes =  new NativeArray<byte>(imageReference.Value.GetRawTextureData(), Allocator.Persistent);
@@ -72,14 +74,13 @@ public class TrackingController : MonoBehaviour
                 var aspectRatio = (float)imageReference.Value.width / (float)imageReference.Value.height;
                 var sizeInMeters = new Vector2(imageReference.Value.width, imageReference.Value.width * aspectRatio);
 
-                StartCoroutine(AddImages(imageReference.Key, imageReference.Value));
+                yield return StartCoroutine(AddImages(imageReference.Key, imageReference.Value));
             }
             else {
                 Debug.LogError("Failed to load image from Resources");
             }
-            
-
         }
+        loadingUI.Hide();
 
         foreach(GameObject obj in prefabs3D) {
             objectsToShow.Add(obj);
@@ -231,25 +232,27 @@ public class TrackingController : MonoBehaviour
     }
 
     private IEnumerator CheckFiles() {
-
+        infoForDev.text = "Check File 1";
         string filePath;
-
+        infoForDev.text = "Check File 2";
         mainData = JsonUtility.FromJson<MainDataJson>(PlayerPrefs.GetString("jsonData"));
-
+        infoForDev.text = "Check File 3";
         for(int j = 0; j < mainData.data.cards.Length ; j++) {
-            cardName = mainData.data.cards[j].name;
-            
+            yield return null;
+            cardName = mainData.data.cards[j].name.ToLower();
+            infoForDev.text = "Check File 4";
             //Harus diganti ke path Local
             filePath = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " +  "(model)";
-
+            infoForDev.text = "Check File 5";
             AssetBundle bundleModel = AssetBundle.LoadFromFile(filePath);
             GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
             prefabs3D.Add(model);
-
+            infoForDev.text = "Check File 6";
             filePath = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " + "(card)";
-
+            infoForDev.text = "Check File 7";
             AssetBundle bundleCard = AssetBundle.LoadFromFile(filePath);
             Texture2D card = null;
+            infoForDev.text = "Check File 8";
             if(card == null) {
                 card = bundleCard.LoadAsset<Texture2D>(cardName + ".png");
                 if(card == null) {
@@ -260,9 +263,11 @@ public class TrackingController : MonoBehaviour
                     }
                 }
             }
+            infoForDev.text = "Check File 9";
             yield return card;
             textures2D.Add(card);
-            
+            infoForDev.text = "Check File 10";
+            yield return null;
         }
     }
     private void GetDataFromAPIAndGetCardId(KeyValuePair<string, GameObject> target) {
