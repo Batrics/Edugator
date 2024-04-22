@@ -7,14 +7,14 @@ public class MainDataJson
 }
 
 [System.Serializable]
-public class Card 
+public struct Card 
 {
     public string id;
     public string name;
 }
 
 [System.Serializable]
-public class Data
+public struct Data
 {
     public string author;
     public int id;

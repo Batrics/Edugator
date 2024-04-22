@@ -8,7 +8,7 @@ public class MainDataJsonQuestions
 }
 
 [Serializable]
-public class DataQuestions
+public struct DataQuestions
 {
     public string game;
     public string card;

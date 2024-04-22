@@ -6,7 +6,6 @@ using UnityEngine.XR.ARSubsystems;
 using Loading.UI;
 using Unity.Collections;
 using TMPro;
-using Unity.VisualScripting;
 
 public class TrackingController : MonoBehaviour
 {
@@ -242,17 +241,17 @@ public class TrackingController : MonoBehaviour
             cardName = mainData.data.cards[j].name.ToLower();
             infoForDev.text = "Check File 4";
             //Harus diganti ke path Local
-            filePath = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " +  "(model)";
-            infoForDev.text = "Check File 5";
+            filePath = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " + "(model)";
+            infoForDev.text = $"Check File 5 => {filePath}";
             AssetBundle bundleModel = AssetBundle.LoadFromFile(filePath);
             GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
             prefabs3D.Add(model);
-            infoForDev.text = "Check File 6";
+            infoForDev.text = $"Check File 6 => {filePath}";
             filePath = Application.persistentDataPath + "/AssetsBundle/" + cardName + " " + "(card)";
-            infoForDev.text = "Check File 7";
+            infoForDev.text = $"Check File 7 => {filePath}";
             AssetBundle bundleCard = AssetBundle.LoadFromFile(filePath);
             Texture2D card = null;
-            infoForDev.text = "Check File 8";
+            infoForDev.text = $"Check File 8 => {filePath}";
             if(card == null) {
                 card = bundleCard.LoadAsset<Texture2D>(cardName + ".png");
                 if(card == null) {
@@ -263,10 +262,10 @@ public class TrackingController : MonoBehaviour
                     }
                 }
             }
-            infoForDev.text = "Check File 9";
+            infoForDev.text = $"Check File 9 => {filePath}";
             yield return card;
             textures2D.Add(card);
-            infoForDev.text = "Check File 10";
+            infoForDev.text = $"Check File 10  => {filePath}";
             yield return null;
         }
     }
