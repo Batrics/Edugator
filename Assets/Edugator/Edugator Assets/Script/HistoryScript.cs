@@ -92,8 +92,6 @@ public class HistoryScript : MonoBehaviour
                                     DownloadPopup.userCancelledDownload = false;
                                     yield break;
                                 }
-                                
-                                DeleteZipFile();
 
                                 loadingUI.Hide();
 
@@ -194,6 +192,7 @@ public class HistoryScript : MonoBehaviour
                     yield break;
                 }
                 yield return StartCoroutine(ExtractFile());
+                DeleteZipFile();
                 yield return StartCoroutine(InitializationBundleToObject());
             }
         }
@@ -206,6 +205,7 @@ public class HistoryScript : MonoBehaviour
 
                 foreach(string file in files) {
                     if(file.Contains(cardName.ToLower())) {
+
                         fileIsAvailable = true;
                     }
                 }
@@ -221,6 +221,7 @@ public class HistoryScript : MonoBehaviour
                         yield break;
                     }
                     yield return StartCoroutine(ExtractFile());
+                    DeleteZipFile();
                     yield return StartCoroutine(InitializationBundleToObject());
                     print("CName : " + cardName);
                 }

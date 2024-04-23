@@ -146,7 +146,6 @@ public class GameManagerMainMenu : MonoBehaviour
         panelToken.SetActive(false);
     }
     private IEnumerator GetDataFromAPI() {
-
         using(UnityWebRequest webData = UnityWebRequest.Get(url)) {
             webData.SendWebRequest();
 
@@ -214,7 +213,6 @@ public class GameManagerMainMenu : MonoBehaviour
                                     DownloadPopup.userCancelledDownload = false;
                                     yield break;
                                 }
-                                DeleteZipFile();
                                 
                                 PlayerPrefs.SetString("token", inputToken.text);
                                 PlayerPrefs.SetInt("game_id", mainData.data.id);
@@ -301,6 +299,7 @@ public class GameManagerMainMenu : MonoBehaviour
                     yield break;
                 }
                 yield return StartCoroutine(ExtractFile());
+                DeleteZipFile();
                 yield return StartCoroutine(InitializationBundleToObject());
             }
         }
@@ -321,12 +320,13 @@ public class GameManagerMainMenu : MonoBehaviour
                     yield return StartCoroutine(InitializationBundleToObject());
                 }
                 else {
-                    loadingUI.Show("Download Assets...");
+                    // loadingUI.Show("Download Assets...");
                     yield return StartCoroutine(DownloadFile(URLWithoutCardId, cardName, cardId, extention, savePath));
                     if (DownloadPopup.userCancelledDownload == true) {
                         yield break;
                     }
                     yield return StartCoroutine(ExtractFile());
+                    DeleteZipFile();
                     yield return StartCoroutine(InitializationBundleToObject());
                     print("CName : " + cardName);
                 }
