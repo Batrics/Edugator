@@ -126,9 +126,9 @@ public class TrackingController : MonoBehaviour
             infoForDev.text = trackedImage.ToString();
 
             if (trackedImage.trackingState == TrackingState.Tracking) {
+                playButton.SetActive(true);
                 if(tracking == false) {
                     UpdateImage(trackedImage);
-                    playButton.SetActive(true);
                     // infoForDev.text = "First tracked\nPlay button Active";
                 }
                 tracking = true;
