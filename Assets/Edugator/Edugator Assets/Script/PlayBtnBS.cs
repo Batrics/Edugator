@@ -4,27 +4,28 @@ using UnityEngine;
 
 public class PlayBtnBS : MonoBehaviour
 {
-    public AudioSource butttonAudio;
-    public AudioSource buttonSE;
+    AudioSource butttonAudio;
+    [SerializeField] private AudioSource buttonSE;
     AudioClip[] audioClips;
     public TransitionScript transitionScript;
     public LoadNextScene loadNextScene;
     private void Start() {
+        butttonAudio = GetComponent<AudioSource>();
         audioClips = Resources.LoadAll<AudioClip>("Music");
     }
+    public void Play() {
+        StartCoroutine(QuizAudio());
+    }
 
-    public IEnumerator QuizAudio() {
+    private IEnumerator QuizAudio() {
         int rnd = Random.Range(0, 9);
         butttonAudio.clip = audioClips[rnd];
         buttonSE.Play();
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
         butttonAudio.Play();
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(1.5f);
         transitionScript.startTransitionActive();
+        yield return new WaitForSeconds(1);
         loadNextScene.GoNextScene();
-    }
-
-    public void Play() {
-        StartCoroutine(QuizAudio());
     }
 }

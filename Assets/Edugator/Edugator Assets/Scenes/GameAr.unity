@@ -530,7 +530,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8db429e8ae26cb148990cd3a7608fd1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  butttonAudio: {fileID: 267273455}
   buttonSE: {fileID: 970519279}
   transitionScript: {fileID: 227297765}
   loadNextScene: {fileID: 227297766}
