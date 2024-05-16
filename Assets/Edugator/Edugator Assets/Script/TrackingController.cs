@@ -180,7 +180,7 @@ public class TrackingController : MonoBehaviour
         print("URL : " + url);
         print(trackedImage.gameObject);
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
-            if ("Fire_Clothes" == go.Key) {
+            if (trackedImage.referenceImage.name == go.Key) {
                 GetDataFromAPIAndGetCardId(go);
                 Instantiate3DObject(go.Value, trackedImage.transform);
                 InstantiateParticleSystem(trackedImage);
@@ -198,7 +198,7 @@ public class TrackingController : MonoBehaviour
 
     private void UpdateImage(ARTrackedImage trackedImage) {
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
-            if ("Fire_Clothes" == go.Key) {
+            if (trackedImage.referenceImage.name == go.Key) {
                 GetDataFromAPIAndGetCardId(go);
                 
                 for(int i = 0; i < trackedImage.transform.childCount; i++) {
@@ -213,7 +213,7 @@ public class TrackingController : MonoBehaviour
 
     private void ResetData(ARTrackedImage trackedImage) {
         foreach (KeyValuePair<string, GameObject> go in gameObjectDictionary) {
-            if ("Fire_Clothes" == go.Key) {
+            if (trackedImage.referenceImage.name == go.Key) {
                 for(int i = 0; i < trackedImage.transform.childCount; i++) {
                     trackedImage.transform.GetChild(i).gameObject.SetActive(false);
                 }
