@@ -263,6 +263,17 @@ public class GameManagerMainMenu : MonoBehaviour
                 tokenGameText.text = token;
             }
         }
+
+        if(table.childCount > 6) {
+            print("Child Count : " + table.childCount);
+            RectTransform rectTransformOfTable = table.GetComponent<RectTransform>();
+            Vector2 offsetMin = rectTransformOfTable.offsetMin;
+            print("Offset min awal : " + offsetMin);
+            int childCount = table.childCount - 6;
+            offsetMin.y -= 221 * childCount + 150f;
+            print("Offset min Akhir : " + offsetMin);
+            rectTransformOfTable.offsetMin = offsetMin;
+        }
     }
 
     //==============================================================================================================================//

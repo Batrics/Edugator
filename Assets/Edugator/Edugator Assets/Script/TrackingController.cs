@@ -10,7 +10,8 @@ using TMPro;
 public class TrackingController : MonoBehaviour
 {
     public List<GameObject> objectsToShow = new List<GameObject>();
-    public Dictionary<string, Texture2D> cardReferenceImgae = new Dictionary<string, Texture2D>();    private Dictionary<string, GameObject> gameObjectDictionary = new Dictionary<string, GameObject>();
+    public Dictionary<string, Texture2D> cardReferenceImgae = new Dictionary<string, Texture2D>();
+    private Dictionary<string, GameObject> gameObjectDictionary = new Dictionary<string, GameObject>();
     private ARTrackedImageManager trackedImageManager;
     private RuntimeReferenceImageLibrary library;
     public XRReferenceImageLibrary referenceImagesLibrary;

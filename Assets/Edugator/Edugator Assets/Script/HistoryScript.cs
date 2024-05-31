@@ -25,11 +25,21 @@ public class HistoryScript : MonoBehaviour
     public GameObject progressBarGameObjectClone;
 
     private void Start() {
-        titleText = gameObject.transform.parent.parent.parent.parent.GetChild(1).GetComponent<TextMeshProUGUI>();
-        GameOwnerText = gameObject.transform.parent.parent.parent.parent.GetChild(2).GetComponent<TextMeshProUGUI>();
-        koneksi = gameObject.transform.parent.parent.parent.parent.GetChild(11).gameObject;
-        PanelHistoryUI = gameObject.transform.parent.parent.parent;
-        progressBarGameObject = gameObject.transform.parent.parent.parent.parent.parent.GetChild(1).gameObject;
+        GameObject canvas = gameObject.transform.parent.parent.parent.parent.parent.parent.parent.gameObject;
+        GameObject go = GameObject.Find("Canvas");
+        print(go);
+
+        titleText = GameObject.Find("MainTitle Text").GetComponent<TextMeshProUGUI>();
+        GameOwnerText = GameObject.Find("GameOwnerText").GetComponent<TextMeshProUGUI>();
+        koneksi = GameObject.Find("Panel Koneksi");
+        PanelHistoryUI = GameObject.Find("History UI").transform;
+        // progressBarGameObject = GameObject.Find("MainTitle Text");
+
+        // titleText = gameObject.transform.parent.parent.parent.parent.GetChild(1).GetComponent<TextMeshProUGUI>();
+        // GameOwnerText = gameObject.transform.parent.parent.parent.parent.GetChild(2).GetComponent<TextMeshProUGUI>();
+        // koneksi = gameObject.transform.parent.parent.parent.parent.GetChild(16).gameObject;
+        // PanelHistoryUI = gameObject.transform.parent.parent.parent;
+        // progressBarGameObject = gameObject.transform.parent.parent.parent.parent.parent.GetChild(1).gameObject;
         popup = Resources.Load<GameObject>("Popup");
         string allGames = PlayerPrefs.GetString("history");
         string[] allGamesArr = allGames.Split(";");
