@@ -265,15 +265,22 @@ public class GameManagerMainMenu : MonoBehaviour
         }
 
         if(table.childCount > 6) {
-            print("Child Count : " + table.childCount);
             RectTransform rectTransformOfTable = table.GetComponent<RectTransform>();
             Vector2 offsetMin = rectTransformOfTable.offsetMin;
-            print("Offset min awal : " + offsetMin);
             int childCount = table.childCount - 6;
             offsetMin.y -= 221 * childCount + 150f;
-            print("Offset min Akhir : " + offsetMin);
             rectTransformOfTable.offsetMin = offsetMin;
         }
+        else {
+            RectTransform rectTransformOfTable = table.GetComponent<RectTransform>();
+            Vector2 offsetMin = rectTransformOfTable.offsetMin;
+            offsetMin.y = -6.1f;
+            rectTransformOfTable.offsetMin = offsetMin;
+        }
+    }
+
+    public void AddAccount() {
+        Application.OpenURL("https://dev.unimasoft.id/edugator/signin");
     }
 
     //==============================================================================================================================//

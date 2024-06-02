@@ -14,9 +14,7 @@ public class LoginScript : MonoBehaviour
     void Start(){
         PlayerPrefs.SetString("Json_Users", "{\"success\":true,\"data\":[{\"username\":\"bagas\",\"password\":\"123\",\"id\":13},{\"username\":\"sando\",\"password\":\"123\",\"id\":13}]}");
     }
-
     public void loginBtn() => StartCoroutine(Login_Coroutine());
-
     private IEnumerator Login_Coroutine() {
         yield return null;
         users = JsonUtility.FromJson<Users>(PlayerPrefs.GetString("Json_Users"));
