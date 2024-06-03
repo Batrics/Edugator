@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UserScript : MonoBehaviour
 {
+    private Users users;
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private RectTransform cardList;
     [SerializeField] private RectTransform gameList;
@@ -18,4 +20,5 @@ public class UserScript : MonoBehaviour
     public void GameListOnClick() {
         scrollRect.content = gameList;
     }
+    
 }

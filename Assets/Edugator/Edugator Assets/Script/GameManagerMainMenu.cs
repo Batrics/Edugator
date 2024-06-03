@@ -8,6 +8,7 @@ using System.IO.Compression;
 using UnityEngine.Audio;
 using Loading.UI;
 using System;
+using UnityEngine.UI;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
@@ -25,20 +26,29 @@ public class GameManagerMainMenu : MonoBehaviour
     private int checkVisualEffectInt;
     public TextMeshProUGUI historyBtn;
     public Transform panel;
+    public Transform table;
 
     [Header("GameObject")]
     public GameObject inputTokenUI;
     public GameObject visualEffectToggle;
     public GameObject startTransitionObject;
-    public Transform table;
     public GameObject historyValue;
     public GameObject connection;
     public GameObject panelToken;
+    public GameObject guestUI;
+    public GameObject userUI;
     
     [Space]
-    LoadingUI loadingUI = new LoadingUI();
+    private LoadingUI loadingUI = new LoadingUI();
     private GameObject progressBarGameObject;
-    GameObject progressBarGameObjectClone;
+    private GameObject progressBarGameObjectClone;
+    private Button userAccountButton;
+    [SerializeField] private TMP_Text name1;
+    [SerializeField] private TMP_Text email1;
+    [SerializeField] private TMP_Text name2;
+    [SerializeField] private TMP_Text email2;
+    LoginScript loginScript;
+    
     //Main Menu Script
     //==============================================================================================================================//\
     private void Awake() {
@@ -67,6 +77,44 @@ public class GameManagerMainMenu : MonoBehaviour
 
         checkVisualEffectInt = 1;
         PlayerPrefs.SetInt("visualEffect", checkVisualEffectInt);
+
+        userAccountButton = GameObject.Find("UserAccountBtn").GetComponent<Button>();
+        loginScript = GetComponent<LoginScript>();
+
+        loadingUI.Show("Please Wait...");
+        loginScript.users = JsonUtility.FromJson<Users>(PlayerPrefs.GetString("Json_Users"));
+        RefreshUserAccountBtn();
+        loadingUI.Hide();
+    }
+
+    public void Logout() {
+        PlayerPrefs.SetString("Login_State", "failed");
+        userUI.SetActive(false);
+        RefreshUserAccountBtn();
+    }
+
+    public void RefreshUserAccountBtn() {
+        void Failed() {
+            userUI.SetActive(false);
+            guestUI.SetActive(true);
+        }
+        void Success() {
+            userUI.SetActive(true);
+            guestUI.SetActive(false);
+        }
+        if(PlayerPrefs.GetString("Login_State") == "success") {
+            userAccountButton.onClick.AddListener(Success);
+            userAccountButton.onClick.RemoveListener(Failed);
+            for(int i = 0; i < loginScript.users.data.Length; i++) {
+                print(i);
+                if(PlayerPrefs.GetString("username") == loginScript.users.data[i].username && PlayerPrefs.GetString("password") == loginScript.users.data[i].password)
+                    loginScript.User(i);
+            }
+        }
+        else if(PlayerPrefs.GetString("Login_State") == "failed"){
+            userAccountButton.onClick.AddListener(Failed);
+            userAccountButton.onClick.RemoveListener(Success);
+        }
     }
 
     public void StartGame() {
@@ -282,6 +330,12 @@ public class GameManagerMainMenu : MonoBehaviour
     public void AddAccount() {
         Application.OpenURL("https://dev.unimasoft.id/edugator/signin");
     }
+
+    // public void UserBtn() {
+    //     if(loginScript.loginState == true) {
+            
+    //     }
+    // }
 
     //==============================================================================================================================//
 

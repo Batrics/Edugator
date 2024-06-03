@@ -7,12 +7,19 @@ using TMPro;
 
 public class LoginScript : MonoBehaviour
 {
-    private Users users;
+    public Users users;
     [SerializeField] private TMP_InputField username;
     [SerializeField] private TMP_InputField password;
-    [SerializeField] private GameObject loginFailed;
+    [SerializeField] private TMP_Text name1;
+    [SerializeField] private TMP_Text email1;
+    [SerializeField] private TMP_Text name2;
+    [SerializeField] private TMP_Text email2;
+    [SerializeField] private GameObject guesUI;
+    [SerializeField] private GameManagerMainMenu gameManagerMainMenu;
+    public GameObject loginFailed;
+    // public GameObject loginUI;
     void Start(){
-        PlayerPrefs.SetString("Json_Users", "{\"success\":true,\"data\":[{\"username\":\"bagas\",\"password\":\"123\",\"id\":13},{\"username\":\"sando\",\"password\":\"123\",\"id\":13}]}");
+        PlayerPrefs.SetString("Json_Users", "{\"success\":true,\"data\":[{\"username\":\"Bagas\",\"password\":\"123\",\"email\":\"example@gmail.com\",\"id\":13},{\"username\":\"sando\",\"password\":\"123\",\"email\":\"masandofami@gmail.com\",\"id\":13}]}");
     }
     public void loginBtn() => StartCoroutine(Login_Coroutine());
     private IEnumerator Login_Coroutine() {
@@ -23,21 +30,31 @@ public class LoginScript : MonoBehaviour
         }
         else {
             if(users.success == true){
-                foreach(var user in users.data) {
-                    if(username.text == user.username) {
-                        if(password.text == user.password) {
-                            gameObject.SetActive(false);
-                            yield return null;
-                        }
-                        else {
-                            loginFailed.SetActive(true);
-                        }
+                for(int i = 0; i < users.data.Length; i++) {
+                    if(username.text == users.data[i].username && password.text == users.data[i].password) {
+                        PlayerPrefs.SetString("Login_State", "success");
+                        PlayerPrefs.SetString("username", username.text);
+                        PlayerPrefs.SetString("password", password.text);
+                        gameObject.SetActive(false);
+                        guesUI.SetActive(false);
+                        User(i);
+                        gameManagerMainMenu.RefreshUserAccountBtn();
+                        yield return null;
                     }
                     else {
+                        PlayerPrefs.SetString("Login_State", "failed");
                         loginFailed.SetActive(true);
                     }
                 }
             }
         }
+    }
+
+    public void User(int i) {
+        print("User : " + i);
+        name1.text = users.data[i].username;
+        email1.text = users.data[i].email;
+        name2.text = users.data[i].username;
+        email2.text = users.data[i].email;
     }
 }
