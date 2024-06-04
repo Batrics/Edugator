@@ -9,8 +9,9 @@ public class Users
 [Serializable]
 public class DataUser
 {
+    public int id;
     public string username;
     public string password;
     public string email;
-    public int id;
+    public int user_id;
 }

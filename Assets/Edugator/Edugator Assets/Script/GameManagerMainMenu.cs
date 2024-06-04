@@ -39,7 +39,7 @@ public class GameManagerMainMenu : MonoBehaviour
     public GameObject userUI;
     
     [Space]
-    private LoadingUI loadingUI = new LoadingUI();
+    public LoadingUI loadingUI;
     private GameObject progressBarGameObject;
     private GameObject progressBarGameObjectClone;
     private Button userAccountButton;
@@ -47,6 +47,7 @@ public class GameManagerMainMenu : MonoBehaviour
     [SerializeField] private TMP_Text email1;
     [SerializeField] private TMP_Text name2;
     [SerializeField] private TMP_Text email2;
+    [SerializeField] private ContentSizeFitter contentSizeFitter;
     LoginScript loginScript;
     
     //Main Menu Script
@@ -55,6 +56,7 @@ public class GameManagerMainMenu : MonoBehaviour
         // PlayerPrefs.DeleteAll();
         // print("Delete All PlayerPref");
         AssetBundle.UnloadAllAssetBundles(true);
+        loadingUI = GetComponent<LoadingUI>();
         loadingUI.Prepare();
         RefreshHistory();
 
@@ -80,9 +82,9 @@ public class GameManagerMainMenu : MonoBehaviour
 
         userAccountButton = GameObject.Find("UserAccountBtn").GetComponent<Button>();
         loginScript = GetComponent<LoginScript>();
+        loginScript.users = JsonUtility.FromJson<Users>(PlayerPrefs.GetString("Json_Users"));
 
         loadingUI.Show("Please Wait...");
-        loginScript.users = JsonUtility.FromJson<Users>(PlayerPrefs.GetString("Json_Users"));
         RefreshUserAccountBtn();
         loadingUI.Hide();
     }
@@ -106,9 +108,9 @@ public class GameManagerMainMenu : MonoBehaviour
             userAccountButton.onClick.AddListener(Success);
             userAccountButton.onClick.RemoveListener(Failed);
             for(int i = 0; i < loginScript.users.data.Length; i++) {
-                print(i);
                 if(PlayerPrefs.GetString("username") == loginScript.users.data[i].username && PlayerPrefs.GetString("password") == loginScript.users.data[i].password)
-                    loginScript.User(i);
+                    loginScript.MainUserInfo(i);
+                    StartCoroutine(loginScript.User_Coroutine());
             }
         }
         else if(PlayerPrefs.GetString("Login_State") == "failed"){
@@ -183,7 +185,7 @@ public class GameManagerMainMenu : MonoBehaviour
         }
     }
 
-    private IEnumerator NoConnection() {
+    public IEnumerator NoConnection() {
         connection.SetActive(true);
         yield return new WaitForSeconds(3f);
         connection.SetActive(false);
@@ -312,18 +314,11 @@ public class GameManagerMainMenu : MonoBehaviour
             }
         }
 
-        if(table.childCount > 6) {
-            RectTransform rectTransformOfTable = table.GetComponent<RectTransform>();
-            Vector2 offsetMin = rectTransformOfTable.offsetMin;
-            int childCount = table.childCount - 6;
-            offsetMin.y -= 221 * childCount + 150f;
-            rectTransformOfTable.offsetMin = offsetMin;
+        if(table.childCount >= 6) {
+            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         }
         else {
-            RectTransform rectTransformOfTable = table.GetComponent<RectTransform>();
-            Vector2 offsetMin = rectTransformOfTable.offsetMin;
-            offsetMin.y = -6.1f;
-            rectTransformOfTable.offsetMin = offsetMin;
+            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
         }
     }
 
