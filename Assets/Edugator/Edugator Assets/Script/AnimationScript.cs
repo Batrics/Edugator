@@ -46,7 +46,7 @@ public class AnimationScript : MonoBehaviour
         
         Transform childHistoryUI;
         
-        for(int i = 0; i < HistoryUI.transform.GetChild(0).GetChild(4).childCount; i++) {
+        for(int i = 0; i < HistoryUI.transform.GetChild(0).GetChild(4).GetChild(0).GetChild(0).childCount; i++) {
             childHistoryUI = HistoryUI.transform.GetChild(0).GetChild(4).GetChild(0).GetChild(0).GetChild(i);
             childHistoryUI.gameObject.SetActive(false);
         }

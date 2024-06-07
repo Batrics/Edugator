@@ -1332,7 +1332,6 @@ GameObject:
   - component: {fileID: 143946706}
   - component: {fileID: 143946709}
   - component: {fileID: 143946708}
-  - component: {fileID: 143946707}
   - component: {fileID: 143946710}
   m_Layer: 5
   m_Name: Table
@@ -1360,18 +1359,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: -0.0050049}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &143946707
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 143946705}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b1abe7742a3915942924f9e40c1553c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &143946708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4525,6 +4512,9 @@ MonoBehaviour:
   users:
     success: 0
     data: []
+  allGames:
+    success: 0
+    data: []
   username: {fileID: 349639735}
   password: {fileID: 884332754}
   name1: {fileID: 1811285461}
@@ -4534,6 +4524,8 @@ MonoBehaviour:
   guesUI: {fileID: 1856470205}
   gameManagerMainMenu: {fileID: 8640912027865375450}
   loginFailed: {fileID: 80481940}
+  cardIdList: []
+  sprites: []
 --- !u!1 &586127518
 GameObject:
   m_ObjectHideFlags: 0
@@ -4847,7 +4839,7 @@ GameObject:
   - component: {fileID: 631832376}
   - component: {fileID: 631832375}
   m_Layer: 5
-  m_Name: Image
+  m_Name: CARDIMAGE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4867,10 +4859,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1282613896}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.023000002, y: 0.09813648}
+  m_AnchorMin: {x: 0.0208022, y: 0.09813648}
   m_AnchorMax: {x: 0.157, y: 0.9125907}
-  m_AnchoredPosition: {x: -0.8982849, y: -0.49996948}
-  m_SizeDelta: {x: -0.82240295, y: -0.7354965}
+  m_AnchoredPosition: {x: -0.26660156, y: 0.000061035156}
+  m_SizeDelta: {x: -1.1116, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &631832375
 MonoBehaviour:
@@ -4885,14 +4877,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.4764151, b: 0.6569617, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 4fb76ac7dd1a78149a02d383d6d6c3ee, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -15446,7 +15438,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.061553955}
+  m_AnchoredPosition: {x: 0, y: 0.061523438}
   m_SizeDelta: {x: 0, y: 0.12311}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2058129317
@@ -16645,6 +16637,7 @@ GameObject:
   - component: {fileID: 8640912027865375450}
   - component: {fileID: 6633334582273852865}
   - component: {fileID: 8640912027865375451}
+  - component: {fileID: 8640912027865375452}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -17381,13 +17374,18 @@ MonoBehaviour:
   panelToken: {fileID: 1656744905}
   guestUI: {fileID: 1856470205}
   userUI: {fileID: 1371963220}
+  loadingUI: {fileID: 0}
   name1: {fileID: 1811285461}
   email1: {fileID: 1150927304}
   name2: {fileID: 1812859833}
   email2: {fileID: 1062402997}
   contentSizeFitter: {fileID: 143946710}
+  cardName: 
+  cardId: 
   files3D: []
   filesCard: []
+  BUNDLETYPEMODEL: ' (model)'
+  BUNDLETYPECARD: ' (card)'
   filePath: 
 --- !u!114 &8640912027865375451
 MonoBehaviour:
@@ -17404,6 +17402,9 @@ MonoBehaviour:
   users:
     success: 0
     data: []
+  allGames:
+    success: 0
+    data: []
   username: {fileID: 349639735}
   password: {fileID: 884332754}
   name1: {fileID: 1811285461}
@@ -17413,6 +17414,20 @@ MonoBehaviour:
   guesUI: {fileID: 1856470205}
   gameManagerMainMenu: {fileID: 8640912027865375450}
   loginFailed: {fileID: 80481940}
+  cardIdList: []
+  sprites: []
+--- !u!114 &8640912027865375452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4248805391662177833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c470b03baa791ea4c87a69cb02eb94d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &8671466381606274109
 MonoBehaviour:
   m_ObjectHideFlags: 0

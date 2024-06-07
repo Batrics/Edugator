@@ -64,7 +64,7 @@ public class GameManagerMainMenu : MonoBehaviour
 
         if (!Directory.Exists(directoryPath)) {
             Directory.CreateDirectory(directoryPath);
-            Debug.Log("Directory created successfully.");
+            Debug.Log("Assets Bundle Directory created successfully.");
         }
         else {
             Debug.Log("Directory already exists.");
@@ -83,14 +83,24 @@ public class GameManagerMainMenu : MonoBehaviour
         userAccountButton = GameObject.Find("UserAccountBtn").GetComponent<Button>();
         loginScript = GetComponent<LoginScript>();
         loginScript.users = JsonUtility.FromJson<Users>(PlayerPrefs.GetString("Json_Users"));
-
+        if(PlayerPrefs.GetString("Login_State") == "") {
+            PlayerPrefs.SetString("Login_State", "failed");
+        }
         loadingUI.Show("Please Wait...");
         RefreshUserAccountBtn();
+        if(PlayerPrefs.GetString("Login_State") == "success") {
+            LoginSuccess();
+        }
         loadingUI.Hide();
     }
 
     public void Logout() {
         PlayerPrefs.SetString("Login_State", "failed");
+        AssetBundle.UnloadAllAssetBundles(true);
+        loginScript.sprites.Clear();
+        loginScript.cardIdList.Clear();
+        files3D.Clear();
+        filesCard.Clear();
         userUI.SetActive(false);
         RefreshUserAccountBtn();
     }
@@ -107,16 +117,15 @@ public class GameManagerMainMenu : MonoBehaviour
         if(PlayerPrefs.GetString("Login_State") == "success") {
             userAccountButton.onClick.AddListener(Success);
             userAccountButton.onClick.RemoveListener(Failed);
-            for(int i = 0; i < loginScript.users.data.Length; i++) {
-                if(PlayerPrefs.GetString("username") == loginScript.users.data[i].username && PlayerPrefs.GetString("password") == loginScript.users.data[i].password)
-                    loginScript.MainUserInfo(i);
-                    StartCoroutine(loginScript.User_Coroutine());
-            }
         }
         else if(PlayerPrefs.GetString("Login_State") == "failed"){
             userAccountButton.onClick.AddListener(Failed);
             userAccountButton.onClick.RemoveListener(Success);
         }
+    }
+    public void LoginSuccess() {
+        loginScript.MainUserInfo();
+        StartCoroutine(loginScript.User_Coroutine());
     }
 
     public void StartGame() {
@@ -261,7 +270,7 @@ public class GameManagerMainMenu : MonoBehaviour
                                 if (DownloadPopup.userCancelledDownload == true) {
                                     progressBarGameObjectClone.SetActive(false);
                                     DownloadPopup.userCancelledDownload = false;
-                                    yield break;
+                                     
                                 }
                                 
                                 PlayerPrefs.SetString("token", inputToken.text);
@@ -326,24 +335,18 @@ public class GameManagerMainMenu : MonoBehaviour
         Application.OpenURL("https://dev.unimasoft.id/edugator/signin");
     }
 
-    // public void UserBtn() {
-    //     if(loginScript.loginState == true) {
-            
-    //     }
-    // }
-
     //==============================================================================================================================//
 
     //Download Model
     //==============================================================================================================================//
-    string cardName;
-    string cardId;
+    public string cardName;
+    public string cardId;
     // List<string> files = new List<string>();
     public List<GameObject> files3D = new List<GameObject>();
     public List<Texture2D> filesCard = new List<Texture2D>();
-    private const string _BUNDLETYPEMODEL = " (model)";
-    private const string _BUNDLETYPECARD = " (card)";
-    private IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention) {
+    public string BUNDLETYPEMODEL = " (model)";
+    public string BUNDLETYPECARD = " (card)";
+    public IEnumerator DownloadFileLogic(string URLWithoutCardId, string savePath, string extention) {
         string[] files;
 
         files = Directory.GetFiles(Application.persistentDataPath + "/AssetsBundle/");
@@ -354,8 +357,7 @@ public class GameManagerMainMenu : MonoBehaviour
 
         // fileName = Path.GetFileName(savePath);
         yield return null;
-        if(files.Length == 0) {            
-
+        if(files.Length == 0) {
             // loadingUI.Show("Download Assets...");
             for(int j = 0; j < mainData.data.cards.Length; j++) {
                 cardName = mainData.data.cards[j].name;
@@ -411,9 +413,9 @@ public class GameManagerMainMenu : MonoBehaviour
         files3D.Add(model);
     }
 
-    private IEnumerator InitializationBundleToObject() {
-        string filePathModel = Application.persistentDataPath + "/AssetsBundle/" + cardName + _BUNDLETYPEMODEL;
-        string filePathCard = Application.persistentDataPath + "/AssetsBundle/" + cardName + _BUNDLETYPECARD;
+    public IEnumerator InitializationBundleToObject() {
+        string filePathModel = Application.persistentDataPath + "/AssetsBundle/" + cardName + BUNDLETYPEMODEL;
+        string filePathCard = Application.persistentDataPath + "/AssetsBundle/" + cardName + BUNDLETYPECARD;
         
         AssetBundle bundleCard = AssetBundle.LoadFromFile(filePathCard);
         Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".png");
@@ -426,7 +428,6 @@ public class GameManagerMainMenu : MonoBehaviour
         model.name = cardName;
         yield return model;
         files3D.Add(model);
-
     }
     //==============================================================================================================================//
     
@@ -460,7 +461,7 @@ public class GameManagerMainMenu : MonoBehaviour
     //Extract and Delete File
     //==============================================================================================================================//
 
-    private IEnumerator ExtractFile() {
+    public IEnumerator ExtractFile() {
         string filePath = Application.persistentDataPath + "/AssetsBundle/";
 
         string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
@@ -482,7 +483,7 @@ public class GameManagerMainMenu : MonoBehaviour
         yield return null;
     }
 
-    private void DeleteZipFile() {
+    public void DeleteZipFile() {
         string filePath = Application.persistentDataPath + "/AssetsBundle/";
 
         string[] zipFiles = Directory.GetFiles(filePath, "*.zip");
@@ -511,10 +512,12 @@ public class GameManagerMainMenu : MonoBehaviour
     private string downloadFileURL;
     public string filePath;
     // private GameManagerMainMenu gameManagerMainMenu;
-    private UnityEngine.UI.Image progressBarFilled;
     UnityWebRequest www;
     public IEnumerator DownloadFile(string URLWithoutCardId, string fileName, string cardId, string extention, string savePath) {
         yield return null;
+        
+        progressBarGameObjectClone =  Instantiate(progressBarGameObject);
+        Image progressBarFilled;
         
         progressBarFilled = progressBarGameObjectClone.transform.GetChild(0).GetChild(1).GetChild(1).GetComponent<UnityEngine.UI.Image>();
 
@@ -523,39 +526,41 @@ public class GameManagerMainMenu : MonoBehaviour
         Debug.Log("URLFILE : " + downloadFileURL);
         //Create "Resources" Folder First
         filePath = savePath + fileName + extention;
-        
-        www = UnityWebRequest.Get(downloadFileURL);
 
-        yield return new WaitForSeconds(0.1f);
+        using(UnityWebRequest www = UnityWebRequest.Get(downloadFileURL)) {
+            yield return new WaitForSeconds(0.1f);
 
-        www.SendWebRequest();
+            www.SendWebRequest();
+            progressBarGameObjectClone.gameObject.SetActive(true);
 
-        while(!www.isDone) {
-            if (DownloadPopup.userCancelledDownload) {
-                www.Abort(); // Batalkan unduhan jika user meminta
-                Debug.Log("Download dibatalkan.");
-                yield break; // Keluar dari coroutine
+            while(!www.isDone) {
+                if (DownloadPopup.userCancelledDownload) {
+                    www.Abort(); // Batalkan unduhan jika user meminta
+                    Debug.Log("Download dibatalkan.");
+                    yield break; // Keluar dari coroutine
+                }
+                progressBarFilled.fillAmount = www.downloadProgress;
+                yield return null;
             }
-            progressBarFilled.fillAmount = www.downloadProgress;
-            yield return null;
-        }
-        if(www.isDone) {
-            print("Is Done");
-        }
-        
-        if (www.result != UnityWebRequest.Result.Success) {
-            print("WebRequest Failed");
-        }
-        else {
-            byte[] data = www.downloadHandler.data;
-            try {
-                File.WriteAllBytes(filePath, data);
-                Debug.Log("File berhasil diunduh dan disimpan di " + filePath);
+            if(www.isDone) {
+                print("Is Done");
             }
-            catch(Exception ex) {
-                print(ex);
+            
+            if (www.result != UnityWebRequest.Result.Success) {
+                print("WebRequest Failed");
             }
+            else {
+                byte[] data = www.downloadHandler.data;
+                try {
+                    File.WriteAllBytes(filePath, data);
+                    Debug.Log("File berhasil diunduh dan disimpan di " + filePath);
+                }
+                catch(Exception ex) {
+                    print(ex);
+                }
 
+            }
+            progressBarGameObjectClone.gameObject.SetActive(false);
         }
     }
     //==============================================================================================================================//
