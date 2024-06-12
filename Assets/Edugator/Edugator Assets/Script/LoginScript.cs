@@ -16,6 +16,8 @@ public class LoginScript : MonoBehaviour
     public AllGamesJson allGames;
     private GameObject progressBarGameObject;
     private GameObject progressBarGameObjectClone;
+    [SerializeField] private GameObject cardHistory;
+    [SerializeField] private GameObject gameHistory;
     [SerializeField] private TMP_InputField username;
     [SerializeField] private TMP_InputField password;
     [SerializeField] private TMP_Text name1;
@@ -26,12 +28,16 @@ public class LoginScript : MonoBehaviour
     [SerializeField] private GameManagerMainMenu gameManagerMainMenu;
     LoadingUI loadingUI;
     public GameObject loginFailed;
+    public List<string> gameNameList = new List<string>();
+    public List<string> gameTokenList = new List<string>();
     public List<string> cardIdList = new List<string>();
     public List<Sprite> sprites = new List<Sprite>();
     // public GameObject loginUI;
     private void Awake() {
         PlayerPrefs.SetString("Json_Users", "{\"success\":true,\"data\":[{\"id\":1,\"username\":\"Bagas\",\"password\":\"123\",\"email\":\"example@gmail.com\",\"user_id\":8},{\"id\":2,\"username\":\"AnakPandai\",\"password\":\"SehatSehatCees\",\"email\":\"sayasiap432@gmail.com\",\"user_id\":16}]}");
         progressBarGameObject = Resources.Load<GameObject>("DownloadPopup");
+        cardHistory = Resources.Load<GameObject>("UserData/Card");
+        gameHistory = Resources.Load<GameObject>("UserData/Game");
         print("A : " + cardIdList);
         // print(cardIdList[0]);
     }
@@ -58,6 +64,7 @@ public class LoginScript : MonoBehaviour
                         PlayerPrefs.SetInt("user_id", users.data[i].user_id);
                         MainUserInfo();
                         // yield return StartCoroutine(User_Coroutine());
+                        loadingUI.Show("Please Wait...");
                         gameManagerMainMenu.LoginSuccess();
                         gameManagerMainMenu.RefreshUserAccountBtn();
                         guesUI.SetActive(false);
@@ -111,6 +118,8 @@ public class LoginScript : MonoBehaviour
                         // int numberOfCardid = 0;
                         for(int i = 0; i < allGames.data.Length; i++) {
                             if(allGames.data[i].user_id == PlayerPrefs.GetInt("user_id")){
+                                gameNameList.Add(allGames.data[i].name);
+                                gameTokenList.Add(allGames.data[i].token);
                                 foreach(var card in allGames.data[i].cards){
                                     cardLength++;
                                     PlayerPrefs.SetInt("AllgamesDataLength", allGames.data.Length);
@@ -119,14 +128,9 @@ public class LoginScript : MonoBehaviour
                                     cardIdList.Add(card.id);
                                     print("Card Name" + numberOfCard +  " : " + PlayerPrefs.GetString("cardName" + numberOfCard));
                                     print("Card Id" + numberOfCard +  " : " + PlayerPrefs.GetString("cardId" + numberOfCard));
-                                    
-                                    // PlayerPrefs.SetString("token", inputToken.text);
-                                    // PlayerPrefs.SetInt("game_id", mainData.data.id);
-                                    // inputTokenUI.SetActive(false);
 
                                     progressBarGameObjectClone.SetActive(false);
                                     numberOfCard++;
-                                    // numberOfCardid++;
                                 }
                             }
                         }
@@ -138,13 +142,15 @@ public class LoginScript : MonoBehaviour
                         string path = Application.persistentDataPath + "/AssetsBundle/";
                         yield return StartCoroutine(DownloadFileLogic(urlDownloadCardImage, path, ".zip"));
                         
-                        foreach(var textureCard in gameManagerMainMenu.filesCard){
-                            sprites.Add(TextureToSprite(textureCard, textureCard.name));
+                        if (DownloadPopup.userCancelledDownload == true) {
+                            DownloadPopup.userCancelledDownload = false;
+                            progressBarGameObjectClone.SetActive(false);
                         }
-                        // if (DownloadPopup.userCancelledDownload == true) {
-                        //     progressBarGameObjectClone.SetActive(false);
-                        //     DownloadPopup.userCancelledDownload = false;
-                        // }
+                        else {
+                            foreach(var textureCard in gameManagerMainMenu.filesCard){
+                                sprites.Add(TextureToSprite(textureCard, textureCard.name));
+                            }
+                        }
                     }
                 }
             }
@@ -246,4 +252,70 @@ public class LoginScript : MonoBehaviour
         yield return model;
         gameManagerMainMenu.files3D.Add(model);
     }
+    public void CardList() {
+        Transform cardList = GameObject.Find("CardList").GetComponent<Transform>();
+        if(cardList.childCount != 0){
+            for(int i = 0; i < cardList.childCount; i++) {
+                Destroy(cardList.GetChild(i).gameObject);
+            }
+            for(int i = 0; i < sprites.Count; i++) {
+                GameObject card = Instantiate(cardHistory, cardList);
+                UnityEngine.UI.Image cardImage = card.transform.GetChild(0).GetComponent<UnityEngine.UI.Image>();
+                TMP_Text cardName = card.transform.GetChild(1).GetChild(0).GetComponent<TMP_Text>();
+                cardImage.sprite = sprites[i];
+                cardName.text = sprites[i].name;
+            }
+        }
+        else {
+            for(int i = 0; i < sprites.Count; i++) {
+                GameObject card = Instantiate(cardHistory, cardList);
+                UnityEngine.UI.Image cardImage = card.transform.GetChild(0).GetComponent<UnityEngine.UI.Image>();
+                TMP_Text cardName = card.transform.GetChild(1).GetChild(0).GetComponent<TMP_Text>();
+                cardImage.sprite = sprites[i];
+                cardName.text = sprites[i].name;
+            }
+        }
+    }
+    public void GameList() {
+        Transform gameList = GameObject.Find("GameList").GetComponent<Transform>();
+        if(gameList.childCount != 0) {
+            for(int i = 0; i < gameList.childCount; i++) {
+                Destroy(gameList.GetChild(i).gameObject);
+            }
+            for(int i = 0; i < gameNameList.Count; i++) {
+                GameObject game = Instantiate(gameHistory, gameList);
+                TMP_Text gameName = game.transform.GetChild(1).GetChild(1).GetComponent<TMP_Text>();
+                TMP_Text gametoken = game.transform.GetChild(2).GetChild(1).GetComponent<TMP_Text>();
+                gameName.text = gameNameList[i];
+                gametoken.text = gameTokenList[i];
+            }
+        }
+        else {
+            for(int i = 0; i < gameNameList.Count; i++) {
+                GameObject game = Instantiate(gameHistory, gameList);
+                TMP_Text gameName = game.transform.GetChild(1).GetChild(1).GetComponent<TMP_Text>();
+                TMP_Text gametoken = game.transform.GetChild(2).GetChild(1).GetComponent<TMP_Text>();
+                gameName.text = gameNameList[i];
+                gametoken.text = gameTokenList[i];
+            }
+        }
+    }
+    // public void DestroyCardList() {
+    //     Transform scrollChild = GameObject.Find("ScrollChild").GetComponent<Transform>();
+    //     if(scrollChild.GetChild(0).gameObject.activeSelf != false) {
+    //     Transform cardList = GameObject.Find("CardList").GetComponent<Transform>();
+    //         for(int i = 0; i < sprites.Count; i++) {
+    //             Destroy(cardList.GetChild(i).gameObject);
+    //         }
+    //     }
+    // }
+    // public void DestroyGameList() {
+    //     Transform scrollChild = GameObject.Find("ScrollChild").GetComponent<Transform>();
+    //     if(scrollChild.GetChild(1).gameObject.activeSelf != false) {
+    //     Transform gameList = GameObject.Find("GameList").GetComponent<Transform>();
+    //         for(int i = 0; i < gameNameList.Count; i++) {
+    //             Destroy(gameList.GetChild(i).gameObject);
+    //         }
+    //     }
+    // }
 }

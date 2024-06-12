@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public class UserScript : MonoBehaviour
 {
     private Users users;
+    // [SerializeField] private GameObject cardHistory;
+    // [SerializeField] private GameObject gameHistory;
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private RectTransform cardList;
     [SerializeField] private RectTransform gameList;
@@ -40,5 +42,7 @@ public class UserScript : MonoBehaviour
         else
             contentSizeFitterGameList.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
     }
-    
+    // public void CardList() {
+
+    // }
 }

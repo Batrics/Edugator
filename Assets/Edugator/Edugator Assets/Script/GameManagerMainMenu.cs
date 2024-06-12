@@ -73,7 +73,8 @@ public class GameManagerMainMenu : MonoBehaviour
         progressBarGameObject = Resources.Load<GameObject>("DownloadPopup");
     }
 
-    void Start() {
+    private IEnumerator Start() {
+        print(PlayerPrefs.GetString("history"));
         PlayerPrefs.DeleteKey("token");
         historyBtn.text = "History";
 
@@ -86,12 +87,13 @@ public class GameManagerMainMenu : MonoBehaviour
         if(PlayerPrefs.GetString("Login_State") == "") {
             PlayerPrefs.SetString("Login_State", "failed");
         }
+        yield return new WaitForSeconds(1f);
         loadingUI.Show("Please Wait...");
         RefreshUserAccountBtn();
         if(PlayerPrefs.GetString("Login_State") == "success") {
             LoginSuccess();
         }
-        loadingUI.Hide();
+        // loadingUI.Hide();
     }
 
     public void Logout() {
@@ -99,6 +101,8 @@ public class GameManagerMainMenu : MonoBehaviour
         AssetBundle.UnloadAllAssetBundles(true);
         loginScript.sprites.Clear();
         loginScript.cardIdList.Clear();
+        loginScript.gameNameList.Clear();
+        loginScript.gameTokenList.Clear();
         files3D.Clear();
         filesCard.Clear();
         userUI.SetActive(false);
