@@ -22,7 +22,7 @@ public class PopupScript : MonoBehaviour
             string[] GameArr = allGamesArr[i].Split(",");
 
             if(PlayerPrefs.GetString("tokenSelected") == GameArr[0]) {
-                historyScript = gameObject.transform.parent.GetChild(0).GetChild(4).GetChild(i).GetComponent<HistoryScript>();
+                historyScript = gameObject.transform.parent.GetChild(0).GetChild(4).GetChild(0).GetChild(0).GetChild(i).GetComponent<HistoryScript>();
                 print("HIstory Script : " + historyScript.token);
                 print("inedex : " + i);
             }

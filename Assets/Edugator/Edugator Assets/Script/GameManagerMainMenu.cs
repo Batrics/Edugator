@@ -93,6 +93,9 @@ public class GameManagerMainMenu : MonoBehaviour
         if(PlayerPrefs.GetString("Login_State") == "success") {
             LoginSuccess();
         }
+        else {
+            loadingUI.Hide();
+        }
         // loadingUI.Hide();
     }
 
@@ -303,6 +306,14 @@ public class GameManagerMainMenu : MonoBehaviour
     }
 
     public void RefreshHistory() {
+        print("Child Count : " + table.childCount);
+        if(table.childCount >= 6) {
+            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        }
+        else {
+            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
+        }
+        
         for(int i = 0; i < table.childCount; i++) {
             Destroy(table.transform.GetChild(i).gameObject);
         }
@@ -325,13 +336,6 @@ public class GameManagerMainMenu : MonoBehaviour
                 titleGameText.text = name;
                 tokenGameText.text = token;
             }
-        }
-
-        if(table.childCount >= 6) {
-            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        }
-        else {
-            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
         }
     }
 
@@ -408,6 +412,7 @@ public class GameManagerMainMenu : MonoBehaviour
     }
 
     public void CheckFile() {
+        AssetBundle.UnloadAllAssetBundles(true);
         string filePath = Application.persistentDataPath + "/AssetsBundle/fire extingusher (model)";
 
         AssetBundle bundleModel = AssetBundle.LoadFromFile(filePath);
@@ -418,6 +423,7 @@ public class GameManagerMainMenu : MonoBehaviour
     }
 
     public IEnumerator InitializationBundleToObject() {
+        AssetBundle.UnloadAllAssetBundles(true);
         string filePathModel = Application.persistentDataPath + "/AssetsBundle/" + cardName + BUNDLETYPEMODEL;
         string filePathCard = Application.persistentDataPath + "/AssetsBundle/" + cardName + BUNDLETYPECARD;
         

@@ -37,7 +37,7 @@ public class LoginScript : MonoBehaviour
         PlayerPrefs.SetString("Json_Users", "{\"success\":true,\"data\":[{\"id\":1,\"username\":\"Bagas\",\"password\":\"123\",\"email\":\"example@gmail.com\",\"user_id\":8},{\"id\":2,\"username\":\"AnakPandai\",\"password\":\"SehatSehatCees\",\"email\":\"sayasiap432@gmail.com\",\"user_id\":16}]}");
         progressBarGameObject = Resources.Load<GameObject>("DownloadPopup");
         cardHistory = Resources.Load<GameObject>("UserData/Card");
-        gameHistory = Resources.Load<GameObject>("UserData/Game");
+        gameHistory = Resources.Load<GameObject>("UserData/GameInProfile");
         print("A : " + cardIdList);
         // print(cardIdList[0]);
     }
@@ -261,7 +261,7 @@ public class LoginScript : MonoBehaviour
             for(int i = 0; i < sprites.Count; i++) {
                 GameObject card = Instantiate(cardHistory, cardList);
                 UnityEngine.UI.Image cardImage = card.transform.GetChild(0).GetComponent<UnityEngine.UI.Image>();
-                TMP_Text cardName = card.transform.GetChild(1).GetChild(0).GetComponent<TMP_Text>();
+                TMP_Text cardName = card.transform.GetChild(1).GetComponent<TMP_Text>();
                 cardImage.sprite = sprites[i];
                 cardName.text = sprites[i].name;
             }
@@ -270,7 +270,7 @@ public class LoginScript : MonoBehaviour
             for(int i = 0; i < sprites.Count; i++) {
                 GameObject card = Instantiate(cardHistory, cardList);
                 UnityEngine.UI.Image cardImage = card.transform.GetChild(0).GetComponent<UnityEngine.UI.Image>();
-                TMP_Text cardName = card.transform.GetChild(1).GetChild(0).GetComponent<TMP_Text>();
+                TMP_Text cardName = card.transform.GetChild(1).GetComponent<TMP_Text>();
                 cardImage.sprite = sprites[i];
                 cardName.text = sprites[i].name;
             }
@@ -284,8 +284,8 @@ public class LoginScript : MonoBehaviour
             }
             for(int i = 0; i < gameNameList.Count; i++) {
                 GameObject game = Instantiate(gameHistory, gameList);
-                TMP_Text gameName = game.transform.GetChild(1).GetChild(1).GetComponent<TMP_Text>();
-                TMP_Text gametoken = game.transform.GetChild(2).GetChild(1).GetComponent<TMP_Text>();
+                TMP_Text gameName = game.transform.GetChild(2).GetComponent<TMP_Text>();
+                TMP_Text gametoken = game.transform.GetChild(4).GetComponent<TMP_Text>();
                 gameName.text = gameNameList[i];
                 gametoken.text = gameTokenList[i];
             }
@@ -293,8 +293,8 @@ public class LoginScript : MonoBehaviour
         else {
             for(int i = 0; i < gameNameList.Count; i++) {
                 GameObject game = Instantiate(gameHistory, gameList);
-                TMP_Text gameName = game.transform.GetChild(1).GetChild(1).GetComponent<TMP_Text>();
-                TMP_Text gametoken = game.transform.GetChild(2).GetChild(1).GetComponent<TMP_Text>();
+                TMP_Text gameName = game.transform.GetChild(2).GetComponent<TMP_Text>();
+                TMP_Text gametoken = game.transform.GetChild(4).GetComponent<TMP_Text>();
                 gameName.text = gameNameList[i];
                 gametoken.text = gameTokenList[i];
             }
