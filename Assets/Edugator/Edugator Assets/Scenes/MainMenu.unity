@@ -5844,7 +5844,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.79554594}
   m_AnchorMax: {x: 0.23886536, y: 1}
-  m_AnchoredPosition: {x: 0.011566162, y: -0.5924072}
+  m_AnchoredPosition: {x: 0.01159668, y: -0.5924072}
   m_SizeDelta: {x: 0.02319336, y: 1.436203}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &931906508
@@ -7670,7 +7670,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.113580845, y: 0.7191017}
   m_AnchorMax: {x: 0.8871398, y: 0.8794628}
-  m_AnchoredPosition: {x: -1.4999847, y: -1.1500092}
+  m_AnchoredPosition: {x: -1.5, y: -1.1500244}
   m_SizeDelta: {x: -0.99450684, y: -0.3007965}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1156857361
@@ -9199,7 +9199,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.505, y: 0.70064384}
   m_AnchorMax: {x: 0.9287501, y: 0.9437304}
-  m_AnchoredPosition: {x: 0.59269714, y: 0.73101807}
+  m_AnchoredPosition: {x: 0.5927124, y: 0.73101807}
   m_SizeDelta: {x: 0.4000001, y: 2.493}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &1371963222
@@ -9776,7 +9776,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0.78883994}
-  m_AnchoredPosition: {x: -0.85002136, y: 0.27999878}
+  m_AnchoredPosition: {x: -0.8500366, y: 0.27999878}
   m_SizeDelta: {x: -1.7000122, y: 0.5700073}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1541079578
@@ -10546,7 +10546,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -0.112}
   m_AnchorMin: {x: 0.799, y: 0.84035885}
   m_AnchorMax: {x: 1, y: 0.9953588}
-  m_AnchoredPosition: {x: -0.5802002, y: -0.9351959}
+  m_AnchoredPosition: {x: -0.5802002, y: -0.9352112}
   m_SizeDelta: {x: -1.2284999, y: 0.044700623}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1621679659
@@ -11864,7 +11864,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.3695699, y: 0.10859702}
   m_AnchorMax: {x: 0.64613974, y: 0.23780599}
-  m_AnchoredPosition: {x: -0.6057892, y: 0.28237915}
+  m_AnchoredPosition: {x: -0.6057892, y: 0.28240967}
   m_SizeDelta: {x: -0.80960083, y: 0.43520355}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1756478090
@@ -12131,7 +12131,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.20500001, y: 0.509}
   m_AnchorMax: {x: 0.7945169, y: 0.609}
-  m_AnchoredPosition: {x: 0.67744446, y: -0.00001335144}
+  m_AnchoredPosition: {x: 0.67744446, y: -0.000015258789}
   m_SizeDelta: {x: 0.44510007, y: 0.6611004}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1811285461
@@ -12405,7 +12405,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.12496948, y: 0.30529785}
+  m_AnchoredPosition: {x: -0.125, y: 0.30529785}
   m_SizeDelta: {x: -0.25006104, y: -0.68865967}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1813684833
@@ -12627,7 +12627,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.505, y: 0.83436793}
   m_AnchorMax: {x: 0.9287501, y: 0.9553278}
-  m_AnchoredPosition: {x: 0.59269714, y: 0.60546875}
+  m_AnchoredPosition: {x: 0.5927124, y: 0.60546875}
   m_SizeDelta: {x: 0.39999962, y: 2.0100098}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &1856470207
@@ -13599,7 +13599,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.409, y: 0.71300006}
   m_AnchorMax: {x: 0.6065346, y: 0.85400003}
-  m_AnchoredPosition: {x: -0.099998474, y: -0.099998474}
+  m_AnchoredPosition: {x: -0.099998474, y: -0.099990845}
   m_SizeDelta: {x: -0.8511963, y: 0.83530045}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1982512902
@@ -13674,7 +13674,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.30669627, y: 0.18034278}
   m_AnchorMax: {x: 0.7878539, y: 0.35585964}
-  m_AnchoredPosition: {x: 0.11871338, y: 0.19998169}
+  m_AnchoredPosition: {x: 0.11871338, y: 0.2000122}
   m_SizeDelta: {x: 0.36270142, y: 0.5400009}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1989518155
