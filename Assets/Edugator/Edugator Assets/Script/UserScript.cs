@@ -17,32 +17,11 @@ public class UserScript : MonoBehaviour
     
     private void Start() {
         scrollRect.content = cardList;
-        
-        if(cardList.childCount >= 6)
-            contentSizeFitterCardList.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        else
-            contentSizeFitterCardList.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
-
-        if(gameList.childCount >= 5)
-            contentSizeFitterGameList.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        else
-            contentSizeFitterGameList.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
     }
     public void CardListOnClick() {
         scrollRect.content = cardList;
-        if(cardList.childCount >= 6)
-            contentSizeFitterCardList.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        else
-            contentSizeFitterCardList.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
     }
     public void GameListOnClick() {
         scrollRect.content = gameList;
-        if(gameList.childCount >= 5)
-            contentSizeFitterGameList.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        else
-            contentSizeFitterGameList.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
     }
-    // public void CardList() {
-
-    // }
 }

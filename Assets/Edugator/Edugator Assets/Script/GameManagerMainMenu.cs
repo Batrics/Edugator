@@ -24,7 +24,6 @@ public class GameManagerMainMenu : MonoBehaviour
     public TransitionScript transitionScript;
     public AudioMixer audioMixer;
     private int checkVisualEffectInt;
-    public TextMeshProUGUI historyBtn;
     public Transform panel;
     public Transform table;
 
@@ -76,7 +75,6 @@ public class GameManagerMainMenu : MonoBehaviour
     private IEnumerator Start() {
         print(PlayerPrefs.GetString("history"));
         PlayerPrefs.DeleteKey("token");
-        historyBtn.text = "History";
 
         checkVisualEffectInt = 1;
         PlayerPrefs.SetInt("visualEffect", checkVisualEffectInt);
@@ -305,15 +303,7 @@ public class GameManagerMainMenu : MonoBehaviour
         }
     }
 
-    public void RefreshHistory() {
-        print("Child Count : " + table.childCount);
-        if(table.childCount >= 6) {
-            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        }
-        else {
-            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
-        }
-        
+    public void RefreshHistory() {        
         for(int i = 0; i < table.childCount; i++) {
             Destroy(table.transform.GetChild(i).gameObject);
         }

@@ -32,7 +32,7 @@ public class HistoryScript : MonoBehaviour
         titleText = GameObject.Find("MainTitle Text").GetComponent<TextMeshProUGUI>();
         GameOwnerText = GameObject.Find("GameOwnerText").GetComponent<TextMeshProUGUI>();
         koneksi = GameObject.Find("Panel Koneksi");
-        PanelHistoryUI = GameObject.Find("History UI").transform;
+        PanelHistoryUI = GameObject.Find("Games UI").transform;
         // progressBarGameObject = GameObject.Find("MainTitle Text");
 
         // titleText = gameObject.transform.parent.parent.parent.parent.GetChild(1).GetComponent<TextMeshProUGUI>();
@@ -114,7 +114,7 @@ public class HistoryScript : MonoBehaviour
                                 GameOwnerText.text = "Created By : " + mainData.data.author;
 
                                 progressBarGameObjectClone.SetActive(false);
-                                transform.parent.parent.parent.gameObject.SetActive(false);
+                                transform.parent.parent.parent.parent.parent.gameObject.SetActive(false);
                                 
                             }
                             else {
