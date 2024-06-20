@@ -23,6 +23,7 @@ public class HistoryScript : MonoBehaviour
     private LoadingUI loadingUI = new LoadingUI();
     public GameObject progressBarGameObject;
     public GameObject progressBarGameObjectClone;
+    public GameManagerMainMenu gameManagerMainMenu;
 
     private void Start() {
         GameObject canvas = gameObject.transform.parent.parent.parent.parent.parent.parent.parent.gameObject;
@@ -33,14 +34,9 @@ public class HistoryScript : MonoBehaviour
         GameOwnerText = GameObject.Find("GameOwnerText").GetComponent<TextMeshProUGUI>();
         koneksi = GameObject.Find("Panel Koneksi");
         PanelHistoryUI = GameObject.Find("Games UI").transform;
-        // progressBarGameObject = GameObject.Find("MainTitle Text");
-
-        // titleText = gameObject.transform.parent.parent.parent.parent.GetChild(1).GetComponent<TextMeshProUGUI>();
-        // GameOwnerText = gameObject.transform.parent.parent.parent.parent.GetChild(2).GetComponent<TextMeshProUGUI>();
-        // koneksi = gameObject.transform.parent.parent.parent.parent.GetChild(16).gameObject;
-        // PanelHistoryUI = gameObject.transform.parent.parent.parent;
-        // progressBarGameObject = gameObject.transform.parent.parent.parent.parent.parent.GetChild(1).gameObject;
         popup = Resources.Load<GameObject>("Popup");
+
+        gameManagerMainMenu = GameObject.Find("GameManager").GetComponent<GameManagerMainMenu>();
         string allGames = PlayerPrefs.GetString("history");
         string[] allGamesArr = allGames.Split(";");
 
@@ -109,6 +105,7 @@ public class HistoryScript : MonoBehaviour
                                 PlayerPrefs.SetInt("game_id", mainData.data.id);
 
                                 print("Jumlah Card : " + mainData.data.cards.Length);
+                                gameManagerMainMenu.CreateScoreHistory(mainData.data.cards.Length, mainData, PlayerPrefs.GetString("finalScore"));
 
                                 titleText.text = mainData.data.name;
                                 GameOwnerText.text = "Created By : " + mainData.data.author;

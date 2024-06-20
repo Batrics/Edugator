@@ -59,6 +59,7 @@ public class QuizManager : MonoBehaviour
         if(myAnswer == correctAnswer) {
             finalScore += score;
             finalScoreText.text = finalScore.ToString();
+            PlayerPrefs.SetString("finalScore", finalScoreText.text);
         }
     }
 

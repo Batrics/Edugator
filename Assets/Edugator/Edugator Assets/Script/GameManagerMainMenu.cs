@@ -9,6 +9,7 @@ using UnityEngine.Audio;
 using Loading.UI;
 using System;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
@@ -69,7 +70,11 @@ public class GameManagerMainMenu : MonoBehaviour
             Debug.Log("Directory already exists.");
         }
         
+        mainHistory = Resources.Load<GameObject>("ScoreHistory/MainHistory");
+        cardGame = Resources.Load<GameObject>("ScoreHistory/CardGame");
+        scoreGo = Resources.Load<GameObject>("ScoreHistory/Score");
         progressBarGameObject = Resources.Load<GameObject>("DownloadPopup");
+        PlayerPrefs.SetString("finalScore", "0");
     }
 
     private IEnumerator Start() {
@@ -283,6 +288,7 @@ public class GameManagerMainMenu : MonoBehaviour
                                 titleText.text = mainData.data.name;
                                 GameOwnerText.text = "Created By : " + mainData.data.author;
                                 inputTokenUI.SetActive(false);
+                                CreateScoreHistory(mainData.data.cards.Length,mainData, PlayerPrefs.GetString("finalScore"));
 
                                 progressBarGameObjectClone.SetActive(false);
 
@@ -333,6 +339,64 @@ public class GameManagerMainMenu : MonoBehaviour
         Application.OpenURL("https://dev.unimasoft.id/edugator/signin");
     }
 
+    //==============================================================================================================================//
+    //Score History
+    //==============================================================================================================================//
+    public Transform HistoryList;
+    public GameObject scoreHistoryUI;
+    private GameObject mainHistory;
+    private GameObject cardGame;
+    private GameObject scoreGo;
+    private List<int> gameIdHistory = new List<int>();
+    private bool gameHistoryAvailabe;
+    public void CreateScoreHistory(int cardCount, MainDataJson mainDataJson, string FinalScore) {
+        // foreach(int id in gameIdHistory) {
+            if(gameIdHistory.Contains(mainDataJson.data.id)) {
+                gameHistoryAvailabe = true;
+            }
+            else {
+                gameHistoryAvailabe = false;
+            }
+        // }
+        if(gameHistoryAvailabe == false) {
+            GameObject mainHistoryClone = Instantiate(mainHistory, HistoryList);
+            GameObject cardGameClone = Instantiate(cardGame, HistoryList);
+            Button scoreBtn = mainHistoryClone.transform.GetChild(1).GetComponent<Button>();
+            Button backBtn = mainHistoryClone.transform.GetChild(6).GetComponent<Button>();
+            TMP_Text author = mainHistoryClone.transform.GetChild(2).GetComponent<TMP_Text>();
+            TMP_Text gameName = mainHistoryClone.transform.GetChild(3).GetComponent<TMP_Text>();
+            author.text = mainDataJson.data.author;
+            gameName.text = mainDataJson.data.name;
+            scoreBtn.onClick.RemoveAllListeners();
+            backBtn.onClick.RemoveAllListeners();
+
+            // scoreHistoryUI.gameObject.SetActive(true);
+            void SetActiveGo(){
+                cardGameClone.SetActive(true);
+                backBtn.gameObject.SetActive(true);
+            }
+            void SetInactiveGo(){
+                cardGameClone.SetActive(false);
+                backBtn.gameObject.SetActive(false);
+            }
+            scoreBtn.onClick.AddListener(SetActiveGo);
+            backBtn.onClick.AddListener(SetInactiveGo);
+
+            for(int i = 0; i < cardCount; i++) {
+                GameObject ScoreGoClone = Instantiate(scoreGo, cardGameClone.transform);
+                TMP_Text cardNameGo = ScoreGoClone.transform.GetChild(1).GetComponent<TMP_Text>();
+                TMP_Text cardScoreGo = ScoreGoClone.transform.GetChild(2).GetComponent<TMP_Text>();
+                cardNameGo.text = mainDataJson.data.cards[i].name;
+                cardScoreGo.text = FinalScore;
+            }
+            print(scoreBtn.onClick);
+            cardGameClone.SetActive(false);
+            gameIdHistory.Add(mainDataJson.data.id);
+        }
+        else {
+            print("GameAvailable");
+        }
+    }
     //==============================================================================================================================//
 
     //Download Model
