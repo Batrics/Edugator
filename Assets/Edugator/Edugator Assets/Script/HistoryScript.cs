@@ -105,7 +105,7 @@ public class HistoryScript : MonoBehaviour
                                 PlayerPrefs.SetInt("game_id", mainData.data.id);
 
                                 print("Jumlah Card : " + mainData.data.cards.Length);
-                                gameManagerMainMenu.CreateScoreHistory(mainData.data.cards.Length, mainData, PlayerPrefs.GetString("finalScore"));
+                                // gameManagerMainMenu.CreateScoreHistory(mainData.data.cards.Length, mainData, PlayerPrefs.GetString("finalScore"));
 
                                 titleText.text = mainData.data.name;
                                 GameOwnerText.text = "Created By : " + mainData.data.author;

@@ -10,6 +10,7 @@ using Loading.UI;
 using System;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using Unity.VisualScripting;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
@@ -53,8 +54,9 @@ public class GameManagerMainMenu : MonoBehaviour
     //Main Menu Script
     //==============================================================================================================================//\
     private void Awake() {
-        // PlayerPrefs.DeleteAll();
+        // PlayerPrefs.DeleteKey("history");
         // print("Delete All PlayerPref");
+        print(PlayerPrefs.GetString("HistoryGameId"));
         AssetBundle.UnloadAllAssetBundles(true);
         loadingUI = GetComponent<LoadingUI>();
         loadingUI.Prepare();
@@ -78,7 +80,7 @@ public class GameManagerMainMenu : MonoBehaviour
     }
 
     private IEnumerator Start() {
-        print(PlayerPrefs.GetString("history"));
+        print(PlayerPrefs.GetString("games"));
         PlayerPrefs.DeleteKey("token");
 
         checkVisualEffectInt = 1;
@@ -99,6 +101,8 @@ public class GameManagerMainMenu : MonoBehaviour
         else {
             loadingUI.Hide();
         }
+        LoadHistory();
+        CreateScoreHistory(PlayerPrefs.GetString("finalScore"));
         // loadingUI.Hide();
     }
 
@@ -245,13 +249,13 @@ public class GameManagerMainMenu : MonoBehaviour
                             if (inputToken.text == mainData.data.token) {
 
                                 //Update History Data
-                                string storage = PlayerPrefs.GetString("history");
+                                string storage = PlayerPrefs.GetString("games");
 
                                 if(storage != "") {
-                                    List<string> allHistory = new List<string>(storage.Split(";"));
+                                    List<string> gameCollection = new List<string>(storage.Split(";"));
 
                                     bool ketemu = false;
-                                    foreach(string history in allHistory) {
+                                    foreach(string history in gameCollection) {
                                         string[] historyArr = history.Split(",");
 
                                         if(inputToken.text == historyArr[0]) {
@@ -261,13 +265,13 @@ public class GameManagerMainMenu : MonoBehaviour
                                     }
 
                                     if(!ketemu) {
-                                        allHistory.Insert(0, inputToken.text + "," + mainData.data.name);
-                                        storage = string.Join(";", allHistory);
-                                        PlayerPrefs.SetString("history", storage);
+                                        gameCollection.Insert(0, inputToken.text + "," + mainData.data.name);
+                                        storage = string.Join(";", gameCollection);
+                                        PlayerPrefs.SetString("games", storage);
                                     }
                                 }
                                 else {
-                                    PlayerPrefs.SetString("history", inputToken.text + "," + mainData.data.name);
+                                    PlayerPrefs.SetString("games", inputToken.text + "," + mainData.data.name);
                                 }
 
                                 // //Download Assets
@@ -288,7 +292,9 @@ public class GameManagerMainMenu : MonoBehaviour
                                 titleText.text = mainData.data.name;
                                 GameOwnerText.text = "Created By : " + mainData.data.author;
                                 inputTokenUI.SetActive(false);
-                                CreateScoreHistory(mainData.data.cards.Length,mainData, PlayerPrefs.GetString("finalScore"));
+                                gameIdHistory.Add(PlayerPrefs.GetInt("game_id"));
+                                // CreateScoreHistory(mainData.data.cards.Length, mainData, PlayerPrefs.GetString("finalScore"));
+                                saveHistory();
 
                                 progressBarGameObjectClone.SetActive(false);
 
@@ -313,11 +319,11 @@ public class GameManagerMainMenu : MonoBehaviour
         for(int i = 0; i < table.childCount; i++) {
             Destroy(table.transform.GetChild(i).gameObject);
         }
-        string storage = PlayerPrefs.GetString("history");
+        string storage = PlayerPrefs.GetString("games");
         if(storage != "") {
-            List<string> allHistory = new List<string>(storage.Split(";"));
+            List<string> gameCollection = new List<string>(storage.Split(";"));
 
-            foreach(string history in allHistory) {
+            foreach(string history in gameCollection) {
                 string[] historyArr = history.Split(",");
 
                 string token = historyArr[0];
@@ -347,54 +353,110 @@ public class GameManagerMainMenu : MonoBehaviour
     private GameObject mainHistory;
     private GameObject cardGame;
     private GameObject scoreGo;
-    private List<int> gameIdHistory = new List<int>();
+    public List<int> gameIdHistory = new List<int>();
     private bool gameHistoryAvailabe;
-    public void CreateScoreHistory(int cardCount, MainDataJson mainDataJson, string FinalScore) {
-        // foreach(int id in gameIdHistory) {
-            if(gameIdHistory.Contains(mainDataJson.data.id)) {
-                gameHistoryAvailabe = true;
-            }
-            else {
-                gameHistoryAvailabe = false;
-            }
-        // }
-        if(gameHistoryAvailabe == false) {
-            GameObject mainHistoryClone = Instantiate(mainHistory, HistoryList);
-            GameObject cardGameClone = Instantiate(cardGame, HistoryList);
-            Button scoreBtn = mainHistoryClone.transform.GetChild(1).GetComponent<Button>();
-            Button backBtn = mainHistoryClone.transform.GetChild(6).GetComponent<Button>();
-            TMP_Text author = mainHistoryClone.transform.GetChild(2).GetComponent<TMP_Text>();
-            TMP_Text gameName = mainHistoryClone.transform.GetChild(3).GetComponent<TMP_Text>();
-            author.text = mainDataJson.data.author;
-            gameName.text = mainDataJson.data.name;
-            scoreBtn.onClick.RemoveAllListeners();
-            backBtn.onClick.RemoveAllListeners();
-
-            // scoreHistoryUI.gameObject.SetActive(true);
-            void SetActiveGo(){
-                cardGameClone.SetActive(true);
-                backBtn.gameObject.SetActive(true);
-            }
-            void SetInactiveGo(){
-                cardGameClone.SetActive(false);
-                backBtn.gameObject.SetActive(false);
-            }
-            scoreBtn.onClick.AddListener(SetActiveGo);
-            backBtn.onClick.AddListener(SetInactiveGo);
-
-            for(int i = 0; i < cardCount; i++) {
-                GameObject ScoreGoClone = Instantiate(scoreGo, cardGameClone.transform);
-                TMP_Text cardNameGo = ScoreGoClone.transform.GetChild(1).GetComponent<TMP_Text>();
-                TMP_Text cardScoreGo = ScoreGoClone.transform.GetChild(2).GetComponent<TMP_Text>();
-                cardNameGo.text = mainDataJson.data.cards[i].name;
-                cardScoreGo.text = FinalScore;
-            }
-            print(scoreBtn.onClick);
-            cardGameClone.SetActive(false);
-            gameIdHistory.Add(mainDataJson.data.id);
+    public List<JsonGameId> dataArray = new List<JsonGameId>();
+    private AllGamesJson allGamesJson;
+    public void CreateScoreHistory(string FinalScore) {
+        allGamesJson = JsonUtility.FromJson<AllGamesJson>(PlayerPrefs.GetString("AllGames"));
+        if(allGamesJson == null) {
+            Debug.Log("Data Json null");
         }
         else {
-            print("GameAvailable");
+            for(int i = 0; i < allGamesJson.data.Length; i++) {
+                foreach(JsonGameId data in dataArray){
+                    if(data.gameId == allGamesJson.data[i].id) {
+                        gameHistoryAvailabe = true;
+                        GameObject mainHistoryClone = Instantiate(mainHistory, HistoryList);
+                        GameObject cardGameClone = Instantiate(cardGame, HistoryList);
+                        Button scoreBtn = mainHistoryClone.transform.GetChild(1).GetComponent<Button>();
+                        Button backBtn = mainHistoryClone.transform.GetChild(6).GetComponent<Button>();
+                        TMP_Text author = mainHistoryClone.transform.GetChild(2).GetComponent<TMP_Text>();
+                        TMP_Text gameName = mainHistoryClone.transform.GetChild(3).GetComponent<TMP_Text>();
+                        author.text = allGamesJson.data[i].author;
+                        gameName.text = allGamesJson.data[i].name;
+                        scoreBtn.onClick.RemoveAllListeners();
+                        backBtn.onClick.RemoveAllListeners();
+
+                        // scoreHistoryUI.gameObject.SetActive(true);
+                        void SetActiveGo(){
+                            cardGameClone.SetActive(true);
+                            backBtn.gameObject.SetActive(true);
+                        }
+                        void SetInactiveGo(){
+                            cardGameClone.SetActive(false);
+                            backBtn.gameObject.SetActive(false);
+                        }
+                        scoreBtn.onClick.AddListener(SetActiveGo);
+                        backBtn.onClick.AddListener(SetInactiveGo);
+
+                        for(int j = 0; j < allGamesJson.data[i].cards.Length; j++) {
+                            GameObject ScoreGoClone = Instantiate(scoreGo, cardGameClone.transform);
+                            TMP_Text cardNameGo = ScoreGoClone.transform.GetChild(1).GetComponent<TMP_Text>();
+                            TMP_Text cardScoreGo = ScoreGoClone.transform.GetChild(2).GetComponent<TMP_Text>();
+                            cardNameGo.text = allGamesJson.data[i].cards[j].name;
+                            cardScoreGo.text = FinalScore;
+                        }
+                        print(scoreBtn.onClick);
+                        cardGameClone.SetActive(false);
+                    }
+                    else {
+                        gameHistoryAvailabe = false;
+                    }
+                }
+            }
+        }
+
+        // if(gameIdHistory.Contains(mainDataJson.data.id)) {
+        //     gameHistoryAvailabe = true;
+        // }
+        // else {
+        //     gameHistoryAvailabe = false;
+        // }
+    }
+    public void saveHistory() {
+        string jsonstring = PlayerPrefs.GetString("HistoryGameId");
+        Wrapper<JsonGameId> wrapper = JsonUtility.FromJson<Wrapper<JsonGameId>>(jsonstring);
+        List<JsonGameId> jsonGameIds = wrapper.items;
+        
+        if (jsonGameIds.Count == 0) {
+            JsonGameId newGameId = new JsonGameId{gameId = gameIdHistory[gameIdHistory.Count - 1]};
+            dataArray.Add(newGameId);
+            print(dataArray[0]);
+            string toJson = JsonUtility.ToJson(new Wrapper<JsonGameId>{items = dataArray}, true);
+            PlayerPrefs.SetString("HistoryGameId",toJson);
+            print("Data Json Array : " + toJson);
+        }
+        else {
+            foreach(JsonGameId jsonGameId in jsonGameIds) {
+                if(jsonGameId.gameId != gameIdHistory[gameIdHistory.Count - 1]) {
+                    JsonGameId newGameId = new JsonGameId{gameId = gameIdHistory[gameIdHistory.Count - 1]};
+                    dataArray.Add(newGameId);
+                    foreach(JsonGameId a in dataArray) {
+                        print("ASD : " + a.gameId);
+                    }
+                    string toJson = JsonUtility.ToJson(new Wrapper<JsonGameId>{items = dataArray}, true);
+                    PlayerPrefs.SetString("HistoryGameId",toJson);
+                    print("Data Json Array : " + toJson);
+                }
+                else{
+                    print("GAME AVAILABLE");
+                    string toJson = JsonUtility.ToJson(new Wrapper<JsonGameId>{items = dataArray}, true);
+                    PlayerPrefs.SetString("HistoryGameId",toJson);
+                    print("Data Json Array : " + toJson);
+                }
+            }
+        }
+    }
+    public void LoadHistory() {
+        string jsonstring = PlayerPrefs.GetString("HistoryGameId");
+        Wrapper<JsonGameId> wrapper = JsonUtility.FromJson<Wrapper<JsonGameId>>(jsonstring);
+        List<JsonGameId> jsonGameIds = wrapper.items;
+
+        foreach(JsonGameId jsonGameId in jsonGameIds) {
+            if(jsonGameId != null){
+                dataArray.Add(jsonGameId);
+            }
         }
     }
     //==============================================================================================================================//

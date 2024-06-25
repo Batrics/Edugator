@@ -15,7 +15,7 @@ public class PopupScript : MonoBehaviour
     }
     
     public void initializationObject() {
-        string allGames = PlayerPrefs.GetString("history");
+        string allGames = PlayerPrefs.GetString("games");
         List<string> allGamesArr = new List<string>(allGames.Split(";"));
 
         for(int i = 0; i < allGamesArr.Count; i++) {
@@ -34,7 +34,7 @@ public class PopupScript : MonoBehaviour
     }
 
     public IEnumerator DeleteGameWorkFlow() {
-        string allGames = PlayerPrefs.GetString("history");
+        string allGames = PlayerPrefs.GetString("games");
         List<string> allGamesArr = new List<string>(allGames.Split(";"));
 
         for(int i = 0; i < allGamesArr.Count; i++) {
@@ -47,7 +47,7 @@ public class PopupScript : MonoBehaviour
 
                 allGamesArr.RemoveAt(i);
                 allGames = string.Join(";", allGamesArr);
-                PlayerPrefs.SetString("history", allGames);
+                PlayerPrefs.SetString("games", allGames);
 
                 Debug.Log("Arr : " + allGames);
                 historyUI.SetActive(false);
