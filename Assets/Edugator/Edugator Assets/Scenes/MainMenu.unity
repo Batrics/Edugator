@@ -6890,7 +6890,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
-  m_VerticalFit: 0
+  m_VerticalFit: 2
 --- !u!114 &918240280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10018,7 +10018,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 918240278}
-  m_Horizontal: 1
+  m_Horizontal: 0
   m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
@@ -18440,6 +18440,8 @@ MonoBehaviour:
   contentSizeFitter: {fileID: 143946710}
   HistoryList: {fileID: 918240278}
   scoreHistoryUI: {fileID: 1202334946}
+  gameIdHistory: 
+  dataArray: []
   cardName: 
   cardId: 
   files3D: []
