@@ -38,6 +38,7 @@ public class GameManagerMainMenu : MonoBehaviour
     public GameObject panelToken;
     public GameObject guestUI;
     public GameObject userUI;
+    public GameObject CardScoreHistory;
     
     [Space]
     public LoadingUI loadingUI;
