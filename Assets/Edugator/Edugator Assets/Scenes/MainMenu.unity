@@ -1120,7 +1120,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9269,6 +9269,7 @@ MonoBehaviour:
   cardNames: []
   scoreGos: []
   CardScoreHistory: {fileID: 2071974753}
+  loginScript: {fileID: 0}
 --- !u!1 &1216998595
 GameObject:
   m_ObjectHideFlags: 0
@@ -12637,10 +12638,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1192594858}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.30371594, y: 0.9082921}
-  m_AnchorMax: {x: 0.6854527, y: 0.9686461}
-  m_AnchoredPosition: {x: 0.06085205, y: 0.5}
-  m_SizeDelta: {x: -2.1217, y: -0.9999542}
+  m_AnchorMin: {x: 0.28681064, y: 0.9014373}
+  m_AnchorMax: {x: 0.7144527, y: 0.96700007}
+  m_AnchoredPosition: {x: -0.5, y: 0.8138428}
+  m_SizeDelta: {x: 0.7894001, y: 2.3722}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1663274555
 MonoBehaviour:
@@ -12666,15 +12667,15 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7b239a5b06553e14ebdcd961cd624ca8, type: 2}
+  m_sharedMaterial: {fileID: 7454537301473340885, guid: 7b239a5b06553e14ebdcd961cd624ca8, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -12691,12 +12692,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
+  m_fontSize: 66.7
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 0
-  m_fontSizeMax: 50
+  m_fontSizeMax: 75
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -15021,7 +15022,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: ea32f686801f1dc4a8c10ade01870e07, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -15836,14 +15837,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.735849, g: 0.73237807, b: 0.73237807, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 18b899591dca78e4f81aeb2632975bc6, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -18457,7 +18458,6 @@ MonoBehaviour:
   panelToken: {fileID: 1656744905}
   guestUI: {fileID: 1856470205}
   userUI: {fileID: 1371963220}
-  CardScoreHistory: {fileID: 0}
   loadingUI: {fileID: 0}
   name1: {fileID: 1811285461}
   email1: {fileID: 1150927304}

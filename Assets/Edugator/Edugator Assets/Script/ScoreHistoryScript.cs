@@ -8,10 +8,15 @@ using UnityEngine.UI;
 
 public class ScoreHistoryScript : MonoBehaviour
 {
-    public List<Image> cardImages = new List<Image>();
+    public List<Sprite> cardImages = new List<Sprite>();
     public List<string> cardNames = new List<string>();
     public List<GameObject> scoreGos = new List<GameObject>();
     public GameObject CardScoreHistory;
+    public LoginScript loginScript;
+    private void Start() {
+        loginScript = GameObject.Find("GameManager").GetComponent<LoginScript>();
+        cardImages = loginScript.sprites;
+    }
     private void OnEnable() {
         UpdateDataHistory();
     }
@@ -48,7 +53,7 @@ public class ScoreHistoryScript : MonoBehaviour
                     
                     int scoreValue = Int32.Parse(scoreValueString.text);
                     scoreGos.Add(scoreGo);
-                    cardImages.Add(cardImage);
+                    cardImages.Add(cardImage.sprite);
                     cardNames.Add(cardName.text);
                     scores.Add(scoreValue);
                 }

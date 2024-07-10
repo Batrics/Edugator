@@ -38,7 +38,6 @@ public class GameManagerMainMenu : MonoBehaviour
     public GameObject panelToken;
     public GameObject guestUI;
     public GameObject userUI;
-    public GameObject CardScoreHistory;
     
     [Space]
     public LoadingUI loadingUI;
@@ -96,13 +95,12 @@ public class GameManagerMainMenu : MonoBehaviour
         loadingUI.Show("Please Wait...");
         RefreshUserAccountBtn();
         if(PlayerPrefs.GetString("Login_State") == "success") {
-            LoginSuccess();
+            yield return StartCoroutine(LoginSuccess());
         }
         else {
             loadingUI.Hide();
         }
         LoadHistory();
-        print(PlayerPrefs.GetString("HistoryGameId"));
         CreateScoreHistory(PlayerPrefs.GetString("finalScore"));
         // loadingUI.Hide();
     }
@@ -138,9 +136,9 @@ public class GameManagerMainMenu : MonoBehaviour
             userAccountButton.onClick.RemoveListener(Success);
         }
     }
-    public void LoginSuccess() {
+    public IEnumerator LoginSuccess() {
         loginScript.MainUserInfo();
-        StartCoroutine(loginScript.User_Coroutine());
+        yield return StartCoroutine(loginScript.User_Coroutine());
     }
 
     public void StartGame() {
@@ -353,8 +351,10 @@ public class GameManagerMainMenu : MonoBehaviour
     public List<int> gameIdHistory = new List<int>();
     private bool gameHistoryAvailabe;
     public List<JsonGameId> dataArray = new List<JsonGameId>();
+    // public List<Sprite> sprites = new List<Sprite>();
     private AllGamesJson allGamesJson;
     public void CreateScoreHistory(string FinalScore) {
+        int spriteIndex = 0;
         allGamesJson = JsonUtility.FromJson<AllGamesJson>(PlayerPrefs.GetString("AllGames"));
         if(allGamesJson == null) {
             Debug.Log("Data Json null");
@@ -363,12 +363,13 @@ public class GameManagerMainMenu : MonoBehaviour
             for(int i = 0; i < allGamesJson.data.Length; i++) {
                 foreach(JsonGameId data in dataArray){
                     if(data.gameId == allGamesJson.data[i].id) {
+                        // List<Sprite> sprites = new List<Sprite>();
                         GameObject mainHistoryClone = Instantiate(mainHistory, HistoryList);
                         GameObject cardGameClone = Instantiate(cardGame, HistoryList);
                         Button scoreBtn = mainHistoryClone.transform.GetChild(1).GetComponent<Button>();
-                        Button backBtn = mainHistoryClone.transform.GetChild(6).GetComponent<Button>();
-                        TMP_Text author = mainHistoryClone.transform.GetChild(2).GetComponent<TMP_Text>();
-                        TMP_Text gameName = mainHistoryClone.transform.GetChild(3).GetComponent<TMP_Text>();
+                        Button backBtn = mainHistoryClone.transform.GetChild(4).GetComponent<Button>();
+                        TMP_Text author = mainHistoryClone.transform.GetChild(2).GetChild(0).GetComponent<TMP_Text>();
+                        TMP_Text gameName = mainHistoryClone.transform.GetChild(2).GetChild(1).GetComponent<TMP_Text>();
                         author.text = allGamesJson.data[i].author;
                         gameName.text = allGamesJson.data[i].name;
                         scoreBtn.onClick.RemoveAllListeners();
@@ -387,11 +388,16 @@ public class GameManagerMainMenu : MonoBehaviour
                         backBtn.onClick.AddListener(SetInactiveGo);
 
                         for(int j = 0; j < allGamesJson.data[i].cards.Length; j++) {
+                            // sprites.Add(loginScript);
                             GameObject ScoreGoClone = Instantiate(scoreGo, cardGameClone.transform);
+                            Image cardImage = ScoreGoClone.transform.GetChild(0).GetComponent<Image>();
                             TMP_Text cardNameGo = ScoreGoClone.transform.GetChild(1).GetComponent<TMP_Text>();
                             TMP_Text cardScoreGo = ScoreGoClone.transform.GetChild(2).GetComponent<TMP_Text>();
+                            print("INDEX : " + j);
+                            cardImage.sprite = loginScript.sprites[spriteIndex];
                             cardNameGo.text = allGamesJson.data[i].cards[j].name;
                             cardScoreGo.text = FinalScore;
+                            spriteIndex++;
                         }
                         print(scoreBtn.onClick);
                         cardGameClone.SetActive(false); 
@@ -402,6 +408,7 @@ public class GameManagerMainMenu : MonoBehaviour
     }
     //Overload
     public void CreateScoreHistory(string FinalScore, int _id) {
+        // sprites = loginScript.sprites;
         allGamesJson = JsonUtility.FromJson<AllGamesJson>(PlayerPrefs.GetString("AllGames"));
         if(allGamesJson == null) {
             Debug.Log("Data Json null");
@@ -412,9 +419,9 @@ public class GameManagerMainMenu : MonoBehaviour
                     GameObject mainHistoryClone = Instantiate(mainHistory, HistoryList);
                     GameObject cardGameClone = Instantiate(cardGame, HistoryList);
                     Button scoreBtn = mainHistoryClone.transform.GetChild(1).GetComponent<Button>();
-                    Button backBtn = mainHistoryClone.transform.GetChild(6).GetComponent<Button>();
-                    TMP_Text author = mainHistoryClone.transform.GetChild(2).GetComponent<TMP_Text>();
-                    TMP_Text gameName = mainHistoryClone.transform.GetChild(3).GetComponent<TMP_Text>();
+                    Button backBtn = mainHistoryClone.transform.GetChild(4).GetComponent<Button>();
+                    TMP_Text author = mainHistoryClone.transform.GetChild(2).GetChild(0).GetComponent<TMP_Text>();
+                    TMP_Text gameName = mainHistoryClone.transform.GetChild(2).GetChild(1).GetComponent<TMP_Text>();
                     author.text = allGamesJson.data[i].author;
                     gameName.text = allGamesJson.data[i].name;
                     scoreBtn.onClick.RemoveAllListeners();
@@ -434,8 +441,10 @@ public class GameManagerMainMenu : MonoBehaviour
 
                     for(int j = 0; j < allGamesJson.data[i].cards.Length; j++) {
                         GameObject ScoreGoClone = Instantiate(scoreGo, cardGameClone.transform);
+                        Image cardImage = ScoreGoClone.transform.GetChild(0).GetComponent<Image>();
                         TMP_Text cardNameGo = ScoreGoClone.transform.GetChild(1).GetComponent<TMP_Text>();
                         TMP_Text cardScoreGo = ScoreGoClone.transform.GetChild(2).GetComponent<TMP_Text>();
+                        cardImage.sprite = loginScript.sprites[j];
                         cardNameGo.text = allGamesJson.data[i].cards[j].name;
                         cardScoreGo.text = FinalScore;
                     }
