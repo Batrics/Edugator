@@ -9,15 +9,13 @@ using UnityEngine.Audio;
 using Loading.UI;
 using System;
 using UnityEngine.UI;
-using UnityEngine.Events;
-using Unity.VisualScripting;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
     public string downloadCount;
     MainDataJson mainData;
     private string jsonstring;
-    private string url;
+    public string url;
     public TMP_InputField inputToken;
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI GameOwnerText;
@@ -41,8 +39,8 @@ public class GameManagerMainMenu : MonoBehaviour
     
     [Space]
     public LoadingUI loadingUI;
-    private GameObject progressBarGameObject;
-    private GameObject progressBarGameObjectClone;
+    public GameObject progressBarGameObject;
+    public GameObject progressBarGameObjectClone;
     private Button userAccountButton;
     [SerializeField] private TMP_Text name1;
     [SerializeField] private TMP_Text email1;
@@ -100,8 +98,6 @@ public class GameManagerMainMenu : MonoBehaviour
         else {
             loadingUI.Hide();
         }
-        LoadHistory();
-        CreateScoreHistory(PlayerPrefs.GetString("finalScore"));
         // loadingUI.Hide();
     }
 
@@ -139,10 +135,13 @@ public class GameManagerMainMenu : MonoBehaviour
     public IEnumerator LoginSuccess() {
         loginScript.MainUserInfo();
         yield return StartCoroutine(loginScript.User_Coroutine());
+        LoadHistory(); 
+        CreateScoreHistory(PlayerPrefs.GetString("finalScore"));
     }
 
     public void StartGame() {
-        url = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + inputToken.text;
+        PlayerPrefs.SetString("tokenSelected", inputToken.text);
+        url = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("tokenSelected");
         print(url);
         progressBarGameObjectClone =  Instantiate(progressBarGameObject);
         StartCoroutine(StartQuiz());
@@ -217,7 +216,7 @@ public class GameManagerMainMenu : MonoBehaviour
         yield return new WaitForSeconds(3f);
         panelToken.SetActive(false);
     }
-    private IEnumerator GetDataFromAPI() {
+    public IEnumerator GetDataFromAPI() {
         using(UnityWebRequest webData = UnityWebRequest.Get(url)) {
             webData.SendWebRequest();
 
@@ -245,7 +244,7 @@ public class GameManagerMainMenu : MonoBehaviour
                     }
                     else {
                         if(mainData.success == true) { 
-                            if (inputToken.text == mainData.data.token) {
+                            if(PlayerPrefs.GetString("tokenSelected") == mainData.data.token) {
 
                                 //Update History Data
                                 string storage = PlayerPrefs.GetString("games");
@@ -257,20 +256,20 @@ public class GameManagerMainMenu : MonoBehaviour
                                     foreach(string history in gameCollection) {
                                         string[] historyArr = history.Split(",");
 
-                                        if(inputToken.text == historyArr[0]) {
+                                        if(PlayerPrefs.GetString("tokenSelected") == historyArr[0]) {
                                             ketemu = true;
                                             break;
                                         }
                                     }
 
                                     if(!ketemu) {
-                                        gameCollection.Insert(0, inputToken.text + "," + mainData.data.name);
+                                        gameCollection.Insert(0, PlayerPrefs.GetString("tokenSelected") + "," + mainData.data.name);
                                         storage = string.Join(";", gameCollection);
                                         PlayerPrefs.SetString("games", storage);
                                     }
                                 }
                                 else {
-                                    PlayerPrefs.SetString("games", inputToken.text + "," + mainData.data.name);
+                                    PlayerPrefs.SetString("games", PlayerPrefs.GetString("tokenSelected") + "," + mainData.data.name);
                                 }
 
                                 // //Download Assets
@@ -581,16 +580,16 @@ public class GameManagerMainMenu : MonoBehaviour
         }
     }
 
-    public void CheckFile() {
-        AssetBundle.UnloadAllAssetBundles(true);
-        string filePath = Application.persistentDataPath + "/AssetsBundle/fire extingusher (model)";
+    // public void CheckFile() {
+    //     AssetBundle.UnloadAllAssetBundles(true);
+    //     string filePath = Application.persistentDataPath + "/AssetsBundle/fire extingusher (model)";
 
-        AssetBundle bundleModel = AssetBundle.LoadFromFile(filePath);
-        GameObject model = bundleModel.LoadAsset<GameObject>("Fire Extingusher.fbx");
+    //     AssetBundle bundleModel = AssetBundle.LoadFromFile(filePath);
+    //     GameObject model = bundleModel.LoadAsset<GameObject>("Fire Extingusher.fbx");
 
-        Instantiate(model);
-        files3D.Add(model);
-    }
+    //     Instantiate(model);
+    //     files3D.Add(model);
+    // }
 
     public IEnumerator InitializationBundleToObject() {
         AssetBundle.UnloadAllAssetBundles(true);

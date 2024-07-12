@@ -4,11 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 using TMPro;
-using System.Net;
 using UnityEngine.Networking;
 using Loading.UI;
 using System.IO;
-using System.Linq;
 
 public class LoginScript : MonoBehaviour
 {
@@ -65,10 +63,11 @@ public class LoginScript : MonoBehaviour
                         MainUserInfo();
                         // yield return StartCoroutine(User_Coroutine());
                         loadingUI.Show("Please Wait...");
-                        gameManagerMainMenu.LoginSuccess();
+                        StartCoroutine(gameManagerMainMenu.LoginSuccess());
                         gameManagerMainMenu.RefreshUserAccountBtn();
                         guesUI.SetActive(false);
                         gameObject.SetActive(false);
+                        loadingUI.Hide();
                         yield return null;
                     }
                     else {
@@ -227,7 +226,7 @@ public class LoginScript : MonoBehaviour
         // Create a new sprite from the texture
         Sprite newSprite = Sprite.Create(
             texture, 
-            new Rect(0, 0, texture.width, texture.height), 
+            new Rect(0, 0, texture.width, texture.height),
             new Vector2(0.5f, 0.5f), 
             100.0f
         );
@@ -300,22 +299,4 @@ public class LoginScript : MonoBehaviour
             }
         }
     }
-    // public void DestroyCardList() {
-    //     Transform scrollChild = GameObject.Find("ScrollChild").GetComponent<Transform>();
-    //     if(scrollChild.GetChild(0).gameObject.activeSelf != false) {
-    //     Transform cardList = GameObject.Find("CardList").GetComponent<Transform>();
-    //         for(int i = 0; i < sprites.Count; i++) {
-    //             Destroy(cardList.GetChild(i).gameObject);
-    //         }
-    //     }
-    // }
-    // public void DestroyGameList() {
-    //     Transform scrollChild = GameObject.Find("ScrollChild").GetComponent<Transform>();
-    //     if(scrollChild.GetChild(1).gameObject.activeSelf != false) {
-    //     Transform gameList = GameObject.Find("GameList").GetComponent<Transform>();
-    //         for(int i = 0; i < gameNameList.Count; i++) {
-    //             Destroy(gameList.GetChild(i).gameObject);
-    //         }
-    //     }
-    // }
 }

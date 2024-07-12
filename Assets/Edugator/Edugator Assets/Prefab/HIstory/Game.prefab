@@ -417,6 +417,7 @@ GameObject:
   - component: {fileID: 3513063126895197557}
   - component: {fileID: 7567948739152676548}
   - component: {fileID: 7346362222622165124}
+  - component: {fileID: 4338816713948104232}
   m_Layer: 5
   m_Name: Game
   m_TagString: game
@@ -528,37 +529,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7346362222622165124}
-        m_TargetAssemblyTypeName: HistoryScript, Assembly-CSharp
+      - m_Target: {fileID: 4338816713948104232}
+        m_TargetAssemblyTypeName: GamesScript, Assembly-CSharp
         m_MethodName: ActivateAnimationSliding
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 5402064728562332771}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Animator, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 7346362222622165124}
-        m_TargetAssemblyTypeName: PlayWithHistoryScript, Assembly-CSharp
-        m_MethodName: SetToken
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 3916215063817706608}
-          m_ObjectArgumentAssemblyTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 7346362222622165124}
-        m_TargetAssemblyTypeName: HistoryScript, Assembly-CSharp
-        m_MethodName: SetGame
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 4472306983728543916}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -604,7 +581,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4472306983728543916}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 95b323df27b21f447a67609745eb36eb, type: 3}
   m_Name: 
@@ -615,9 +592,22 @@ MonoBehaviour:
   PanelHistoryUI: {fileID: 0}
   progressBarGameObject: {fileID: 0}
   progressBarGameObjectClone: {fileID: 0}
+  gameManagerMainMenu: {fileID: 0}
   files3D: []
   filesCard: []
   filePath: 
+--- !u!114 &4338816713948104232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4472306983728543916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68e5e4c3095ffb04082da00265f7d9bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4510442073318878431
 GameObject:
   m_ObjectHideFlags: 0
@@ -1101,8 +1091,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7346362222622165124}
-        m_TargetAssemblyTypeName: PlayWithHistoryScript, Assembly-CSharp
+      - m_Target: {fileID: 4338816713948104232}
+        m_TargetAssemblyTypeName: GamesScript, Assembly-CSharp
         m_MethodName: StartQuiz
         m_Mode: 1
         m_Arguments:
