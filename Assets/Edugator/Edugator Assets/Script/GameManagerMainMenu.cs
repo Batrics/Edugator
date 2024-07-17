@@ -9,6 +9,7 @@ using UnityEngine.Audio;
 using Loading.UI;
 using System;
 using UnityEngine.UI;
+using Unity.VisualScripting;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
@@ -143,7 +144,7 @@ public class GameManagerMainMenu : MonoBehaviour
         PlayerPrefs.SetString("tokenSelected", inputToken.text);
         url = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("tokenSelected");
         print(url);
-        progressBarGameObjectClone =  Instantiate(progressBarGameObject);
+        progressBarGameObjectClone = Instantiate(progressBarGameObject);
         StartCoroutine(StartQuiz());
     }
 
@@ -282,10 +283,10 @@ public class GameManagerMainMenu : MonoBehaviour
                                 if (DownloadPopup.userCancelledDownload == true) {
                                     progressBarGameObjectClone.SetActive(false);
                                     DownloadPopup.userCancelledDownload = false;
-                                     
+                                    yield break;
                                 }
                                 
-                                PlayerPrefs.SetString("token", inputToken.text);
+                                PlayerPrefs.SetString("token", PlayerPrefs.GetString("tokenSelected"));
                                 PlayerPrefs.SetInt("game_id", mainData.data.id);
                                 titleText.text = mainData.data.name;
                                 GameOwnerText.text = "Created By : " + mainData.data.author;
@@ -468,7 +469,10 @@ public class GameManagerMainMenu : MonoBehaviour
             print(dataArray[0]);
             string toJson = JsonUtility.ToJson(new Wrapper<JsonGameId>{items = dataArray}, true);
             PlayerPrefs.SetString("HistoryGameId",toJson);
-            CreateScoreHistory(PlayerPrefs.GetString("finalScore"));
+
+            if(PlayerPrefs.GetString("Login_State") == "success") {
+                CreateScoreHistory(PlayerPrefs.GetString("finalScore"));
+            }
         }
         else {
             foreach(JsonGameId jsonGameId in jsonGameIds) {
@@ -491,7 +495,9 @@ public class GameManagerMainMenu : MonoBehaviour
                 dataArray.Add(newGameId);
                 string toJson = JsonUtility.ToJson(new Wrapper<JsonGameId>{items = dataArray}, true);
                 PlayerPrefs.SetString("HistoryGameId",toJson);
-                CreateScoreHistory(PlayerPrefs.GetString("finalScore"), PlayerPrefs.GetInt("game_id"));
+                if(PlayerPrefs.GetString("Login_State") == "success") {
+                    CreateScoreHistory(PlayerPrefs.GetString("finalScore"), PlayerPrefs.GetInt("game_id"));
+                }
             }
         }
     }
@@ -540,13 +546,13 @@ public class GameManagerMainMenu : MonoBehaviour
                 cardName = mainData.data.cards[j].name;
                 cardId = mainData.data.cards[j].id;
                 
-                yield return StartCoroutine(DownloadFile(URLWithoutCardId, cardName, cardId, extention, savePath));
+                yield return StartCoroutine(DownloadFile(URLWithoutCardId, cardName, cardId, extention, savePath, progressBarGameObjectClone));
                 if (DownloadPopup.userCancelledDownload == true) {
                     yield break;
                 }
                 yield return StartCoroutine(ExtractFile());
                 DeleteZipFile();
-                yield return StartCoroutine(InitializationBundleToObject());
+                // yield return StartCoroutine(InitializationBundleToObject());
             }
         }
         else {            
@@ -563,17 +569,17 @@ public class GameManagerMainMenu : MonoBehaviour
 
                 if(fileIsAvailable == true) {
                     Debug.Log("File is Available");
-                    yield return StartCoroutine(InitializationBundleToObject());
+                    // yield return StartCoroutine(InitializationBundleToObject());
                 }
                 else {
                     // loadingUI.Show("Download Assets...");
-                    yield return StartCoroutine(DownloadFile(URLWithoutCardId, cardName, cardId, extention, savePath));
+                    yield return StartCoroutine(DownloadFile(URLWithoutCardId, cardName, cardId, extention, savePath, progressBarGameObjectClone));
                     if (DownloadPopup.userCancelledDownload == true) {
                         yield break;
                     }
                     yield return StartCoroutine(ExtractFile());
                     DeleteZipFile();
-                    yield return StartCoroutine(InitializationBundleToObject());
+                    // yield return StartCoroutine(InitializationBundleToObject());
                     print("CName : " + cardName);
                 }
             }
@@ -591,23 +597,27 @@ public class GameManagerMainMenu : MonoBehaviour
     //     files3D.Add(model);
     // }
 
-    public IEnumerator InitializationBundleToObject() {
-        AssetBundle.UnloadAllAssetBundles(true);
-        string filePathModel = Application.persistentDataPath + "/AssetsBundle/" + cardName + BUNDLETYPEMODEL;
-        string filePathCard = Application.persistentDataPath + "/AssetsBundle/" + cardName + BUNDLETYPECARD;
+    // public IEnumerator InitializationBundleToObject() {
+    //     // AssetBundle.UnloadAllAssetBundles(true);
+    //     string filePathModel = Application.persistentDataPath + "/AssetsBundle/" + cardName + BUNDLETYPEMODEL;
+    //     string filePathCard = Application.persistentDataPath + "/AssetsBundle/" + cardName + BUNDLETYPECARD;
         
-        AssetBundle bundleCard = AssetBundle.LoadFromFile(filePathCard);
-        Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".png");
-        card.name = cardName;
-        yield return card;
-        filesCard.Add(card);
+    //     AssetBundle bundleCard = AssetBundle.LoadFromFile(filePathCard);
+    //     Texture2D card = bundleCard.LoadAsset<Texture2D>(cardName + ".png");
+    //     if (card == null) {
+    //         card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpg");
+    //         if(card == null) {
+    //             card = bundleCard.LoadAsset<Texture2D>(cardName + ".jpeg");
+    //         }
+    //     }
+    //     card.name = cardName;
+    //     yield return card;
 
-        AssetBundle bundleModel = AssetBundle.LoadFromFile(filePathModel);
-        GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
-        model.name = cardName;
-        yield return model;
-        files3D.Add(model);
-    }
+    //     AssetBundle bundleModel = AssetBundle.LoadFromFile(filePathModel);
+    //     GameObject model = bundleModel.LoadAsset<GameObject>(cardName + ".fbx");
+    //     model.name = cardName;
+    //     yield return model;
+    // }
     //==============================================================================================================================//
     
     //Music
@@ -692,12 +702,11 @@ public class GameManagerMainMenu : MonoBehaviour
     public string filePath;
     // private GameManagerMainMenu gameManagerMainMenu;
     UnityWebRequest www;
-    public IEnumerator DownloadFile(string URLWithoutCardId, string fileName, string cardId, string extention, string savePath) {
+    public IEnumerator DownloadFile(string URLWithoutCardId, string fileName, string cardId, string extention, string savePath, GameObject progressBarGameObjectClone) {
         yield return null;
-        
-        progressBarGameObjectClone =  Instantiate(progressBarGameObject);
+        // progressBarGameObjectClone =  Instantiate(progressBarGameObject);
         Image progressBarFilled;
-        
+
         progressBarFilled = progressBarGameObjectClone.transform.GetChild(0).GetChild(1).GetChild(1).GetComponent<UnityEngine.UI.Image>();
 
         downloadFileURL = URLWithoutCardId + cardId;
@@ -710,7 +719,7 @@ public class GameManagerMainMenu : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
 
             www.SendWebRequest();
-            progressBarGameObjectClone.gameObject.SetActive(true);
+            // progressBarGameObjectClone.gameObject.SetActive(true);
 
             while(!www.isDone) {
                 if (DownloadPopup.userCancelledDownload) {
@@ -739,7 +748,7 @@ public class GameManagerMainMenu : MonoBehaviour
                 }
 
             }
-            progressBarGameObjectClone.gameObject.SetActive(false);
+            // progressBarGameObjectClone.gameObject.SetActive(false);
         }
     }
     //==============================================================================================================================//

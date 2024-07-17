@@ -9,14 +9,18 @@ public class GamesScript : MonoBehaviour
     private void Start() {
         gameManagerMainMenu = GameObject.Find("GameManager").GetComponent<GameManagerMainMenu>();
     }
-    public void StartQuiz() {
+
+    public void StartGame() => StartCoroutine(Game());
+    public IEnumerator Game() {
         // gameManagerMainMenu.loadingUI.Prepare();
         TextMeshProUGUI tokenGobj = transform.GetChild(1).GetComponent<TextMeshProUGUI>();
         PlayerPrefs.SetString("tokenSelected", tokenGobj.text);
         gameManagerMainMenu.progressBarGameObject = Resources.Load<GameObject>("DownloadPopup");
         gameManagerMainMenu.progressBarGameObjectClone = Instantiate(gameManagerMainMenu.progressBarGameObject);
         gameManagerMainMenu.url = "https://dev.unimasoft.id/edugator/api/getDataGame/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetString("tokenSelected");
-        StartCoroutine(gameManagerMainMenu.StartQuiz());
+        yield return StartCoroutine(gameManagerMainMenu.StartQuiz());
+        GameObject gamesUI = GameObject.Find("Games UI");
+        gamesUI.SetActive(false);
     }
     
     //Animation

@@ -13,7 +13,7 @@ public class LoginScript : MonoBehaviour
     public Users users;
     public AllGamesJson allGames;
     private GameObject progressBarGameObject;
-    private GameObject progressBarGameObjectClone;
+    [SerializeField] private GameObject progressBarGameObjectClone;
     [SerializeField] private GameObject cardHistory;
     [SerializeField] private GameObject gameHistory;
     [SerializeField] private TMP_InputField username;
@@ -24,7 +24,7 @@ public class LoginScript : MonoBehaviour
     [SerializeField] private TMP_Text email2;
     [SerializeField] private GameObject guesUI;
     [SerializeField] private GameManagerMainMenu gameManagerMainMenu;
-    LoadingUI loadingUI;
+    public LoadingUI loadingUI;
     public GameObject loginFailed;
     public List<string> gameNameList = new List<string>();
     public List<string> gameTokenList = new List<string>();
@@ -41,8 +41,8 @@ public class LoginScript : MonoBehaviour
     }
     private void Start(){
         loadingUI = gameManagerMainMenu.loadingUI;
-        progressBarGameObjectClone =  Instantiate(progressBarGameObject);
-        // loadingUI.Prepare();
+        progressBarGameObjectClone = Instantiate(gameManagerMainMenu.progressBarGameObject);
+        loadingUI.Prepare();
     }
     public void loginBtn() => StartCoroutine(Login_Coroutine());
     private IEnumerator Login_Coroutine() {
@@ -136,7 +136,7 @@ public class LoginScript : MonoBehaviour
                         // Download Assets
                         loadingUI.Hide();
 
-                        // progressBarGameObjectClone.SetActive(true);
+                        progressBarGameObjectClone.SetActive(true);
                         string urlDownloadCardImage = "https://dev.unimasoft.id/edugator/api/downloadBundle/a49fdc824fe7c4ac29ed8c7b460d7338/";
                         string path = Application.persistentDataPath + "/AssetsBundle/";
                         yield return StartCoroutine(DownloadFileLogic(urlDownloadCardImage, path, ".zip"));
@@ -150,6 +150,7 @@ public class LoginScript : MonoBehaviour
                                 sprites.Add(TextureToSprite(textureCard, textureCard.name));
                             }
                         }
+                        progressBarGameObjectClone.SetActive(false);
                     }
                 }
             }
@@ -174,7 +175,7 @@ public class LoginScript : MonoBehaviour
             for(int i = 0; i < cardIdList.Count; i++) {
                 cardName = PlayerPrefs.GetString("cardName" + i);
                 cardId = PlayerPrefs.GetString("cardId" + i);
-                yield return StartCoroutine(gameManagerMainMenu.DownloadFile(URLWithoutCardId, cardName, cardId, extention, savePath));
+                yield return StartCoroutine(gameManagerMainMenu.DownloadFile(URLWithoutCardId, cardName, cardId, extention, savePath, progressBarGameObjectClone));
                 if (DownloadPopup.userCancelledDownload == true) {
                     yield break;
                 }
@@ -201,7 +202,7 @@ public class LoginScript : MonoBehaviour
                 }
                 else {
                     // loadingUI.Show("Download Assets...");
-                    yield return StartCoroutine(gameManagerMainMenu.DownloadFile(URLWithoutCardId, cardName, cardId, extention, savePath));
+                    yield return StartCoroutine(gameManagerMainMenu.DownloadFile(URLWithoutCardId, cardName, cardId, extention, savePath, progressBarGameObjectClone));
                     if (DownloadPopup.userCancelledDownload == true) {
                         yield break;
                     }
