@@ -4158,6 +4158,7 @@ MonoBehaviour:
   allGames:
     success: 0
     data: []
+  progressBarGameObjectClone: {fileID: 0}
   cardHistory: {fileID: 0}
   gameHistory: {fileID: 0}
   username: {fileID: 349639735}
@@ -4168,6 +4169,7 @@ MonoBehaviour:
   email2: {fileID: 1062402997}
   guesUI: {fileID: 1856470205}
   gameManagerMainMenu: {fileID: 8640912027865375450}
+  loadingUI: {fileID: 0}
   loginFailed: {fileID: 80481940}
   gameNameList: []
   gameTokenList: []
@@ -10455,7 +10457,7 @@ GameObject:
   - component: {fileID: 1536952343}
   - component: {fileID: 1536952342}
   m_Layer: 5
-  m_Name: Score Button
+  m_Name: ScoreHistory Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17241,9 +17243,10 @@ MonoBehaviour:
   panelToken: {fileID: 1656744905}
   guestUI: {fileID: 1856470205}
   userUI: {fileID: 1371963220}
-  loadingUI: {fileID: 0}
   progressBarGameObject: {fileID: 0}
   progressBarGameObjectClone: {fileID: 0}
+  scoreHistoryBtn: {fileID: 1536952340}
+  loadingUI: {fileID: 0}
   name1: {fileID: 1811285461}
   email1: {fileID: 1150927304}
   name2: {fileID: 1812859833}
@@ -17278,6 +17281,7 @@ MonoBehaviour:
   allGames:
     success: 0
     data: []
+  progressBarGameObjectClone: {fileID: 0}
   cardHistory: {fileID: 0}
   gameHistory: {fileID: 0}
   username: {fileID: 349639735}
@@ -17288,6 +17292,7 @@ MonoBehaviour:
   email2: {fileID: 1062402997}
   guesUI: {fileID: 1856470205}
   gameManagerMainMenu: {fileID: 8640912027865375450}
+  loadingUI: {fileID: 0}
   loginFailed: {fileID: 80481940}
   gameNameList: []
   gameTokenList: []

@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
 using TMPro;
 using UnityEngine.Networking;
 using Loading.UI;
@@ -63,7 +61,7 @@ public class LoginScript : MonoBehaviour
                         MainUserInfo();
                         // yield return StartCoroutine(User_Coroutine());
                         loadingUI.Show("Please Wait...");
-                        StartCoroutine(gameManagerMainMenu.LoginSuccess());
+                        yield return StartCoroutine(gameManagerMainMenu.LoginSuccess());
                         gameManagerMainMenu.RefreshUserAccountBtn();
                         guesUI.SetActive(false);
                         gameObject.SetActive(false);

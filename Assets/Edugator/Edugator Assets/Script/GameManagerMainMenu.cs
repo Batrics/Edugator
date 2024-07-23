@@ -9,7 +9,6 @@ using UnityEngine.Audio;
 using Loading.UI;
 using System;
 using UnityEngine.UI;
-using Unity.VisualScripting;
 
 public class GameManagerMainMenu : MonoBehaviour
 {
@@ -37,11 +36,12 @@ public class GameManagerMainMenu : MonoBehaviour
     public GameObject panelToken;
     public GameObject guestUI;
     public GameObject userUI;
+    public GameObject progressBarGameObject;
+    public GameObject progressBarGameObjectClone;
+    public GameObject scoreHistoryBtn;
     
     [Space]
     public LoadingUI loadingUI;
-    public GameObject progressBarGameObject;
-    public GameObject progressBarGameObjectClone;
     private Button userAccountButton;
     [SerializeField] private TMP_Text name1;
     [SerializeField] private TMP_Text email1;
@@ -98,11 +98,14 @@ public class GameManagerMainMenu : MonoBehaviour
         }
         else {
             loadingUI.Hide();
+            scoreHistoryBtn.SetActive(false);
         }
         // loadingUI.Hide();
     }
 
     public void Logout() {
+        string jsonString = PlayerPrefs.GetString("HistoryGameId");
+        loadingUI.Show("Please Wait...");
         PlayerPrefs.SetString("Login_State", "failed");
         AssetBundle.UnloadAllAssetBundles(true);
         loginScript.sprites.Clear();
@@ -111,8 +114,14 @@ public class GameManagerMainMenu : MonoBehaviour
         loginScript.gameTokenList.Clear();
         files3D.Clear();
         filesCard.Clear();
+        dataArray.Clear();
+        Wrapper<JsonGameId> wrapper = JsonUtility.FromJson<Wrapper<JsonGameId>>(jsonString);
+        List<JsonGameId> jsonGameIds = wrapper.items;
+        DeleteScoreHistory(jsonGameIds.Count * 2);
         userUI.SetActive(false);
+        scoreHistoryBtn.SetActive(false);
         RefreshUserAccountBtn();
+        loadingUI.Hide();
     }
 
     public void RefreshUserAccountBtn() {
@@ -136,7 +145,8 @@ public class GameManagerMainMenu : MonoBehaviour
     public IEnumerator LoginSuccess() {
         loginScript.MainUserInfo();
         yield return StartCoroutine(loginScript.User_Coroutine());
-        LoadHistory(); 
+        LoadHistory();
+        scoreHistoryBtn.SetActive(true);
         CreateScoreHistory(PlayerPrefs.GetString("finalScore"));
     }
 
@@ -454,6 +464,18 @@ public class GameManagerMainMenu : MonoBehaviour
             }
         }
     }
+    public void DeleteScoreHistory(int maxChildCount) {
+        for(int i = 0; i < maxChildCount; i++) {
+            if(i % 2 == 0) {
+                GameObject mainHistory = HistoryList.GetChild(i).gameObject;
+                Destroy(mainHistory);
+            }
+            else {
+                GameObject cardGame = HistoryList.GetChild(i).gameObject;
+                Destroy(cardGame);
+            }
+        }
+    }
     public void saveHistory() {
         string jsonstring = PlayerPrefs.GetString("HistoryGameId");
         if(jsonstring == "") {
@@ -466,7 +488,6 @@ public class GameManagerMainMenu : MonoBehaviour
         if (jsonGameIds.Count == 0) {
             JsonGameId newGameId = new JsonGameId{gameId = PlayerPrefs.GetInt("game_id")};
             dataArray.Add(newGameId);
-            print(dataArray[0]);
             string toJson = JsonUtility.ToJson(new Wrapper<JsonGameId>{items = dataArray}, true);
             PlayerPrefs.SetString("HistoryGameId",toJson);
 
@@ -511,12 +532,16 @@ public class GameManagerMainMenu : MonoBehaviour
             Wrapper<JsonGameId> wrapper = JsonUtility.FromJson<Wrapper<JsonGameId>>(jsonstring);
             List<JsonGameId> jsonGameIds = wrapper.items;
             foreach(JsonGameId jsonGameId in jsonGameIds) {
-                if(jsonGameId != null){
+                if(!dataArray.Contains(jsonGameId)) {
                     dataArray.Add(jsonGameId);
                 }
+                else {
+                    print("Data Available");
+                }
             }
-        }
 
+        }
+        print("HIISSTORYY : " + PlayerPrefs.GetString("HistoryGameId"));
     }
     //==============================================================================================================================//
 
