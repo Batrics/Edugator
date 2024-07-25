@@ -29,17 +29,16 @@ public class QuizManager : MonoBehaviour
 
     private void Awake() {
         loadingUI.Prepare();
+        PlayerPrefs.SetInt("game_id", 13);
+        PlayerPrefs.SetInt("number_of_card", 41);
     }
-    void Start() {
+    private void Start() {
         indexQuestions = 0;
-        // PlayerPrefs.SetInt("game_id", 13);
-        // PlayerPrefs.SetInt("number_of_card", 41);
         StartCoroutine(GetDataQuestions());
     }
 
     private IEnumerator GetDataQuestions() {
-        url = "https://dev.unimasoft.id/edugator/api/getquestions/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetInt("game_id") + "/" + PlayerPrefs.GetString("number_of_card");
-        
+        url = "https://dev.unimasoft.id/edugator/api/getquestions/a49fdc824fe7c4ac29ed8c7b460d7338/" + PlayerPrefs.GetInt("game_id") + "/" + PlayerPrefs.GetInt("number_of_card");
         yield return StartCoroutine(CalculatingQuestionsFromAPI());
     }
     private IEnumerator NextQuestionsFunc() {

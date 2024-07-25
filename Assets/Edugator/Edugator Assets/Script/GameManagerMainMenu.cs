@@ -54,6 +54,7 @@ public class GameManagerMainMenu : MonoBehaviour
     //==============================================================================================================================//\
     private void Awake() {
         // PlayerPrefs.DeleteKey("HistoryGameId");
+        // PlayerPrefs.DeleteAll();
         // print("Delete All PlayerPref");
         AssetBundle.UnloadAllAssetBundles(true);
         loadingUI = GetComponent<LoadingUI>();
@@ -143,11 +144,17 @@ public class GameManagerMainMenu : MonoBehaviour
         }
     }
     public IEnumerator LoginSuccess() {
-        loginScript.MainUserInfo();
         yield return StartCoroutine(loginScript.User_Coroutine());
-        LoadHistory();
-        scoreHistoryBtn.SetActive(true);
-        CreateScoreHistory(PlayerPrefs.GetString("finalScore"));
+        if(PlayerPrefs.GetString("Login_State") == "failed") {
+            Logout();
+            yield break;
+        }
+        else if (PlayerPrefs.GetString("Login_State") == "success") {
+            LoadHistory();
+            scoreHistoryBtn.SetActive(true);
+            loginScript.MainUserInfo();
+            CreateScoreHistory(PlayerPrefs.GetString("finalScore"));
+        }
     }
 
     public void StartGame() {
@@ -363,8 +370,8 @@ public class GameManagerMainMenu : MonoBehaviour
     public List<JsonGameId> dataArray = new List<JsonGameId>();
     // public List<Sprite> sprites = new List<Sprite>();
     private AllGamesJson allGamesJson;
-    public void CreateScoreHistory(string FinalScore) {
-        int spriteIndex = 0;
+    public void CreateScoreHistory(string finalScore) {
+        // int spriteIndex = 0;
         allGamesJson = JsonUtility.FromJson<AllGamesJson>(PlayerPrefs.GetString("AllGames"));
         if(allGamesJson == null) {
             Debug.Log("Data Json null");
@@ -403,11 +410,13 @@ public class GameManagerMainMenu : MonoBehaviour
                             Image cardImage = ScoreGoClone.transform.GetChild(0).GetComponent<Image>();
                             TMP_Text cardNameGo = ScoreGoClone.transform.GetChild(1).GetComponent<TMP_Text>();
                             TMP_Text cardScoreGo = ScoreGoClone.transform.GetChild(2).GetComponent<TMP_Text>();
-                            print("INDEX : " + j);
-                            cardImage.sprite = loginScript.sprites[spriteIndex];
+                            for(int k = 0; k < loginScript.sprites.Count; k++) {
+                                if(loginScript.sprites[k].name == allGamesJson.data[i].cards[j].name)
+                                    cardImage.sprite = loginScript.sprites[k];
+                            }
                             cardNameGo.text = allGamesJson.data[i].cards[j].name;
-                            cardScoreGo.text = FinalScore;
-                            spriteIndex++;
+                            cardScoreGo.text = finalScore;
+                            // spriteIndex++;
                         }
                         print(scoreBtn.onClick);
                         cardGameClone.SetActive(false); 
@@ -417,7 +426,7 @@ public class GameManagerMainMenu : MonoBehaviour
         }
     }
     //Overload
-    public void CreateScoreHistory(string FinalScore, int _id) {
+    public void CreateScoreHistory(string finalScore, int _id) {
         // sprites = loginScript.sprites;
         allGamesJson = JsonUtility.FromJson<AllGamesJson>(PlayerPrefs.GetString("AllGames"));
         if(allGamesJson == null) {
@@ -454,9 +463,12 @@ public class GameManagerMainMenu : MonoBehaviour
                         Image cardImage = ScoreGoClone.transform.GetChild(0).GetComponent<Image>();
                         TMP_Text cardNameGo = ScoreGoClone.transform.GetChild(1).GetComponent<TMP_Text>();
                         TMP_Text cardScoreGo = ScoreGoClone.transform.GetChild(2).GetComponent<TMP_Text>();
-                        cardImage.sprite = loginScript.sprites[j];
+                        for(int k = 0; k < loginScript.sprites.Count; k++) {
+                            if(loginScript.sprites[k].name == allGamesJson.data[i].cards[j].name)
+                                cardImage.sprite = loginScript.sprites[k];
+                        }
                         cardNameGo.text = allGamesJson.data[i].cards[j].name;
-                        cardScoreGo.text = FinalScore;
+                        cardScoreGo.text = finalScore;
                     }
                     print(scoreBtn.onClick);
                     cardGameClone.SetActive(false);
@@ -467,12 +479,20 @@ public class GameManagerMainMenu : MonoBehaviour
     public void DeleteScoreHistory(int maxChildCount) {
         for(int i = 0; i < maxChildCount; i++) {
             if(i % 2 == 0) {
-                GameObject mainHistory = HistoryList.GetChild(i).gameObject;
-                Destroy(mainHistory);
+                if(maxChildCount == 0){
+                    GameObject mainHistory = HistoryList.GetChild(i).gameObject;
+                    Destroy(mainHistory);
+                }
+                else
+                    break;
             }
             else {
-                GameObject cardGame = HistoryList.GetChild(i).gameObject;
-                Destroy(cardGame);
+                if(maxChildCount == 0) {
+                    GameObject cardGame = HistoryList.GetChild(i).gameObject;
+                    Destroy(cardGame);
+                }
+                else
+                    break;
             }
         }
     }

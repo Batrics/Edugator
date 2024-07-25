@@ -58,11 +58,10 @@ public class LoginScript : MonoBehaviour
                         PlayerPrefs.SetString("password", password.text);
                         PlayerPrefs.SetString("email", users.data[i].email);
                         PlayerPrefs.SetInt("user_id", users.data[i].user_id);
-                        MainUserInfo();
-                        // yield return StartCoroutine(User_Coroutine());
                         loadingUI.Show("Please Wait...");
                         yield return StartCoroutine(gameManagerMainMenu.LoginSuccess());
                         gameManagerMainMenu.RefreshUserAccountBtn();
+                        // MainUserInfo();
                         guesUI.SetActive(false);
                         gameObject.SetActive(false);
                         loadingUI.Hide();
@@ -92,10 +91,10 @@ public class LoginScript : MonoBehaviour
             yield return webData.SendWebRequest();
 
             if(webData.result == UnityWebRequest.Result.ConnectionError || webData.result == UnityWebRequest.Result.ProtocolError) {
-                // loadingUI.Hide();
+                loadingUI.Hide();
                 StartCoroutine(gameManagerMainMenu.NoConnection());
+                PlayerPrefs.SetString("Login_State", "failed");
                 Debug.Log("tidak ada Koneksi/Jaringan"); 
-                
             }
             else {
                 if(webData.isDone) {
@@ -123,8 +122,6 @@ public class LoginScript : MonoBehaviour
                                     PlayerPrefs.SetString("cardName" + numberOfCard, card.name);
                                     PlayerPrefs.SetString("cardId" + numberOfCard, card.id);
                                     cardIdList.Add(card.id);
-                                    print("Card Name" + numberOfCard +  " : " + PlayerPrefs.GetString("cardName" + numberOfCard));
-                                    print("Card Id" + numberOfCard +  " : " + PlayerPrefs.GetString("cardId" + numberOfCard));
 
                                     progressBarGameObjectClone.SetActive(false);
                                     numberOfCard++;
