@@ -4,10 +4,7 @@ using UnityEngine;
 
 public class GamesUIScript : MonoBehaviour
 {
-    GameManagerMainMenu gameManagerMainMenu;
-    private void Start() {
-        gameManagerMainMenu = GameObject.Find("GameManager").GetComponent<GameManagerMainMenu>();
-    }
+    public GameManagerMainMenu gameManagerMainMenu;
     private void OnEnable() {
         gameManagerMainMenu.RefreshHistory();
     }

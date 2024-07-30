@@ -146,7 +146,6 @@ public class HistoryScript : MonoBehaviour
         gameSelected = game;
         PlayerPrefs.SetString("tokenSelected", token);
         print("Game Selected : " + gameSelected);
-
     }
 
     //Animation

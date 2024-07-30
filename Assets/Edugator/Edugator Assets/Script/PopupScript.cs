@@ -5,12 +5,12 @@ using UnityEngine;
 
 public class PopupScript : MonoBehaviour
 {
-    public HistoryScript historyScript;
-    public GameObject historyUI;
+    public GamesScript gamesScript;
+    public GameObject GamesUI;
     // Start is called before the first frame update
     void Start() {
         initializationObject();
-        historyUI = transform.parent.gameObject;
+        GamesUI = transform.parent.parent.gameObject;
         print("token Selectedd : " + PlayerPrefs.GetString("tokenSelected"));
     }
     
@@ -22,9 +22,9 @@ public class PopupScript : MonoBehaviour
             string[] GameArr = allGamesArr[i].Split(",");
 
             if(PlayerPrefs.GetString("tokenSelected") == GameArr[0]) {
-                historyScript = gameObject.transform.parent.GetChild(0).GetChild(4).GetChild(0).GetChild(0).GetChild(i).GetComponent<HistoryScript>();
-                print("HIstory Script : " + historyScript.token);
-                print("inedex : " + i);
+                // gamesScript = gameObject.transform.parent.GetChild(0).GetChild(4).GetChild(0).GetChild(0).GetChild(i).GetComponent<GamesScript>();
+                // print("Games Script : " + gamesScript);
+                // print("inedex : " + i);
             }
         }
     }
@@ -50,7 +50,7 @@ public class PopupScript : MonoBehaviour
                 PlayerPrefs.SetString("games", allGames);
 
                 Debug.Log("Arr : " + allGames);
-                historyUI.SetActive(false);
+                GamesUI.SetActive(false);
             }
         }
 

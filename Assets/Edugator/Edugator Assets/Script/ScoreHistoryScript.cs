@@ -69,7 +69,7 @@ public class ScoreHistoryScript : MonoBehaviour
         for(int i = 0; i < history.transform.childCount; i += 2) {
             GameObject mainHistory = history.transform.GetChild(i).gameObject;
             TMP_Text score = mainHistory.transform.GetChild(0).GetChild(3).GetChild(0).GetComponent<TMP_Text>();
-            Image averageScoreGo = mainHistory.transform.GetChild(0).GetChild(2).GetComponent<Image>();
+            Image averageScoreGo = mainHistory.transform.GetChild(0).GetChild(2).GetChild(1).GetComponent<Image>();
             if(dontHaveCardId.Contains(averageScoresIndex)) {
                 print("Dont Have Card");
                 score.text = "0";

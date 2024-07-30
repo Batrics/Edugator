@@ -6,8 +6,11 @@ using UnityEngine;
 public class GamesScript : MonoBehaviour
 {
     GameManagerMainMenu gameManagerMainMenu;
+    GameObject gameSelected;
+    Transform panelGamesUI;
     private void Start() {
         gameManagerMainMenu = GameObject.Find("GameManager").GetComponent<GameManagerMainMenu>();
+        panelGamesUI = GameObject.Find("Panel Games UI").GetComponent<Transform>();
     }
 
     public void StartGame() => StartCoroutine(Game());
@@ -21,6 +24,19 @@ public class GamesScript : MonoBehaviour
         yield return StartCoroutine(gameManagerMainMenu.StartQuiz());
         GameObject gamesUI = GameObject.Find("Games UI");
         gamesUI.SetActive(false);
+    }
+
+    public void SetGame(GameObject game) {
+        gameSelected = game;
+        TextMeshProUGUI gameToken = game.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+        PlayerPrefs.SetString("tokenSelected", gameToken.text);
+        print("Game Selected : " + gameSelected);
+    }
+    public void DeleteGame(GameObject game) {
+        SetGame(game);
+        GameObject popup = Resources.Load<GameObject>("Popup");
+        GameObject popupClone = Instantiate(popup, panelGamesUI);
+        popupClone.SetActive(true);
     }
     
     //Animation
