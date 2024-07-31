@@ -351,6 +351,7 @@ public class GameManagerMainMenu : MonoBehaviour
                 tokenGameText.text = token;
             }
         }
+        
     }
 
     public void AddAccount() {

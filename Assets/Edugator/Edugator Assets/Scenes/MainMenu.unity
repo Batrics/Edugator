@@ -1580,7 +1580,6 @@ GameObject:
   - component: {fileID: 143946706}
   - component: {fileID: 143946709}
   - component: {fileID: 143946710}
-  - component: {fileID: 143946708}
   m_Layer: 5
   m_Name: Table
   m_TagString: Untagged
@@ -1607,18 +1606,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0.000038153, y: 0}
   m_SizeDelta: {x: 530.31, y: 0}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &143946708
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 143946705}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca50431f5e63a8c42b0b1674fb5dac31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &143946709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1636,7 +1623,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 1
+  m_ChildAlignment: 2
   m_Spacing: 10
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
@@ -6071,30 +6058,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 143946708}
-        m_TargetAssemblyTypeName: GameAnimScript, Assembly-CSharp
-        m_MethodName: activateGameObject
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 8640912027865375450}
-        m_TargetAssemblyTypeName: GameManagerMainMenu, Assembly-CSharp
-        m_MethodName: RefreshHistory
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
 --- !u!114 &912706980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7573,6 +7536,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameManagerMainMenu: {fileID: 8640912027865375450}
+  table: {fileID: 143946706}
 --- !u!1 &1077138702
 GameObject:
   m_ObjectHideFlags: 0
@@ -15941,9 +15905,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 8640912027865375450}
-        m_TargetAssemblyTypeName: GameManagerMainMenu, Assembly-CSharp
-        m_MethodName: RefreshHistory
+      - m_Target: {fileID: 1070459897}
+        m_TargetAssemblyTypeName: GamesUIScript, Assembly-CSharp
+        m_MethodName: RefreshGames
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

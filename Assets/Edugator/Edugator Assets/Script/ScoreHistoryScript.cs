@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 
 public class ScoreHistoryScript : MonoBehaviour
@@ -18,7 +19,12 @@ public class ScoreHistoryScript : MonoBehaviour
         cardImages = loginScript.sprites;
     }
     private void OnEnable() {
+        cardImages.Clear();
+        cardNames.Clear();
+        scoreGos.Clear();
         UpdateDataHistory();
+    }
+    private void OnDisable() {
     }
     private void UpdateDataHistory() {
         GameObject history = gameObject.transform.GetChild(0).GetChild(2).GetChild(0).GetChild(0).gameObject;

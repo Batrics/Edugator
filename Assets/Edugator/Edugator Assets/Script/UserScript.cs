@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class UserScript : MonoBehaviour
 {
-    private Users users;
     // [SerializeField] private GameObject cardHistory;
     // [SerializeField] private GameObject gameHistory;
     [SerializeField] private ScrollRect scrollRect;

@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Fire Fighter
+  m_text: Fire Fighter 2
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 711b5cc04816ac64b9a36ad2e9a89316, type: 2}
   m_sharedMaterial: {fileID: 1473491133843746480, guid: 711b5cc04816ac64b9a36ad2e9a89316, type: 2}
@@ -148,7 +148,6 @@ GameObject:
   - component: {fileID: 8090655252708192784}
   - component: {fileID: 9002547067798430436}
   - component: {fileID: 2275821606595618593}
-  - component: {fileID: 496739891701288822}
   m_Layer: 5
   m_Name: Game
   m_TagString: game
@@ -305,18 +304,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68e5e4c3095ffb04082da00265f7d9bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &496739891701288822
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1744629180882343963}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca50431f5e63a8c42b0b1674fb5dac31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &3058554016784290231
 GameObject:
   m_ObjectHideFlags: 0
@@ -382,7 +369,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: fe0e50396723b6dbe04c21afff6349c7
+  m_text: b791cbf04006c46312c3198b9284330c
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 338ca9da381061a4d99cdd0d46d79d7e, type: 2}
   m_sharedMaterial: {fileID: 3462021983268364751, guid: 338ca9da381061a4d99cdd0d46d79d7e, type: 2}
@@ -409,7 +396,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 22
+  m_fontSize: 21.35
   m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 1
